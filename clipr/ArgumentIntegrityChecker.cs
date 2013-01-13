@@ -24,7 +24,7 @@ namespace clipr
         /// <typeparam name="T">
         /// Perform integrity check on this type.
         /// </typeparam>
-        public static void EnsureAttributeIntegrity<T>()
+        internal static void EnsureAttributeIntegrity<T>()
         {
             var integrityExceptions = new List<Exception>();
 

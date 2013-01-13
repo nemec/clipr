@@ -19,28 +19,28 @@ namespace clipr
             return null;
         }
 
-        public static bool IsValidIList(this PropertyInfo prop)
+        internal static bool IsValidIList(this PropertyInfo prop)
         {
             return prop.PropertyType.GetInterfaces().Any(
                 t => t.IsGenericType &&
                      t.GetGenericTypeDefinition() == typeof (IList<>));
         }
 
-        public static bool IsValid<T>(this PropertyInfo prop)
+        internal static bool IsValid<T>(this PropertyInfo prop)
         {
             return prop.PropertyType == typeof(T) ||
                 TypeDescriptor.GetConverter(prop.PropertyType)
                 .CanConvertTo(typeof(T));
         }
 
-        public static bool ValueIsConvertible(this PropertyInfo prop, object obj)
+        internal static bool ValueIsConvertible(this PropertyInfo prop, object obj)
         {
             return obj == null || prop.PropertyType == obj.GetType() ||
                 TypeDescriptor.GetConverter(prop.PropertyType)
                           .IsValid(obj);
         }
 
-        public static bool ValueIsConvertibleGeneric(this PropertyInfo prop, object obj)
+        internal static bool ValueIsConvertibleGeneric(this PropertyInfo prop, object obj)
         {
             return obj == null ||
                 prop.PropertyType.GenericTypeArguments.First() == obj.GetType() ||

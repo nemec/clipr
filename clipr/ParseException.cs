@@ -10,13 +10,13 @@ namespace clipr
         /// <summary>
         /// The parse token, if any, that caused the error.
         /// </summary>
-        public string Token { get; private set; }
+        internal string Token { get; private set; }
 
         /// <summary>
         /// Create a new ParseException for a token.
         /// </summary>
         /// <param name="token"></param>
-        public ParseException(char token)
+        internal ParseException(char token)
             : this(token.ToString())
         {
         }
@@ -26,7 +26,7 @@ namespace clipr
         /// </summary>
         /// <param name="token"></param>
         /// <param name="message"></param>
-        public ParseException(char token, string message)
+        internal ParseException(char token, string message)
             : this(token.ToString(), message)
         {
         }
@@ -38,7 +38,7 @@ namespace clipr
         /// <param name="token"></param>
         /// <param name="message"></param>
         /// <param name="innerException"></param>
-        public ParseException(char token, string message, Exception innerException)
+        internal ParseException(char token, string message, Exception innerException)
             : this(token.ToString(), message, innerException)
         {
         }
@@ -47,7 +47,7 @@ namespace clipr
         /// Create a new ParseException for a token.
         /// </summary>
         /// <param name="token"></param>
-        public ParseException(string token)
+        internal ParseException(string token)
         {
             Token = token;
         }
@@ -57,7 +57,7 @@ namespace clipr
         /// </summary>
         /// <param name="token"></param>
         /// <param name="message"></param>
-        public ParseException(string token, string message)
+        internal ParseException(string token, string message)
             : base(message)
         {
             Token = token;
@@ -70,7 +70,7 @@ namespace clipr
         /// <param name="token"></param>
         /// <param name="message"></param>
         /// <param name="innerException"></param>
-        public ParseException(string token, string message, Exception innerException)
+        internal ParseException(string token, string message, Exception innerException)
             : base(message, innerException)
         {
             Token = token;

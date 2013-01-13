@@ -9,7 +9,7 @@
         /// Multiple arguments with the same name have been defined.
         /// </summary>
         /// <param name="argumentName">Name of the duplicate argument.</param>
-        public DuplicateArgumentException(string argumentName)
+        internal DuplicateArgumentException(string argumentName)
             : base("Duplicate argument: " + argumentName)
         {
         }

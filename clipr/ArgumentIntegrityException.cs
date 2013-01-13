@@ -13,7 +13,7 @@ namespace clipr
         /// <see cref="ArgumentIntegrityException"/> class.
         /// </summary>
         /// <param name="message">Description of the exception.</param>
-        public ArgumentIntegrityException(string message)
+        internal ArgumentIntegrityException(string message)
             : base(message)
         {
         }
@@ -24,7 +24,7 @@ namespace clipr
         /// </summary>
         /// <param name="message">Description of the exception.</param>
         /// <param name="innerException">Exception being wrapped.</param>
-        public ArgumentIntegrityException(string message, Exception innerException)
+        internal ArgumentIntegrityException(string message, Exception innerException)
             : base(message, innerException)
         {
         }
