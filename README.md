@@ -59,6 +59,39 @@ but powerful example of the objects this library enables you to build:
         // >>> 9
     }
 
+##CliParser vs. CliParser<>
+
+If you don't need any special options or custom help generators,
+the static CliParser class is the easiest way to initialize the
+parser. Behind the scenes it will create the parser and begin parsing
+the arguments passed in. If the destination type has a parameterless
+construtor, you don't even need to set up the object first! It can `new()`
+up an object for you and spit it out after parsing is complete, ready to
+be used.
+
+##Parse vs. ParseStrict
+
+There are two ways to parse a list of arguments. The former, `Parse()`, will
+attempt to parse the input arguments and throw a ParseException if something
+went wrong while parsing or a ParserExit exception if the help or version
+information were triggered and printed to the console. If successful argument
+parsing isn't required to run your application, this is probably the correct
+method to use.
+
+The `ParseStrict()` method was made for a very specific use case -- most
+applications that parse arguments, when they encounter an invalid argument
+or some other error, will print help / usage information and immediately
+quit, letting the user correct her mistakes and rerun the program. In that
+spirit, the `ParseStrict()` method will not throw any exceptions
+(if you see one, report it on the Github page). Instead, it will print the
+error message and the one-line usage documentation, then terminate using
+`Environment.Exit`. Note that your program **will not have the opportunity
+to clean up** when that happens. If you've allocated any resouces or left
+some important files in a half-written state, unpredictible things may happen.
+Of course, parsing arguments is usually the first thing you do in `Main` so
+it's not usually going to be an issue, but `Environment.Exit` is not the
+cleanest form of flow control so I feel it deserves a mention.
+
 #Integrity Checking
 
 One of the most important non-functional features of a

@@ -88,6 +88,13 @@ namespace clipr
         /// Parse the given argument list and return a new object
         /// containing the converted arguments.
         /// </summary>
+        /// <exception cref="ParseException">
+        /// An error happened while parsing.
+        /// </exception>
+        /// <exception cref="ParserExit">
+        /// Either the help or version information were triggered so
+        /// parsing was aborted.
+        /// </exception>
         /// <param name="args">Argument list to parse.</param>
         /// <returns>
         /// A new object containing values parsed from the argument list.
@@ -102,6 +109,13 @@ namespace clipr
         /// <summary>
         /// Parse the given argument list.
         /// </summary>
+        /// <exception cref="ParseException">
+        /// An error happened while parsing.
+        /// </exception>
+        /// <exception cref="ParserExit">
+        /// Either the help or version information were triggered so
+        /// parsing was aborted.
+        /// </exception>
         /// <param name="obj">Parsed arguments will be store here.</param>
         /// <param name="args">Argument list to parse.</param>
         public static void Parse<TS>(TS obj, string[] args) where TS : class
@@ -523,7 +537,9 @@ namespace clipr
         /// <summary>
         /// Parse the given argument list.
         /// </summary>
-        /// <exception cref="ParseException"></exception>
+        /// <exception cref="ParseException">
+        /// An error happened while parsing.
+        /// </exception>
         /// <exception cref="ParserExit">
         /// Either the help or version information were triggered so
         /// parsing was aborted.
