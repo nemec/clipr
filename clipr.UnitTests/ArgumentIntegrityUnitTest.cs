@@ -261,6 +261,74 @@ namespace clipr.UnitTests
 
         #endregion
 
+        #region Help short name validity.
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentIntegrityException))]
+        public void Help_WithInvalidShortName_ThrowsException()
+        {
+            var help = new Usage.AutomaticHelpGenerator<object>();
+            help.ShortName = '.';
+
+            new CliParser<object>(new object(), help);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentIntegrityException))]
+        public void Help_WithInvalidShortNameAsDigit_ThrowsException()
+        {
+            var help = new Usage.AutomaticHelpGenerator<object>();
+            help.ShortName = '1';
+
+            new CliParser<object>(new object(), help);
+        }
+
+        #endregion
+
+        #region Help long name validity.
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentIntegrityException))]
+        public void Help_WithInvalidLongName_ThrowsException()
+        {
+            var help = new Usage.AutomaticHelpGenerator<object>();
+            help.LongName = "no.thing";
+
+            new CliParser<object>(new object(), help);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentIntegrityException))]
+        public void Help_WithInvalidLongNameLength_ThrowsException()
+        {
+            var help = new Usage.AutomaticHelpGenerator<object>();
+            help.LongName = "n";
+
+            new CliParser<object>(new object(), help);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentIntegrityException))]
+        public void Help_WithInvalidLongNameEndingWithDash_ThrowsException()
+        {
+            var help = new Usage.AutomaticHelpGenerator<object>();
+            help.LongName = "none-";
+
+            new CliParser<object>(new object(), help);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentIntegrityException))]
+        public void Help_WithInvalidLongNameBeginningWithDigit_ThrowsException()
+        {
+            var help = new Usage.AutomaticHelpGenerator<object>();
+            help.LongName = "1none";
+
+            new CliParser<object>(new object(), help);
+        }
+
+        #endregion
+
         #region Version short name validity.
 
         [TestMethod]

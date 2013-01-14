@@ -1,6 +1,8 @@
 clipr: A Command Line Interface ParseR for .Net
 ===============================================
 
+Created by [Dan Nemec](http://github.com/nemec)
+
 This command line parser library is very much inspired by the
 [argparse](http://docs.python.org/2/library/argparse.html) library
 for Python. It's one of the easiest parser libraries I've used while
@@ -133,6 +135,15 @@ the minimum or maximum number consumed. Since positional arguments are not
 separated in any discernable way only the *last* positional argument,
 by Index, may use the constraints AtLease or AtMost. All previous positional
 arguments must consume an exact number of values.
+
+##Post-Parse Triggers
+
+Using the PostParseAttribute you can mark parameterless methods to be
+automatically run once parsing is completed. At present, this is not a
+terribly useful feature but in the future these command classes will be
+able to be nested as sub-commands (think `svn checkout`). Each sub-command
+will then be able to trigger a different feature depending on which
+sub-command was provided.
 
 ##Generated Help and Version Information
 
