@@ -5,8 +5,8 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("clipr")]
-[assembly: AssemblyDescription("")]
+[assembly: AssemblyTitle("clipr Command Line Interface ParseR")]
+[assembly: AssemblyDescription("Simple command line argument parser with automated help generator.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Dan Nemec")]
 [assembly: AssemblyProduct("clipr")]

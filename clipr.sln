@@ -7,6 +7,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "clipr.Sample", "clipr.Sampl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "clipr.UnitTests", "clipr.UnitTests\clipr.UnitTests.csproj", "{8D16FF01-C8B5-47BB-951C-931DD217736A}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{441776CA-10A6-468F-A91A-BAC8C33F8B30}"
+	ProjectSection(SolutionItems) = preProject
+		clipr\clipr.nuspec = clipr\clipr.nuspec
+		README.md = README.md
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
