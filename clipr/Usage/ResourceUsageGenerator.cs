@@ -5,7 +5,7 @@ namespace clipr.Usage
     /// <summary>
     /// Generate usage information from localizable resource files.
     /// </summary>
-    public class ResourceUsageGenerator : IUsageGenerator
+    public class ResourceUsageGenerator : IHelpGenerator
     {
         public char? ShortName { get; set; }
 
@@ -24,6 +24,12 @@ namespace clipr.Usage
         }
 
         public string GetUsage()
+        {
+            throw new NotImplementedException();
+        }
+
+
+        public string GetHelp()
         {
             throw new NotImplementedException();
         }

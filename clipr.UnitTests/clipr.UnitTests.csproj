@@ -55,11 +55,11 @@
     <Compile Include="PositionalArgumentUnitTest.cs" />
     <Compile Include="ParseActionUnitTest.cs" />
     <Compile Include="ArgumentIntegrityUnitTest.cs" />
-    <Compile Include="DefaultUsageGeneratorUnitTest.cs" />
     <Compile Include="CliParserUnitTest.cs" />
     <Compile Include="ResourceUsageGeneratorUnitTest.cs" />
     <Compile Include="SubCommandUnitTest.cs" />
     <Compile Include="PostParseUnitTest.cs" />
+    <Compile Include="StringExtensionsUnitTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\clipr\clipr.csproj">

@@ -18,7 +18,7 @@ namespace clipr.Usage
         /// </summary>
         public ExecutingAssemblyVersion()
         {
-            var assembly = Assembly.GetExecutingAssembly();
+            var assembly = Assembly.GetEntryAssembly() ?? Assembly.GetExecutingAssembly();
             _version = AssemblyName.GetAssemblyName(assembly.Location).Version.ToString();
 
             ShortName = null;

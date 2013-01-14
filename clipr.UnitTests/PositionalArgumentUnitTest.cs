@@ -197,5 +197,29 @@ namespace clipr.UnitTests
         }
 
         #endregion
+
+        #region One positional argument with multiple values and another with variable values.
+
+        internal class PositionalMultipleValues
+        {
+            [PositionalArgument(0, NumArgs = 3)]
+            public List<int> Votes { get; set; }
+
+            [PositionalArgument(1, Constraint = NumArgsConstraint.AtLeast)]
+            public List<string> Names { get; set; } 
+        }
+
+        [TestMethod]
+        public void PositionalArguments_WithFirstArgumentHavingMultipleValues_ParsesCorrectly()
+        {
+            var expectedVotes = new List<int> {10, 6, 8};
+            var expectedNames = new List<string> {"Nancy", "Rick", "Tim"};
+            var opt = CliParser.Parse<PositionalMultipleValues>(
+                "10 6 8 Nancy Rick Tim".Split());
+            CollectionAssert.AreEqual(expectedVotes, opt.Votes);
+            CollectionAssert.AreEqual(expectedNames, opt.Names);
+        }
+
+        #endregion
     }
 }

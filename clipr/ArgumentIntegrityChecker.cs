@@ -102,7 +102,7 @@ namespace clipr
         private static Exception VarArgsConvertibleToIListCheck(
             PropertyInfo prop, ArgumentAttribute attr)
         {
-            if (attr.HasVariableNumArgs && !prop.IsValidIList())
+            if (attr.ConsumesMultipleArgs && !prop.IsValidIList())
             {
                 return new ArgumentIntegrityException(
                     "Arguments with a variable number of values or " +
@@ -293,7 +293,7 @@ namespace clipr
                     return new ArgumentIntegrityException(
                         String.Format("Positional argument {0} is not the " +
                             "last positional argument so it must take " +
-                            "exactly one value.", prop.Name));
+                            "a constant number of values.", prop.Name));
                 }
             }
             return null;

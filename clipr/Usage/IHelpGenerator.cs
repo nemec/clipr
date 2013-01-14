@@ -3,7 +3,7 @@
     /// <summary>
     /// Generates help documentation for a parser.
     /// </summary>
-    public interface IUsageGenerator
+    public interface IHelpGenerator
     {
         /// <summary>
         /// Short argument for triggering the help
@@ -24,9 +24,16 @@
         IVersion Version { get; set; }
 
         /// <summary>
-        /// Build help information.
+        /// Build a short string displaying the order and number of 
+        /// optional and required parameters.
         /// </summary>
-        /// <returns>A string containing generated help information.</returns>
+        /// <returns></returns>
         string GetUsage();
+
+        /// <summary>
+        /// Build a complete description of valid options.
+        /// </summary>
+        /// <returns></returns>
+        string GetHelp();
     }
 }

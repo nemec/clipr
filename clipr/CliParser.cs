@@ -58,31 +58,30 @@ namespace clipr
         /// <param name="args">Argument list to parse.</param>
         public static void ParseStrict<TS>(TS obj, string[] args) where TS : class
         {
+            CliParser<TS> parser = null;
             try
             {
-                var parser = new CliParser<TS>(obj);
-                parser.ParseStrict(args);
-                return;
+                parser = new CliParser<TS>(obj);
             }
             catch (ArgumentIntegrityException e)
             {
-                Console.Error.WriteLine(e);
+                Console.Error.WriteLine(e.Message);
+                Console.Error.WriteLine(
+                    new AutomaticHelpGenerator<TS>().GetUsage());
+                Environment.Exit(2);
             }
             catch (AggregateException ex)
             {
+                Console.Error.WriteLine(
+                    new AutomaticHelpGenerator<TS>().GetUsage());
                 ex.Handle(e =>
-                    {
-                        Console.Error.WriteLine(e);
-                        return true;
-                    });
+                {
+                    Console.Error.WriteLine(e.Message);
+                    return true;
+                });
+                Environment.Exit(2);
             }
-            catch (ParserExit e)
-            {
-                Environment.Exit(e.ExitCode);
-            }
-            var usage = new DefaultUsageGenerator<TS>();
-            Console.Error.WriteLine(usage.GetUsage());
-            Environment.Exit(CliParser<TS>.ErrorExitCode);
+            parser.ParseStrict(args);
         }
 
         /// <summary>
@@ -173,7 +172,7 @@ namespace clipr
 
         private HashSet<string> ParsedMutuallyExclusiveGroups { get; set; }
 
-        private IUsageGenerator UsageGenerator { get; set; }
+        private IHelpGenerator UsageGenerator { get; set; }
 
         private T Object { get; set; }
 
@@ -198,7 +197,7 @@ namespace clipr
         /// </exception>
         /// <param name="obj">Store parsed values in this object.</param>
         public CliParser(T obj)
-            : this(obj, ParserOptions.None, new DefaultUsageGenerator<T>())
+            : this(obj, ParserOptions.None, new AutomaticHelpGenerator<T>())
         {
         }
 
@@ -221,7 +220,7 @@ namespace clipr
         /// <param name="obj">Store parsed values in this object.</param>
         /// <param name="options">Extra options for the parser.</param>
         public CliParser(T obj, ParserOptions options)
-            : this(obj, options, new DefaultUsageGenerator<T>())
+            : this(obj, options, new AutomaticHelpGenerator<T>())
         {
         }
 
@@ -244,7 +243,7 @@ namespace clipr
         /// <param name="usageGenerator">
         /// Generates help documentation for this parser.
         /// </param>
-        public CliParser(T obj, IUsageGenerator usageGenerator)
+        public CliParser(T obj, IHelpGenerator usageGenerator)
             : this(obj, ParserOptions.None, usageGenerator)
         {
         }
@@ -270,7 +269,7 @@ namespace clipr
         /// <param name="usageGenerator">
         /// Generates help documentation for this parser.
         /// </param>
-        public CliParser(T obj, ParserOptions options, IUsageGenerator usageGenerator)
+        public CliParser(T obj, ParserOptions options, IHelpGenerator usageGenerator)
         {
             if (obj == null)
             {
@@ -429,22 +428,22 @@ namespace clipr
         #region Print Usage and Version
 
         /// <summary>
-        /// Print usage information to <see cref="Console.Error"/>.
+        /// Print help information to <see cref="Console.Error"/>.
         /// </summary>
-        public void PrintUsage()
+        public void PrintHelp()
         {
-            PrintUsage(Console.Error);
+            PrintHelp(Console.Error);
         }
 
         /// <summary>
-        /// Print usage information to a <see cref="TextWriter"/>.
+        /// Print help information to a <see cref="TextWriter"/>.
         /// </summary>
         /// <param name="stream">Destination for usage text.</param>
-        public void PrintUsage(TextWriter stream)
+        public void PrintHelp(TextWriter stream)
         {
             if (UsageGenerator != null)
             {
-                stream.WriteLine(UsageGenerator.GetUsage());
+                stream.WriteLine(UsageGenerator.GetHelp());
             }
         }
 
@@ -487,22 +486,37 @@ namespace clipr
         /// </summary>
         /// <param name="args">Argument list to parse.</param>
         /// <returns>The object parsed from the argument list.</returns>
-        public T ParseStrict(string[] args)
+        public void ParseStrict(string[] args)
         {
             try
             {
-                return Parse(args);
+                Parse(args);
+                return;
             }
             catch (ParseException e)
             {
-                Console.Error.WriteLine(e);
-                PrintUsage();
-                Environment.Exit(ErrorExitCode);
+                Console.Error.WriteLine(UsageGenerator.GetUsage());
+                Console.Error.WriteLine(e.Message);
+            }
+            catch (ArgumentIntegrityException e)
+            {
+                Console.Error.WriteLine(UsageGenerator.GetUsage());
+                Console.Error.WriteLine(e.Message);
+            }
+            catch (AggregateException ex)
+            {
+                Console.Error.WriteLine(UsageGenerator.GetUsage());
+                ex.Handle(e =>
+                {
+                    Console.Error.WriteLine(e.Message);
+                    return true;
+                });
             }
             catch (ParserExit e)
             {
                 Environment.Exit(e.ExitCode);
             }
+            Environment.Exit(ErrorExitCode);
             throw new InvalidOperationException();
         }
 
@@ -515,8 +529,7 @@ namespace clipr
         /// parsing was aborted.
         /// </exception>
         /// <param name="args">Argument list to parse.</param>
-        /// <returns>The object parsed from the argument list.</returns>
-        public T Parse(string[] args)
+        public void Parse(string[] args)
         {
             ParsedMutuallyExclusiveGroups = new HashSet<string>();
             var positionalDelimiter = "" + ArgumentPrefix + ArgumentPrefix;
@@ -637,8 +650,6 @@ namespace clipr
             {
                 method.Invoke(Object, null);
             }
-
-            return Object;
         }
 
         #endregion
@@ -649,14 +660,15 @@ namespace clipr
         {
             if (UsageGenerator != null && name == UsageGenerator.ShortName)
             {
-                PrintUsage();
+                PrintHelp();
                 throw new ParserExit();
             }
 
             PropertyInfo prop;
             if (!ShortNameArguments.TryGetValue(name, out prop))
             {
-                throw new ParseException(name, "Unknown argument name.");
+                throw new ParseException(name, String.Format(
+                    "Unknown argument name '{0}'.", name));
             }
             var attr = prop.GetCustomAttribute<NamedArgumentAttribute>();
             var mutexGroup = prop.GetCustomAttributes<MutuallyExclusiveGroupAttribute>();
@@ -682,7 +694,7 @@ namespace clipr
         {
             if (UsageGenerator != null && UsageGenerator.LongName == name)
             {
-                PrintUsage();
+                PrintHelp();
                 throw new ParserExit();
             }
             if (UsageGenerator != null && UsageGenerator.Version != null &&
@@ -695,7 +707,8 @@ namespace clipr
             PropertyInfo prop;
             if (!LongNameArguments.TryGetValue(name, out prop))
             {
-                throw new ParseException(name, "Unknown argument name.");
+                throw new ParseException(name, String.Format(
+                    "Unknown argument name '{0}'.", name));
             }
 
             var mutexGroup = prop.GetCustomAttributes<MutuallyExclusiveGroupAttribute>();
@@ -735,7 +748,7 @@ namespace clipr
             switch (attr.Action)
             {
                 case ParseAction.Store:
-                    if (!attr.HasVariableNumArgs)
+                    if (!attr.ConsumesMultipleArgs)
                     {
                         if (args.Count == 0)
                         {
@@ -787,7 +800,7 @@ namespace clipr
                 case ParseAction.Append:
                     var appValues = (IList)prop.GetValue(Object) ??
                         (IList)Activator.CreateInstance(prop.PropertyType);
-                    if (!attr.HasVariableNumArgs)
+                    if (!attr.ConsumesMultipleArgs)
                     {
                         if (args.Count == 0)
                         {
@@ -876,8 +889,8 @@ namespace clipr
             if (argsProcessed < minArgs)
             {
                 throw new ParseException(attrName, String.Format(
-                    "Parameter {0} requires {1} {2} values.",
-                    prop.Name,
+                    "Parameter {0} requires {1} {2} value(s).",
+                    attr.MetaVar ?? prop.Name,
                     attr.Constraint == NumArgsConstraint.Exactly ?
                         "exactly" : "at least",
                     minArgs));

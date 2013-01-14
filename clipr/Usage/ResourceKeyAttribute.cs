@@ -3,7 +3,7 @@
 namespace clipr.Usage
 {
     [AttributeUsage(AttributeTargets.Property)]
-    class ResourceKeyAttribute : Attribute
+    internal class ResourceKeyAttribute : Attribute
     {
         public string Key { get; private set; }
 

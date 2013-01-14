@@ -33,13 +33,12 @@ namespace clipr
         /// <summary>
         /// Defines an alternate character to be used as a placeholder
         /// for the argument value in usage documentation. By default,
-        /// the alternate character is generated from the parameter
-        /// itself.
+        /// the alternate name is generated from the property itself.
         /// </summary>
         public virtual string MetaVar { get; set; }
 
         /// <summary>
-        /// A constant value stored instead of an argument for some
+        /// The constant value stored instead of an argument for some
         /// <see cref="ParseAction"/>s.
         /// </summary>
         public object Const { get; set; }
@@ -53,13 +52,25 @@ namespace clipr
         /// Whether or not the argument can handle a
         /// variable number of arguments.
         /// </summary>
+        internal bool ConsumesMultipleArgs
+        {
+            get
+            {
+                return NumArgs != 0 && 
+                    (Constraint != NumArgsConstraint.Exactly ||
+                    NumArgs > 1);
+            }
+        }
+
+        /// <summary>
+        /// Whether or not the argument can handle a
+        /// variable number of arguments.
+        /// </summary>
         internal bool HasVariableNumArgs
         {
             get
             {
-                return NumArgs != 0 &&
-                    (Constraint != NumArgsConstraint.Exactly || 
-                    NumArgs > 1);
+                return NumArgs != 0 && Constraint != NumArgsConstraint.Exactly;
             }
         }
 
@@ -70,5 +81,14 @@ namespace clipr
         {
             NumArgs = 1;
         }
+
+        /// <summary>
+        /// The display name for the argument.
+        /// </summary>
+        /// <returns>
+        /// The display name for the argument or null
+        /// if the display name should be the property name.
+        /// </returns>
+        internal abstract string GetArgumentDisplayName();
     }
 }

@@ -3,12 +3,61 @@ using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 // ReSharper disable ObjectCreationAsStatement
+// ReSharper disable UseObjectOrCollectionInitializer
 
 namespace clipr.UnitTests
 {
     [TestClass]
     public class ArgumentIntegrityUnitTest
     {
+        #region Duplicate argument check.
+
+        internal class DuplicateArgumentWhenCaseInsensitive
+        {
+            [NamedArgument('n')]
+            public string Name { get; set; }
+
+            [NamedArgument('N')]
+            public string Neighbor { get; set; }
+        }
+
+        [TestMethod]
+        public void ParseArgument_WithArgumentsOfDifferingCaseWhenCaseSensitive_ParsesArguments()
+        {
+            var opt = CliParser.Parse<DuplicateArgumentWhenCaseInsensitive>(
+                "-n tim -N robert".Split());
+            Assert.AreEqual("tim", opt.Name);
+            Assert.AreEqual("robert", opt.Neighbor);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(DuplicateArgumentException))]
+        public void ParseArgument_WithArgumentsOfDifferingCaseWhenCaseInsensitive_ThrowsException()
+        {
+            var opt = new DuplicateArgumentWhenCaseInsensitive();
+            var parser = new CliParser<DuplicateArgumentWhenCaseInsensitive>(
+                opt, ParserOptions.CaseInsensitive);
+            parser.Parse("-n tim -n robert".Split());
+        }
+
+        internal class DuplicateArguments
+        {
+            [NamedArgument('n')]
+            public string Name { get; set; }
+
+            [NamedArgument('n')]
+            public string Neighbor { get; set; }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(DuplicateArgumentException))]
+        public void ParseArgument_WithDuplicateArguments_ThrowsException()
+        {
+            new CliParser<DuplicateArguments>(new DuplicateArguments());
+        }
+
+        #endregion
+
         #region Mutually Exclusive check.
 
         internal class MutuallyExclusiveArgumentAttributes
@@ -218,7 +267,7 @@ namespace clipr.UnitTests
         [ExpectedException(typeof(ArgumentIntegrityException))]
         public void Version_WithInvalidShortName_ThrowsException()
         {
-            var help = new Usage.DefaultUsageGenerator<object>();
+            var help = new Usage.AutomaticHelpGenerator<object>();
             help.Version.ShortName = '.';
 
             new CliParser<object>(new object(), help);
@@ -228,7 +277,7 @@ namespace clipr.UnitTests
         [ExpectedException(typeof(ArgumentIntegrityException))]
         public void Version_WithInvalidShortNameAsDigit_ThrowsException()
         {
-            var help = new Usage.DefaultUsageGenerator<object>();
+            var help = new Usage.AutomaticHelpGenerator<object>();
             help.Version.ShortName = '1';
 
             new CliParser<object>(new object(), help);
@@ -242,7 +291,7 @@ namespace clipr.UnitTests
         [ExpectedException(typeof(ArgumentIntegrityException))]
         public void Version_WithInvalidLongName_ThrowsException()
         {
-            var help = new Usage.DefaultUsageGenerator<object>();
+            var help = new Usage.AutomaticHelpGenerator<object>();
             help.Version.LongName = "no.thing";
 
             new CliParser<object>(new object(), help);
@@ -252,7 +301,7 @@ namespace clipr.UnitTests
         [ExpectedException(typeof(ArgumentIntegrityException))]
         public void Version_WithInvalidLongNameLength_ThrowsException()
         {
-            var help = new Usage.DefaultUsageGenerator<object>();
+            var help = new Usage.AutomaticHelpGenerator<object>();
             help.Version.LongName = "n";
 
             new CliParser<object>(new object(), help);
@@ -262,7 +311,7 @@ namespace clipr.UnitTests
         [ExpectedException(typeof(ArgumentIntegrityException))]
         public void Version_WithInvalidLongNameEndingWithDash_ThrowsException()
         {
-            var help = new Usage.DefaultUsageGenerator<object>();
+            var help = new Usage.AutomaticHelpGenerator<object>();
             help.Version.LongName = "none-";
 
             new CliParser<object>(new object(), help);
@@ -272,7 +321,7 @@ namespace clipr.UnitTests
         [ExpectedException(typeof(ArgumentIntegrityException))]
         public void Version_WithInvalidLongNameBeginningWithDigit_ThrowsException()
         {
-            var help = new Usage.DefaultUsageGenerator<object>();
+            var help = new Usage.AutomaticHelpGenerator<object>();
             help.Version.LongName = "1none";
 
             new CliParser<object>(new object(), help);

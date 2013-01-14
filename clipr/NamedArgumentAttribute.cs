@@ -32,14 +32,15 @@ namespace clipr
                 {
                     return base.MetaVar;
                 }
+                if (ShortName != default(char))
+                {
+                    return ShortName.ToString();
+                }
                 if (!String.IsNullOrEmpty(LongName))
                 {
                     return LongName;
                 }
-                if (Char.IsLetterOrDigit(ShortName))
-                {
-                    return ShortName.ToString();
-                }
+                
                 return null;
             }
             set
@@ -75,6 +76,19 @@ namespace clipr
         {
             ShortName = shortName;
             LongName = longName;
+        }
+
+        internal override string GetArgumentDisplayName()
+        {
+            if (!String.IsNullOrEmpty(LongName))
+            {
+                return LongName;
+            }
+            if (Char.IsLetterOrDigit(ShortName))
+            {
+                return ShortName.ToString();
+            }
+            return null;
         }
     }
 }

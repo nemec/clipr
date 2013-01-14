@@ -6,7 +6,7 @@ namespace clipr
     /// Mark the property as a subcommand. (cf. 'svn checkout')
     /// </summary>
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = true)]
-    public class SubCommandAttribute : Attribute
+    internal class SubCommandAttribute : Attribute
     {
         /// <summary>
         /// Name of the subcommand. If provided as an argument, it

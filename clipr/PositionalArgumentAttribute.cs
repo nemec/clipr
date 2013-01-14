@@ -24,5 +24,10 @@
         {
             Index = index;
         }
+
+        internal override string GetArgumentDisplayName()
+        {
+            return null;
+        }
     }
 }
