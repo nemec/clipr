@@ -3,6 +3,8 @@ clipr: A Command Line Interface ParseR for .Net 3.5+
 
 Created by [Dan Nemec](http://github.com/nemec)
 
+We're on [NuGet]()!
+
 This project was originally written for .Net 4.5, but I realized that not
 everyone is up to speed with the latest .Net version yet. It's now
 retargeted to 3.5 with two sets of extension methods that emulate the features
@@ -140,6 +142,15 @@ the minimum or maximum number consumed. Since positional arguments are not
 separated in any discernable way only the *last* positional argument,
 by Index, may use the constraints AtLease or AtMost. All previous positional
 arguments must consume an exact number of values.
+
+##Mutually Exclusive Arguments
+
+Named arguments can be given a MutuallyExclusiveGroupAttribute. If multiple
+named arguments belong to the same group and the user tries to specify more
+than one, a parser error is generated. Groups can also be marked as Required.
+If at least one MutuallyExclusiveGroupAttribute for a group is required and
+the user does *not* provide one of the member arguments, an error is also
+generated.
 
 ##Post-Parse Triggers
 

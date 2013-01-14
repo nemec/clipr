@@ -12,6 +12,6 @@
     <description>$description$</description>
     <releaseNotes>Initial release with automated help generation.</releaseNotes>
     <copyright>Copyright 2013</copyright>
-    <tags>.net35 .net40 .net45 command line parse parse arguments help usage</tags>
+    <tags>.net35 .net40 .net45 command line parse parse arguments help usage argparse</tags>
   </metadata>
 </package>

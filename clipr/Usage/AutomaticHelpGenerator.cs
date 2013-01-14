@@ -128,6 +128,8 @@ namespace clipr.Usage
                     builder.Append(" ");
                 }
 
+                // TODO print enum choices
+
                 if (attr.Constraint == NumArgsConstraint.AtLeast)
                 {
                     builder.Append("... ");
