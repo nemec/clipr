@@ -80,7 +80,7 @@ namespace clipr.Usage
                 var meta = attr.MetaVar ?? prop.Name;
 
                 builder.Append("[ ");
-                builder.Append(String.Join("|", GetArgumentNames(attr)));
+                builder.Append(String.Join("|", GetArgumentNames(attr).ToArray()));
                 builder.Append(" ");
 
                 if (attr.Action.ConsumesArgumentValues())
@@ -163,7 +163,7 @@ namespace clipr.Usage
                 optionalGroup.Add(new ArgumentDisplay
                 {
                     Description = HelpDescription,
-                    ArgumentNames = String.Join(", ", helpNames)
+                    ArgumentNames = String.Join(", ", helpNames.ToArray())
                 });
             }
 
@@ -187,7 +187,7 @@ namespace clipr.Usage
                     optionalGroup.Add(new ArgumentDisplay
                         {
                             Description = VersionDescription,
-                            ArgumentNames = String.Join(", ", versionNames)
+                            ArgumentNames = String.Join(", ", versionNames.ToArray())
                         });
                 }
             }
@@ -259,6 +259,8 @@ namespace clipr.Usage
                     helpDataBuilder.AppendLine(iter.Current);
                     while (iter.MoveNext())
                     {
+                        if(iter.Current == null) continue;
+
                         helpDataBuilder.AppendLine(
                             iter.Current.PadLeft(LineWidth));
                     }
@@ -317,7 +319,7 @@ namespace clipr.Usage
             }
             return new ArgumentDisplay
             {
-                ArgumentNames = String.Join(", ", names),
+                ArgumentNames = String.Join(", ", names.ToArray()),
                 Description = GetDescriptionForProperty(prop)
             };
         }
@@ -332,7 +334,7 @@ namespace clipr.Usage
             }
             return new ArgumentDisplay
             {
-                ArgumentNames = String.Join(", ", names),
+                ArgumentNames = String.Join(", ", names.ToArray()),
                 Description = GetDescriptionForProperty(prop)
             };
         }

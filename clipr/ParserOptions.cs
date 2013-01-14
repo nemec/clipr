@@ -16,6 +16,6 @@ namespace clipr
         /// <summary>
         /// Make short and long argument comparisons case insensitive.
         /// </summary>
-        CaseInsensitive
+        CaseInsensitive = 1
     }
 }

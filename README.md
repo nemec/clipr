@@ -1,7 +1,12 @@
-clipr: A Command Line Interface ParseR for .Net
+clipr: A Command Line Interface ParseR for .Net 3.5+
 ===============================================
 
 Created by [Dan Nemec](http://github.com/nemec)
+
+This project was originally written for .Net 4.5, but I realized that not
+everyone is up to speed with the latest .Net version yet. It's now
+retargeted to 3.5 with two sets of extension methods that emulate the features
+I took advantage of in 4.5 that aren't available in previous versions.
 
 This command line parser library is very much inspired by the
 [argparse](http://docs.python.org/2/library/argparse.html) library

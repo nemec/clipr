@@ -628,7 +628,7 @@ namespace clipr
             {
                 throw new ParseException(null, String.Format(
                     "Extra positional arguments found: {0}",
-                    String.Join(" ", positionalArgStack)));
+                    String.Join(" ", positionalArgStack.ToArray())));
             }
 
             var missingRequiredMutexGroups = new HashSet<string>(
@@ -642,7 +642,7 @@ namespace clipr
                 throw new ParseException(null, String.Format(
                     @"Required mutually exclusive group(s) ""{0}"" were " +
                     "not provided.",
-                    String.Join(", ", missingRequiredMutexGroups)));
+                    String.Join(", ", missingRequiredMutexGroups.ToArray())));
             }
 
             foreach (var method in typeof(T).GetMethods()
@@ -759,7 +759,7 @@ namespace clipr
                         var stringValue = args.Pop();
                         try
                         {
-                            prop.SetValue(Object, ConvertFrom(prop, stringValue));
+                            prop.SetValue(Object, ConvertFrom(prop, stringValue), null);
                         }
                         catch (Exception e)
                         {
@@ -771,7 +771,7 @@ namespace clipr
                     }
                     else
                     {
-                        var values = (IList) prop.GetValue(Object);
+                        var values = (IList) prop.GetValue(Object, null);
                         if (values != null)
                         {
                             values.Clear();  // Store overwrites always
@@ -781,24 +781,24 @@ namespace clipr
                             values = (IList) Activator.CreateInstance(prop.PropertyType);
                         }
                         ParseVarargs(attrName, values, prop, args);
-                        prop.SetValue(Object, values);
+                        prop.SetValue(Object, values, null);
                     }
                     break;
 
                 case ParseAction.StoreConst:
-                    prop.SetValue(Object, attr.Const);
+                    prop.SetValue(Object, attr.Const, null);
                     break;
 
                 case ParseAction.StoreTrue:
-                    prop.SetValue(Object, true);
+                    prop.SetValue(Object, true, null);
                     break;
 
                 case ParseAction.StoreFalse:
-                    prop.SetValue(Object, false);
+                    prop.SetValue(Object, false, null);
                     break;
 
                 case ParseAction.Append:
-                    var appValues = (IList)prop.GetValue(Object) ??
+                    var appValues = (IList)prop.GetValue(Object, null) ??
                         (IList)Activator.CreateInstance(prop.PropertyType);
                     if (!attr.ConsumesMultipleArgs)
                     {
@@ -824,18 +824,18 @@ namespace clipr
                         ParseVarargs(attrName, appValues, prop, args);
                         
                     }
-                    prop.SetValue(Object, appValues);
+                    prop.SetValue(Object, appValues, null);
                     break;
                 case ParseAction.AppendConst:
-                    var constValues = (IList)prop.GetValue(Object) ??
+                    var constValues = (IList)prop.GetValue(Object, null) ??
                         (IList)Activator.CreateInstance(prop.PropertyType);
                     constValues.Add(attr.Const);
-                    prop.SetValue(Object, constValues);
+                    prop.SetValue(Object, constValues, null);
                     break;
 
                 case ParseAction.Count:
-                    var cnt = (int)prop.GetValue(Object);
-                    prop.SetValue(Object, cnt + 1);
+                    var cnt = (int)prop.GetValue(Object, null);
+                    prop.SetValue(Object, cnt + 1, null);
                     break;
             }
         }
@@ -908,7 +908,7 @@ namespace clipr
         private static object ConvertFromGeneric(PropertyInfo prop, string value)
         {
             return TypeDescriptor.GetConverter(
-                prop.PropertyType.GenericTypeArguments.First())
+                prop.PropertyType.GetGenericArguments().First())
                 .ConvertFromInvariantString(value);
         }
     }

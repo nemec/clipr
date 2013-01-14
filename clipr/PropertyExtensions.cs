@@ -43,7 +43,7 @@ namespace clipr
         internal static bool ValueIsConvertibleGeneric(this PropertyInfo prop, object obj)
         {
             return obj == null ||
-                prop.PropertyType.GenericTypeArguments.First() == obj.GetType() ||
+                prop.PropertyType.GetGenericArguments().First() == obj.GetType() ||
                 TypeDescriptor.GetConverter(prop.PropertyType).IsValid(obj);
         }
     }
