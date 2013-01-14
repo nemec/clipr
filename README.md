@@ -3,7 +3,7 @@ clipr: A Command Line Interface ParseR for .Net 3.5+
 
 Created by [Dan Nemec](http://github.com/nemec)
 
-We're on [NuGet]()!
+We're on [NuGet](https://nuget.org/packages/clipr)!
 
 This project was originally written for .Net 4.5, but I realized that not
 everyone is up to speed with the latest .Net version yet. It's now
