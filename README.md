@@ -59,6 +59,19 @@ but powerful example of the objects this library enables you to build:
         // >>> 9
     }
 
+##Changelog
+
+###2013-01-16 
+
+* Added TryParse method
+* Renamed ParseStrict to StrictParse (for consistency's sake)
+* Reordered any public parse methods where T object came first 
+  (also to retain consistency across the public API).
+
+###2013-01-13
+
+* Initial release with automated help generation.
+
 ##CliParser vs. CliParser<>
 
 If you don't need any special options or custom help generators,
