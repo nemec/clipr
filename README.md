@@ -69,7 +69,7 @@ construtor, you don't even need to set up the object first! It can `new()`
 up an object for you and spit it out after parsing is complete, ready to
 be used.
 
-##Parse vs. ParseStrict
+##Parse vs. Tryparse vs. StrictParse
 
 There are two ways to parse a list of arguments. The former, `Parse()`, will
 attempt to parse the input arguments and throw a ParseException if something
@@ -78,11 +78,19 @@ information were triggered and printed to the console. If successful argument
 parsing isn't required to run your application, this is probably the correct
 method to use.
 
-The `ParseStrict()` method was made for a very specific use case -- most
+The `TryParse()` method is similar to the typical TryParse methods found
+on integers and datetimes. It returns a boolean value of true if parsing
+succeeded, false otherwise. There is one overload that lets you input an
+instance of the type you want to parse (in cases where the constructor takes
+parameters), but the other overload uses the `out` keyword to construct
+a new instance of the type before parsing. If parsing fails, that instance
+will be null.
+
+The `StrictParse()` method was made for a very specific use case -- most
 applications that parse arguments, when they encounter an invalid argument
 or some other error, will print help / usage information and immediately
 quit, letting the user correct her mistakes and rerun the program. In that
-spirit, the `ParseStrict()` method will not throw any exceptions
+spirit, the `StrictParse()` method will not throw any exceptions
 (if you see one, report it on the Github page). Instead, it will print the
 error message and the one-line usage documentation, then terminate using
 `Environment.Exit`. Note that your program **will not have the opportunity

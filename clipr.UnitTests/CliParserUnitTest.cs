@@ -179,5 +179,9 @@ namespace clipr.UnitTests
             var opt = new object();
             new CliParser<object>(opt).Parse("--version".Split());
         }
+
+        // TODO tryparse
+
+        // TODO tryparse out
     }
 }

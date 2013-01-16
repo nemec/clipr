@@ -34,10 +34,10 @@ namespace clipr
         /// <returns>
         /// A new object containing values parsed from the argument list.
         /// </returns>
-        public static TS ParseStrict<TS>(string[] args) where TS : class, new()
+        public static TS StrictParse<TS>(string[] args) where TS : class, new()
         {
             var obj = new TS();
-            ParseStrict(obj, args);
+            StrictParse(args, obj);
             return obj;
         }
 
@@ -56,7 +56,7 @@ namespace clipr
         /// </summary>
         /// <param name="obj">Parsed arguments are stored here.</param>
         /// <param name="args">Argument list to parse.</param>
-        public static void ParseStrict<TS>(TS obj, string[] args) where TS : class
+        public static void StrictParse<TS>(string[] args, TS obj) where TS : class
         {
             CliParser<TS> parser = null;
             try
@@ -81,7 +81,44 @@ namespace clipr
                 });
                 Environment.Exit(2);
             }
-            parser.ParseStrict(args);
+            parser.StrictParse(args);
+        }
+
+        /// <summary>
+        /// Make an attempt to parse the arguments and return true if
+        /// parsing was successful. If parsing completed, the
+        /// <paramref name="obj"/> parameter will contain the constructed
+        /// and parsed object. If parsing fails, the object will be null.
+        /// </summary>
+        /// <typeparam name="TS"></typeparam>
+        /// <param name="args">Argument list to parse.</param>
+        /// <param name="obj">Newly created destination object or null if parsing failed.</param>
+        /// <returns>True if parsing succeeded.</returns>
+        public static bool TryParse<TS>(string[] args, out TS obj) where TS : class, new()
+        {
+            obj = null;
+            var tmpObj = new TS();
+            if (TryParse(args, tmpObj))
+            {
+                obj = tmpObj;
+                return true;
+            }
+            return false;
+        }
+
+        /// <summary>
+        /// Make an attempt to parse the arguments and return true if
+        /// parsing was successful. If it returns false, the destination
+        /// object may be left in an incomplete state.
+        /// </summary>
+        /// <typeparam name="TS"></typeparam>
+        /// <param name="obj">Destination object.</param>
+        /// <param name="args">Argument list to parse.</param>
+        /// <returns>True if parsing succeeded.</returns>
+        public static bool TryParse<TS>(string[] args, TS obj) where TS : class
+        {
+            var parser = new CliParser<TS>(obj);
+            return parser.TryParse(args);
         }
 
         /// <summary>
@@ -102,7 +139,7 @@ namespace clipr
         public static TS Parse<TS>(string[] args) where TS : class, new()
         {
             var obj = new TS();
-            Parse(obj, args);
+            Parse(args, obj);
             return obj;
         }
 
@@ -116,9 +153,9 @@ namespace clipr
         /// Either the help or version information were triggered so
         /// parsing was aborted.
         /// </exception>
-        /// <param name="obj">Parsed arguments will be store here.</param>
         /// <param name="args">Argument list to parse.</param>
-        public static void Parse<TS>(TS obj, string[] args) where TS : class
+        /// <param name="obj">Parsed arguments will be store here.</param>
+        public static void Parse<TS>(string[] args, TS obj) where TS : class
         {
             var parser = new CliParser<TS>(obj);
             parser.Parse(args);
@@ -500,7 +537,7 @@ namespace clipr
         /// </summary>
         /// <param name="args">Argument list to parse.</param>
         /// <returns>The object parsed from the argument list.</returns>
-        public void ParseStrict(string[] args)
+        public void StrictParse(string[] args)
         {
             try
             {
@@ -532,6 +569,26 @@ namespace clipr
             }
             Environment.Exit(ErrorExitCode);
             throw new InvalidOperationException();
+        }
+
+        /// <summary>
+        /// Make an attempt to parse the arguments and return true if
+        /// parsing was successful. If it returns false, the destination
+        /// object may be left in an incomplete state.
+        /// </summary>
+        /// <param name="args">Argument list to parse.</param>
+        /// <returns>True if parsing succeeded.</returns>
+        public bool TryParse(string[] args)
+        {
+            try
+            {
+                Parse(args);
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
         }
 
         /// <summary>

@@ -25,7 +25,7 @@ namespace clipr.Sample
 
         static void Main(string[] args)
         {
-            var opt = CliParser.ParseStrict<Options>(args);
+            var opt = CliParser.StrictParse<Options>(args);
             /*var opt = CliParser.Parse<Options>(
                 "-vvv output.txt 1 2 -1 7".Split());*/
             Console.WriteLine(opt.Verbosity);
