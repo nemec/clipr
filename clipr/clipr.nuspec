@@ -11,8 +11,8 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
     <releaseNotes>
-      2013-01-16 Added TryParse method, renamed ParseStrict to StrictParse (for consistency's sake), reordered any public parse methods where T object came first (also to retain consistency across the public API).
-      2013-01-13 Initial release with automated help generation.
+      2013-01-16 1.0.0 Added TryParse method, renamed ParseStrict to StrictParse (for consistency's sake), reordered any public parse methods where T object came first (also to retain consistency across the public API).
+      2013-01-13 1.1.0 Initial release with automated help generation.
     </releaseNotes>
     <copyright>Copyright 2013</copyright>
     <tags>.net35 .net40 .net45 command line parse parse arguments help usage argparse</tags>

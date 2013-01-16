@@ -5,7 +5,7 @@ namespace clipr.Usage
     /// <summary>
     /// Version information pulled from the currently executing assembly.
     /// </summary>
-    public class ExecutingAssemblyVersion : IVersion
+    public class ExecutingAssemblyVersion<T> : IVersion<T> where T : class
     {
         public char? ShortName { get; set; }
 
@@ -29,5 +29,18 @@ namespace clipr.Usage
         {
             return _version;
         }
+
+        public string PluginName
+        {
+            get { return "Version"; }
+        }
+
+        public void OnParse()
+        {
+            throw new System.NotImplementedException();
+        }
+
+
+        public ParserConfig<T> Config { get; set; }
     }
 }

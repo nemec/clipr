@@ -12,13 +12,13 @@ namespace clipr.Usage
     /// type.
     /// </summary>
     /// <typeparam name="T">Type to inspect.</typeparam>
-    public class AutomaticHelpGenerator<T> : IHelpGenerator
+    public class AutomaticHelpGenerator<T> : IHelpGenerator<T> where T : class
     {
+        public ParserConfig<T> Config { get; set; } 
+
         public char? ShortName { get; set; }
 
         public string LongName { get; set; }
-
-        public IVersion Version { get; set; }
 
         private const string Indent = " ";
 
@@ -58,7 +58,6 @@ namespace clipr.Usage
         {
             ShortName = 'h';
             LongName = "help";
-            Version = new ExecutingAssemblyVersion();
         }
 
         public string GetUsage()
@@ -149,52 +148,26 @@ namespace clipr.Usage
             var positionalGroup = new List<ArgumentDisplay>();
             var optionalGroup = new List<ArgumentDisplay>();
 
-            #region Add Help argument
-
-            var helpNames = new List<string>();
-            if (ShortName.HasValue)
+            foreach (var trigger in Config.Triggers)
             {
-                helpNames.Add("-" + ShortName);
-            }
-            if (LongName != null)
-            {
-                helpNames.Add("--" + LongName);
-            }
-            if (helpNames.Any())
-            {
-                optionalGroup.Add(new ArgumentDisplay
+                var names = new List<string>();
+                if (trigger.ShortName.HasValue)
                 {
-                    Description = HelpDescription,
-                    ArgumentNames = String.Join(", ", helpNames.ToArray())
-                });
-            }
-
-            #endregion
-
-            #region Add Version argument
-
-            if (Version != null)
-            {
-                var versionNames = new List<string>();
-                if (Version.ShortName.HasValue)
-                {
-                    versionNames.Add("-" + Version.ShortName);
+                    names.Add("-" + trigger.ShortName);
                 }
-                if (Version.LongName != null)
+                if (trigger.LongName != null)
                 {
-                    versionNames.Add("--" + Version.LongName);
+                    names.Add("--" + trigger.LongName);
                 }
-                if (versionNames.Any())
+                if (names.Any())
                 {
                     optionalGroup.Add(new ArgumentDisplay
-                        {
-                            Description = VersionDescription,
-                            ArgumentNames = String.Join(", ", versionNames.ToArray())
-                        });
+                    {
+                        Description = HelpDescription,
+                        ArgumentNames = String.Join(", ", names.ToArray())
+                    });
                 }
             }
-
-            #endregion
 
             var argumentProperties = GetOrderedProperties();
             
@@ -371,6 +344,16 @@ namespace clipr.Usage
             public string ArgumentNames { get; set; }
 
             public string Description { get; set; }
+        }
+
+        public string PluginName
+        {
+            get { return "Help"; }
+        }
+
+        public void OnParse()
+        {
+            throw new NotImplementedException();
         }
     }
 }

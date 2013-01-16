@@ -53,7 +53,11 @@
     <Compile Include="DotNet35Extensions.cs" />
     <Compile Include="DotNet40Extensions.cs" />
     <Compile Include="MutuallyExclusiveGroupAttribute.cs" />
+    <Compile Include="ParserConfig.cs" />
     <Compile Include="ParserExit.cs" />
+    <Compile Include="ParsingContext.cs" />
+    <Compile Include="Triggers\ArgumentTrigger.cs" />
+    <Compile Include="Triggers\ITrigger.cs" />
     <Compile Include="StringExtensions.cs" />
     <Compile Include="Usage\ExecutingAssemblyVersion.cs" />
     <Compile Include="Usage\IVersion.cs" />

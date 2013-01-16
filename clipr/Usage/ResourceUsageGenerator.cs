@@ -5,13 +5,13 @@ namespace clipr.Usage
     /// <summary>
     /// Generate usage information from localizable resource files.
     /// </summary>
-    public class ResourceUsageGenerator : IHelpGenerator
+    public class ResourceUsageGenerator<T> : IHelpGenerator<T> where T : class
     {
+        public ParserConfig<T> Config { get; set; } 
+
         public char? ShortName { get; set; }
 
         public string LongName { get; set; }
-
-        public IVersion Version { get; set; }
 
         /// <summary>
         /// Create a new usage generator with the
@@ -30,6 +30,16 @@ namespace clipr.Usage
 
 
         public string GetHelp()
+        {
+            throw new NotImplementedException();
+        }
+
+        public string PluginName
+        {
+            get { return "ResourceUsageGenerator"; }
+        }
+
+        public void OnParse()
         {
             throw new NotImplementedException();
         }
