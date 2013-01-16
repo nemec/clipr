@@ -180,8 +180,68 @@ namespace clipr.UnitTests
             new CliParser<object>(opt).Parse("--version".Split());
         }
 
-        // TODO tryparse
+        [TestMethod]
+        public void TryParse_WithInstanceAndValidArgs_ParsesArgs()
+        {
+            var obj = new CaseFoldingOptions();
+            CliParser.TryParse("--name tim".Split(), obj);
+            Assert.AreEqual("tim", obj.Name);
+        }
 
-        // TODO tryparse out
+        [TestMethod]
+        public void TryParse_WithInstanceAndValidArgs_ReturnsTrue()
+        {
+            var obj = new CaseFoldingOptions();
+            if (!CliParser.TryParse("--name tim".Split(), obj))
+            {
+                Assert.Fail();
+            }
+        }
+
+        [TestMethod]
+        public void TryParse_WithInstanceAndInvalidArgs_ReturnsFalse()
+        {
+            var obj = new CaseFoldingOptions();
+            if (CliParser.TryParse("--ame tim".Split(), obj))
+            {
+                Assert.Fail();
+            }
+        }
+
+        [TestMethod]
+        public void TryParse_WithOutAndValidArgs_ParsesArgs()
+        {
+            CaseFoldingOptions obj;
+            CliParser.TryParse("--name tim".Split(), out obj);
+            Assert.AreEqual("tim", obj.Name);
+        }
+
+        [TestMethod]
+        public void TryParse_WithOutAndValidArgs_ReturnsTrue()
+        {
+            CaseFoldingOptions obj;
+            if (!CliParser.TryParse("--name tim".Split(), out obj))
+            {
+                Assert.Fail();
+            }
+        }
+
+        [TestMethod]
+        public void TryParse_WithOutAndInvalidArgs_ReturnsFalse()
+        {
+            CaseFoldingOptions obj;
+            if (CliParser.TryParse("--ame tim".Split(), out obj))
+            {
+                Assert.Fail();
+            }
+        }
+
+        [TestMethod]
+        public void TryParse_WithOutAndInvalidArgs_SetsOutValueToNull()
+        {
+            CaseFoldingOptions obj;
+            CliParser.TryParse("--ame tim".Split(), out obj);
+            Assert.AreEqual(null, obj);
+        }
     }
 }

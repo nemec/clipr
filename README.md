@@ -227,3 +227,7 @@ compiled into the application using this library. In the future there
 will be an easy way to specify the version manually, but until then you'll
 have to implement the `IVersion` interface yourself and replace the `Version`
 property within the `IHelpGenerator`.
+
+## TODO
+
+* Sort positional arguments by index rather than alphabetically.
