@@ -1,4 +1,5 @@
 ﻿using System;
+using clipr.Annotations;
 using clipr.Triggers;
 using clipr.Usage;
 
@@ -184,7 +185,7 @@ namespace clipr
                 _argumentPrefix = value;
             }
         }
-        private char _argumentPrefix;
+        private char _argumentPrefix = '-';
 
         #endregion
 
@@ -300,15 +301,15 @@ namespace clipr
             Object = obj;
             Options = options;
 
-            Config = new ParserConfig<T>(Options, new ITrigger<T>[]
-                {
-                    usageGenerator,
-                    new ExecutingAssemblyVersion<T>()
-                });
+            var triggers = new ITrigger<T>[]
+            {
+                usageGenerator,
+                new ExecutingAssemblyVersion<T>()
+            };
 
-            ArgumentPrefix = '-';
+            Config = new ParserConfig<T>(Options, triggers);
 
-            ArgumentIntegrityChecker.EnsureAttributeIntegrity<T>();
+            AttributeIntegrityChecker.EnsureAttributeIntegrity<T>();
         }
 
         #endregion
@@ -398,6 +399,7 @@ namespace clipr
         /// <param name="args">Argument list to parse.</param>
         public void Parse(string[] args)
         {
+            Config.ArgumentPrefix = ArgumentPrefix;
             new ParsingContext<T>(Object, Config).Parse(args);
         }
 

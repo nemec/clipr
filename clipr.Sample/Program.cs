@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using clipr.Annotations;
 
 namespace clipr.Sample
 {
@@ -26,8 +27,8 @@ namespace clipr.Sample
         static void Main(string[] args)
         {
             var opt = CliParser.StrictParse<Options>(args);
-            /*var opt = CliParser.Parse<Options>(
-                "-vvv output.txt 1 2 -1 7".Split());*/
+            //var opt = CliParser.Parse<Options>(
+            //    "-vvv output.txt 1 2 -1 7".Split());
             Console.WriteLine(opt.Verbosity);
             // >>> 3
 

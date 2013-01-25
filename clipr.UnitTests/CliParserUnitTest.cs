@@ -2,6 +2,7 @@
 using System.ComponentModel;
 using System.Globalization;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using clipr.Annotations;
 
 // ReSharper disable ObjectCreationAsStatement
 

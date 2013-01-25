@@ -1,4 +1,6 @@
-﻿namespace clipr
+﻿using clipr.Arguments;
+
+namespace clipr.Annotations
 {
     /// <summary>
     /// <para>
@@ -9,7 +11,7 @@
     /// a variable number of argument values.
     /// </para>
     /// </summary>
-    public class PositionalArgumentAttribute : ArgumentAttribute
+    public class PositionalArgumentAttribute : ArgumentAttribute, IPositionalArgument
     {
         /// <summary>
         /// Index in the positional argument list for this argument.
@@ -23,11 +25,6 @@
         public PositionalArgumentAttribute(int index)
         {
             Index = index;
-        }
-
-        internal override string GetArgumentDisplayName()
-        {
-            return null;
         }
     }
 }

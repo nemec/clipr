@@ -20,7 +20,7 @@ namespace clipr
         /// <typeparam name="T">Attribute type to grab.</typeparam>
         /// <param name="member"></param>
         /// <returns></returns>
-        public static T GetCustomAttribute<T>(this MemberInfo member)
+        public static T GetCustomAttribute<T>(this MemberInfo member) where T : Attribute
         {
             try
             {
@@ -38,7 +38,7 @@ namespace clipr
         /// <typeparam name="T">Attribute type to retrieve.</typeparam>
         /// <param name="member"></param>
         /// <returns></returns>
-        public static IEnumerable<T> GetCustomAttributes<T>(this MemberInfo member)
+        public static IEnumerable<T> GetCustomAttributes<T>(this MemberInfo member) where T : Attribute
         {
             foreach (var attr in member.GetCustomAttributes(typeof(T), false))
             {

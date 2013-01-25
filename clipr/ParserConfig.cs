@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Text.RegularExpressions;
+using clipr.Annotations;
+using clipr.Arguments;
 using clipr.Triggers;
 
 namespace clipr
 {
-    public class ParserConfig<T> where T : class 
+    public class ParserConfig<T> where T : class
     {
         public readonly char[] LongOptionSeparator = new[] { '=' };
 
@@ -28,11 +29,11 @@ namespace clipr
 
         public char ArgumentPrefix { get; set; }
 
-        public Dictionary<char, PropertyInfo> ShortNameArguments { get; set; }
+        internal Dictionary<char, IShortNameArgument> ShortNameArguments { get; set; }
 
-        public Dictionary<string, PropertyInfo> LongNameArguments { get; set; }
+        internal Dictionary<string, ILongNameArgument> LongNameArguments { get; set; }
 
-        public List<PropertyInfo> PositionalArguments { get; set; }
+        internal List<IPositionalArgument> PositionalArguments { get; set; }
 
         public Dictionary<string, PropertyInfo> SubCommands { get; set; }
 
@@ -46,110 +47,152 @@ namespace clipr
 
             ArgumentPrefix = '-';
 
-            PositionalArguments = type.GetProperties()
-                .Where(p => p.GetCustomAttribute<PositionalArgumentAttribute>() != null)
-                .OrderBy(p => p.GetCustomAttribute<PositionalArgumentAttribute>().Index)
-                .ToList();
+            PositionalArguments = BuildPositionalArguments();
 
             if (options.HasFlag(ParserOptions.CaseInsensitive))
             {
-                ShortNameArguments = new Dictionary<char, PropertyInfo>(new CaseInsensitiveCharComparer());
-                LongNameArguments = new Dictionary<string, PropertyInfo>(StringComparer.InvariantCultureIgnoreCase);
+                ShortNameArguments = new Dictionary<char, IShortNameArgument>(new CaseInsensitiveCharComparer());
+                LongNameArguments = new Dictionary<string, ILongNameArgument>(StringComparer.InvariantCultureIgnoreCase);
             }
             else
             {
-                ShortNameArguments = new Dictionary<char, PropertyInfo>();
-                LongNameArguments = new Dictionary<string, PropertyInfo>();
+                ShortNameArguments = new Dictionary<char, IShortNameArgument>();
+                LongNameArguments = new Dictionary<string, ILongNameArgument>();
             }
 
+            InitializeTriggers(triggers);
+            
+            InitializeNamedArguments(type.GetProperties().Where(p =>
+                p.GetCustomAttribute<NamedArgumentAttribute>() != null));  // TODO no more Attributes
+
+            SubCommands = BuildSubCommands();
+            PostParseMethods = BuildPostParseMethods();
+        }
+
+        private static List<IPositionalArgument> BuildPositionalArguments()
+        {
+            return typeof(T).GetProperties()  // TODO no more Attributes
+                .Where(p => p.GetCustomAttribute<PositionalArgumentAttribute>() != null)
+                .OrderBy(p => p.GetCustomAttribute<PositionalArgumentAttribute>().Index)
+                .Select(p => p.ToPositionalArgument())
+                .ToList();
+        } 
+
+        private void InitializeTriggers(IEnumerable<ITrigger<T>> triggers)
+        {
             Triggers = triggers;
-            foreach (var plugin in triggers.Where(p => p != null))
+            foreach (var trigger in Triggers.Where(p => p != null))
             {
-                if (plugin.ShortName.HasValue)
+                trigger.Config = this;
+
+                var sn = GetShortName(trigger, String.Format(
+                    "Trigger '{0}' argument {1} is not a valid short name. {2}",
+                    trigger.PluginName, trigger.ShortName,
+                    IsAllowedShortNameExplanation));
+                if (sn.HasValue)
                 {
-                    if (!_isAllowedShortName(plugin.ShortName.Value))
+                    if (ShortNameArguments.ContainsKey(sn.Value))
                     {
-                        throw new ArgumentIntegrityException(String.Format(
-                            "Trigger '{0}' argument {1} is not a valid short name. {2}",
-                            plugin.PluginName, plugin.ShortName,
-                            IsAllowedShortNameExplanation));
+                        throw new DuplicateArgumentException(sn.ToString());
                     }
-                    ShortNameArguments.Add(plugin.ShortName.Value, null);
+                    ShortNameArguments.Add(sn.Value, trigger);
                 }
-                if (plugin.LongName != null)
+
+                var ln = GetLongName(trigger, String.Format(
+                    "Trigger '{0}' argument {1} is not a valid long name. {2}",
+                    trigger.PluginName, trigger.LongName, IsAllowedLongNameExplanation));
+                if (ln != null)
                 {
-                    if (!_isAllowedLongName(plugin.LongName))
+                    if (LongNameArguments.ContainsKey(ln))
                     {
-                        throw new ArgumentIntegrityException(String.Format(
-                            "Trigger '{0}' argument {1} is not a valid long name. {2}",
-                            plugin.PluginName, plugin.LongName, IsAllowedLongNameExplanation));
+                        throw new DuplicateArgumentException(ln);
                     }
-                    LongNameArguments.Add(plugin.LongName, null);
+                    LongNameArguments.Add(ln, trigger);
                 }
             }
+        }
 
-            foreach (var prop in type.GetProperties()
-                .Where(p => p.GetCustomAttribute<NamedArgumentAttribute>() != null))
+        private void InitializeNamedArguments(IEnumerable<PropertyInfo> props)
+        {
+            foreach (var prop in props)
             {
-                var arg = prop.GetCustomAttribute<NamedArgumentAttribute>();
+                var arg = prop.ToNamedArgument();
 
-                #region Cache valid short arguments
-
-                if (arg.ShortName != default(char))
+                var sn = GetShortName(arg);
+                if (sn.HasValue)
                 {
-                    if (!_isAllowedShortName(arg.ShortName))
+                    if (ShortNameArguments.ContainsKey(sn.Value))
                     {
-                        throw new ArgumentIntegrityException(String.Format(
-                            "Short name {0} is not allowed. {1}",
-                            arg.ShortName, IsAllowedShortNameExplanation));
+                        throw new DuplicateArgumentException(sn.ToString());
                     }
-                    try
-                    {
-                        ShortNameArguments.Add(arg.ShortName, prop);
-                    }
-                    catch (ArgumentException)
-                    {
-                        throw new DuplicateArgumentException(arg.ShortName.ToString());
-                    }
+                    ShortNameArguments.Add(sn.Value, arg);
                 }
 
-                #endregion
-
-                #region Cache valid long arguments
-
-                if (arg.LongName != null)
+                var ln = GetLongName(arg);
+                if (ln != null)
                 {
-                    if (arg.LongName.Length < 2)
+                    if (LongNameArguments.ContainsKey(ln))
                     {
-                        throw new ArgumentIntegrityException(String.Format(
-                            "Long argument on {0} must have at least two characters.",
-                            prop.Name));
+                        throw new DuplicateArgumentException(ln);
                     }
-                    if (!_isAllowedLongName(arg.LongName))
-                    {
-                        throw new ArgumentIntegrityException(String.Format(
-                            "Long name {0} is not allowed. {1}",
-                            arg.LongName, IsAllowedLongNameExplanation));
-                    }
-                    try
-                    {
-                        LongNameArguments.Add(arg.LongName, prop);
-                    }
-                    catch (ArgumentException)
-                    {
-                        throw new DuplicateArgumentException(arg.LongName);
-                    }
+                    LongNameArguments.Add(ln, arg);
                 }
+            }
+        }
 
-                #endregion
+        private char? GetShortName(IShortNameArgument arg)
+        {
+            return GetShortName(arg, String.Format(
+                "Short name {0} is not allowed. {1}",
+                arg.ShortName, IsAllowedShortNameExplanation));
+        }
+
+        private char? GetShortName(IShortNameArgument arg, string errorMessage)
+        {
+            if (arg.ShortName.HasValue)
+            {
+                if (!_isAllowedShortName(arg.ShortName.Value))
+                {
+                    throw new ArgumentIntegrityException(errorMessage);
+                }
+                return arg.ShortName.Value;
+            }
+            return null;
+        }
+
+        private string GetLongName(ILongNameArgument arg)
+        {
+            return GetLongName(arg, String.Format(
+                "Long name {0} is not allowed. {1}",
+                arg.LongName, IsAllowedLongNameExplanation));
+        }
+
+        private string GetLongName(ILongNameArgument arg, string errorMessage)
+        {
+            if (arg.LongName != null)
+            {
+                if (arg.LongName.Length < 2)
+                {
+                    throw new ArgumentIntegrityException(String.Format(
+                        "Long argument {0} must have at least two characters.",
+                        arg.LongName));
+                }
+                if (!_isAllowedLongName(arg.LongName))
+                {
+                    throw new ArgumentIntegrityException(errorMessage);
+                }
+                return arg.LongName;
             }
 
-            #region Init Subcommands
+            return null;
+        }
 
-            SubCommands = new Dictionary<string, PropertyInfo>();
+        private Dictionary<string, PropertyInfo> BuildSubCommands()
+        {
+            var subcommands = new Dictionary<string, PropertyInfo>();
 
-            foreach (var prop in type.GetProperties()
-                .Where(p => p.GetCustomAttributes<SubCommandAttribute>().Any()))
+            foreach (var prop in typeof(T).GetProperties()
+                .Where(p => p.GetCustomAttributes<SubCommandAttribute>().Any()))  // TODO no more Attributes
             {
                 foreach (var attr in prop.GetCustomAttributes<SubCommandAttribute>())
                 {
@@ -170,11 +213,14 @@ namespace clipr
                 }
             }
 
-            #endregion
+            return subcommands;
+        } 
 
-            PostParseMethods = typeof (T).GetMethods()
-                .Where(p => p.GetCustomAttribute<PostParseAttribute>() != null)
+        private static List<MethodInfo> BuildPostParseMethods()
+        {
+            return typeof(T).GetMethods()
+                .Where(p => p.GetCustomAttribute<PostParseAttribute>() != null)  // TODO no more Attributes
                 .ToList();
-        }
+        } 
     }
 }

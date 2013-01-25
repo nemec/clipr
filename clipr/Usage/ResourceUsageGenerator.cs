@@ -1,13 +1,23 @@
 ﻿using System;
+using System.Reflection;
+using clipr.Arguments;
 
 namespace clipr.Usage
 {
     /// <summary>
     /// Generate usage information from localizable resource files.
     /// </summary>
-    public class ResourceUsageGenerator<T> : IHelpGenerator<T> where T : class
+    internal class ResourceUsageGenerator<T> : IHelpGenerator<T> where T : class, INamedArgument
     {
-        public ParserConfig<T> Config { get; set; } 
+        public ParserConfig<T> Config { get; set; }
+
+        public string ArgumentName { get { return "ResourceUsageGenerator"; } }
+
+        public string[] MutuallyExclusiveGroups { get; set; }
+
+        public bool ConsumesMultipleArgs { get { return false; } }
+
+        public object Const { get; set; }
 
         public char? ShortName { get; set; }
 
@@ -42,6 +52,29 @@ namespace clipr.Usage
         public void OnParse()
         {
             throw new NotImplementedException();
+        }
+
+        public PropertyInfo Property { get; set; }
+
+
+        public string MetaVar { get; set; }
+
+        public string Description
+        {
+            get { return "Generates usage information from resource files."; }
+        }
+
+
+        public ParseAction Action
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+            set
+            {
+                throw new NotImplementedException();
+            }
         }
     }
 }

@@ -1,23 +1,19 @@
 ﻿using System;
+using System.Reflection;
 
-namespace clipr
+namespace clipr.Arguments
 {
-    /// <summary>
-    /// An argument triggered by either a short or long name.
-    /// </summary>
-    public class NamedArgumentAttribute : ArgumentAttribute
+    internal class NamedArgument : BaseArgument, INamedArgument
     {
         /// <summary>
         /// Single character name for the argument.
         /// </summary>
-        public char ShortName { get; internal set; }
+        public char? ShortName { get; set; }
 
         /// <summary>
         /// Longer, multi-character name for the argument.
         /// </summary>
-        public string LongName { get; internal set; }
-
-        // public bool Required { get; set; } // TODO required named argument
+        public string LongName { get; set; }
 
         /// <summary>
         /// An argument name suitable for displaying on a help page.
@@ -49,33 +45,9 @@ namespace clipr
             }
         }
 
-        /// <summary>
-        /// Create a new named argument with only a short name.
-        /// </summary>
-        /// <param name="shortName"></param>
-        public NamedArgumentAttribute(char shortName)
+        public NamedArgument(PropertyInfo prop)
+            : base(prop)
         {
-            ShortName = shortName;
-        }
-
-        /// <summary>
-        /// Create a new named argument with only a long name.
-        /// </summary>
-        /// <param name="longName"></param>
-        public NamedArgumentAttribute(string longName)
-        {
-            LongName = longName;
-        }
-
-        /// <summary>
-        /// Create a new named argument with both a short and long name.
-        /// </summary>
-        /// <param name="shortName"></param>
-        /// <param name="longName"></param>
-        public NamedArgumentAttribute(char shortName, string longName)
-        {
-            ShortName = shortName;
-            LongName = longName;
         }
 
         internal override string GetArgumentDisplayName()
@@ -84,7 +56,7 @@ namespace clipr
             {
                 return LongName;
             }
-            if (Char.IsLetterOrDigit(ShortName))
+            if (ShortName.HasValue && Char.IsLetterOrDigit(ShortName.Value))
             {
                 return ShortName.ToString();
             }

@@ -1,6 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using clipr.Annotations;
 
 // ReSharper disable ObjectCreationAsStatement
 // ReSharper disable UseObjectOrCollectionInitializer

@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace clipr
+namespace clipr.Annotations
 {
     /// <summary>
     /// Provides extra information about the set of options.

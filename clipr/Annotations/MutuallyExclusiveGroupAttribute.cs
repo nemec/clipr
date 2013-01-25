@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace clipr
+namespace clipr.Annotations
 {
     /// <summary>
     /// <para>

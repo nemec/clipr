@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
+using clipr.Annotations;
 
 namespace clipr
 {
@@ -45,6 +46,13 @@ namespace clipr
             return obj == null ||
                 prop.PropertyType.GetGenericArguments().First() == obj.GetType() ||
                 TypeDescriptor.GetConverter(prop.PropertyType).IsValid(obj);
+        }
+
+        internal static string[] GetMutuallyExclusiveGroups(this PropertyInfo prop)
+        {
+            return prop.GetCustomAttributes<MutuallyExclusiveGroupAttribute>()
+                .Select(a => a.Name)
+                .ToArray();
         }
     }
 }

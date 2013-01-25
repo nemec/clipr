@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using clipr.Annotations;
 
 namespace clipr
 {
-    internal static class ArgumentIntegrityChecker
+    internal static class AttributeIntegrityChecker
     {
         /// <summary>
         /// <para>

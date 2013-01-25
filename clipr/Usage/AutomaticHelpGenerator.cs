@@ -4,6 +4,8 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Linq;
+using clipr.Annotations;
+using clipr.Arguments;
 
 namespace clipr.Usage
 {
@@ -14,22 +16,38 @@ namespace clipr.Usage
     /// <typeparam name="T">Type to inspect.</typeparam>
     public class AutomaticHelpGenerator<T> : IHelpGenerator<T> where T : class
     {
-        public ParserConfig<T> Config { get; set; } 
+        public ParserConfig<T> Config { get; set; }
 
+        public string ArgumentName { get { return "HelpGenerator"; } }
+
+        #region Unnecessary stuff
+
+        // TODO I don't like this
+
+        public string[] MutuallyExclusiveGroups { get; set; }
+
+        public bool ConsumesMultipleArgs { get { return false; } }
+
+        public object Const { get; set; }
+
+        #endregion
+        
         public char? ShortName { get; set; }
 
         public string LongName { get; set; }
+
+        public string MetaVar { get; set; }
+
+        public virtual string Description
+        {
+            get { return "Display this help document."; }
+        }
 
         private const string Indent = " ";
 
         private const int LineWidth = 80;
 
         private const int Spacing = 2;
-
-        protected virtual string HelpDescription
-        {
-            get { return "Display this help document."; }
-        }
 
         protected virtual string VersionDescription
         {
@@ -51,6 +69,12 @@ namespace clipr.Usage
             get { return "optional arguments"; }
         }
 
+        private readonly Func<IPositionalArgument, int> _argumentIndex =
+            p => p.Index;
+
+        private readonly Func<INamedArgument, string> _argumentDisplayName =
+            p => p.MetaVar ?? p.ArgumentName;
+
         /// <summary>
         /// Create a new generator.
         /// </summary>
@@ -70,10 +94,8 @@ namespace clipr.Usage
                 assembly.Location : Assembly.GetExecutingAssembly().CodeBase));
             builder.Append(" ");
 
-            var argumentProperties = GetOrderedProperties();
-
-            foreach (var prop in argumentProperties.Where(
-                p => p.GetCustomAttribute<NamedArgumentAttribute>() != null))
+            foreach (var prop in typeof(T).GetProperties()
+                .Where(p => p.GetCustomAttribute<NamedArgumentAttribute>() != null))
             {
                 var attr = prop.GetCustomAttribute<NamedArgumentAttribute>();
                 var meta = attr.MetaVar ?? prop.Name;
@@ -109,8 +131,8 @@ namespace clipr.Usage
                 builder.Append("] ");
             }
 
-            foreach (var prop in argumentProperties.Where(
-                p => p.GetCustomAttribute<PositionalArgumentAttribute>() != null)
+            foreach (var prop in typeof(T).GetProperties()
+                .Where(p => p.GetCustomAttribute<PositionalArgumentAttribute>() != null)
                 .OrderBy(p => p.GetCustomAttribute<PositionalArgumentAttribute>().Index))
             {
                 var attr = prop.GetCustomAttribute<PositionalArgumentAttribute>();
@@ -145,8 +167,15 @@ namespace clipr.Usage
 
         public string GetHelp()
         {
-            var positionalGroup = new List<ArgumentDisplay>();
-            var optionalGroup = new List<ArgumentDisplay>();
+            var positionalArgs = typeof (T).GetProperties()
+                .Where(p => p.GetCustomAttribute<PositionalArgumentAttribute>() != null)
+                .Select(p => p.GetCustomAttribute<PositionalArgumentAttribute>() as IPositionalArgument)
+                .ToList();
+
+            var namedArgs = typeof(T).GetProperties()
+                .Where(p => p.GetCustomAttribute<NamedArgumentAttribute>() != null)
+                .Select(p => p.GetCustomAttribute<NamedArgumentAttribute>() as INamedArgument)
+                .ToList();
 
             foreach (var trigger in Config.Triggers)
             {
@@ -161,41 +190,22 @@ namespace clipr.Usage
                 }
                 if (names.Any())
                 {
-                    optionalGroup.Add(new ArgumentDisplay
-                    {
-                        Description = HelpDescription,
-                        ArgumentNames = String.Join(", ", names.ToArray())
-                    });
+                    namedArgs.Add(trigger);
                 }
             }
 
-            var argumentProperties = GetOrderedProperties();
-            
-            // Print only properties with an ArgumentAttribute,
-            // ordered by display name.
-            foreach (var prop in argumentProperties)
-            {
-                var attr = prop.GetCustomAttribute<ArgumentAttribute>();
-                if (attr is PositionalArgumentAttribute)
-                {
-                    positionalGroup.Add(GetArgumentsForDisplay(prop, attr));
-                }
-                else if (attr is NamedArgumentAttribute)
-                {
-                    optionalGroup.Add(GetArgumentsForDisplay(prop, 
-                        attr as NamedArgumentAttribute));
-                }
-                else
-                {
-                    throw new InvalidOperationException(
-                        "There's a new ArgumentAttribute?");
-                }
-            }
+            var positionalDisplay = positionalArgs
+                .OrderBy(_argumentIndex)
+                .Select(GetArgumentsForDisplay);
 
-            var tabstop = positionalGroup
-                              .Concat(optionalGroup)
-                              .Select(a => a.ArgumentNames.Length)
-                              .Max() + Indent.Length + Spacing;
+            var namedDisplay = namedArgs
+                .OrderBy(_argumentDisplayName)
+                .Select(GetArgumentsForDisplay);
+
+            var tabstop = positionalDisplay
+                .Concat(namedDisplay)
+                .Select(a => a.ArgumentNames.Length)
+                .Max() + Indent.Length + Spacing;
 
             var helpDataBuilder = new StringBuilder();
 
@@ -213,11 +223,11 @@ namespace clipr.Usage
                 helpDataBuilder.AppendLine();
             }
 
-            if (positionalGroup.Any())
+            if (positionalArgs.Any())
             {
                 helpDataBuilder.AppendLine(PositionalArgumentsTitle + ":");
             }
-            foreach (var arg in positionalGroup)
+            foreach (var arg in positionalDisplay)
             {
                 helpDataBuilder.Append(Indent);
                 helpDataBuilder.Append(arg.ArgumentNames.PadRight(
@@ -242,15 +252,15 @@ namespace clipr.Usage
                 }
             }
 
-            if (optionalGroup.Any())
+            if (namedArgs.Any())
             {
-                if (positionalGroup.Any())
+                if (positionalArgs.Any())
                 {
                     helpDataBuilder.AppendLine();
                 }
                 helpDataBuilder.AppendLine(OptionalArgumentsTitle + ":");
             }
-            foreach (var arg in optionalGroup)
+            foreach (var arg in namedDisplay)
             {
                 helpDataBuilder.Append(Indent);
                 helpDataBuilder.Append(arg.ArgumentNames.PadRight(
@@ -276,59 +286,39 @@ namespace clipr.Usage
             return helpDataBuilder.ToString().TrimEnd();
         }
 
-        private static IEnumerable<PropertyInfo> GetOrderedProperties()
+        private static ArgumentDisplay GetArgumentsForDisplay(IArgument attr)
         {
-            return typeof (T).GetProperties().Where(p =>
-                    p.GetCustomAttribute<ArgumentAttribute>() != null)
-                .OrderBy(p => p.GetCustomAttribute<ArgumentAttribute>()
-                    .GetArgumentDisplayName() ?? p.Name);
-        } 
+            List<string> names;
 
-        private ArgumentDisplay GetArgumentsForDisplay(
-            PropertyInfo prop, NamedArgumentAttribute attr)
-        {
-            var names = GetArgumentNames(attr);
+            if (attr is INamedArgument)  // TODO I don't like this
+            {
+                names = GetArgumentNames(attr as INamedArgument);
+            }
+            else
+            {
+                names = GetArgumentNames(attr);
+            }
+
             if (!names.Any())
             {
-                names.Add(prop.Name);
+                names.Add(attr.ArgumentName);
             }
             return new ArgumentDisplay
             {
                 ArgumentNames = String.Join(", ", names.ToArray()),
-                Description = GetDescriptionForProperty(prop)
+                Description = attr.Description
             };
         }
 
-        private ArgumentDisplay GetArgumentsForDisplay(
-            PropertyInfo prop, ArgumentAttribute attr)
-        {
-            var names = GetArgumentNames(attr);
-            if (!names.Any())
-            {
-                names.Add(prop.Name);
-            }
-            return new ArgumentDisplay
-            {
-                ArgumentNames = String.Join(", ", names.ToArray()),
-                Description = GetDescriptionForProperty(prop)
-            };
-        }
-
-        protected virtual string GetDescriptionForProperty(PropertyInfo prop)
-        {
-            var attr = prop.GetCustomAttribute<ArgumentAttribute>();
-            return attr.Description;
-        }
-
-        private static List<string> GetArgumentNames(ArgumentAttribute attr)
+        private static List<string> GetArgumentNames(IArgument attr)
         {
             return new List<string>{ attr.MetaVar };
         }
 
-        private static List<string> GetArgumentNames(NamedArgumentAttribute attr)
+        private static List<string> GetArgumentNames(INamedArgument attr)
         {
             var ret = new List<string>();
-            if (attr.ShortName != default(char))
+            if (attr.ShortName != null)
             {
                 ret.Add("-" + attr.ShortName);
             }
@@ -353,7 +343,32 @@ namespace clipr.Usage
 
         public void OnParse()
         {
-            throw new NotImplementedException();
+            Console.Error.WriteLine(GetHelp());
+        }
+
+        public PropertyInfo Property
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+            set
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+
+        public ParseAction Action
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+            set
+            {
+                throw new NotImplementedException();
+            }
         }
     }
 }

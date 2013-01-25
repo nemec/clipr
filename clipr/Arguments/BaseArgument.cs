@@ -1,18 +1,18 @@
-﻿using System;
+﻿using System.Reflection;
 
-namespace clipr
+namespace clipr.Arguments
 {
-    /// <summary>
-    /// Base class for various argument types.
-    /// </summary>
-    [AttributeUsage(AttributeTargets.Property)]
-    public abstract class ArgumentAttribute : Attribute
+    internal abstract class BaseArgument : IArgument
     {
+        public string ArgumentName { get; internal set; }
+
         /// <summary>
         /// Description of the argument value. Used when
         /// generating usage documentation.
         /// </summary>
         public string Description { get; set; }
+
+        public string[] MutuallyExclusiveGroups { get; set; }
 
         /// <summary>
         /// Number of arguments consumed by this property.
@@ -52,7 +52,7 @@ namespace clipr
         /// Whether or not the argument can handle a
         /// variable number of arguments.
         /// </summary>
-        internal bool ConsumesMultipleArgs
+        public bool ConsumesMultipleArgs
         {
             get
             {
@@ -74,11 +74,14 @@ namespace clipr
             }
         }
 
+        public PropertyInfo Property { get; set; }
+
         /// <summary>
-        /// Create a new ArgumentAttribute.
+        /// Create a new Argument.
         /// </summary>
-        protected ArgumentAttribute()
+        protected BaseArgument(PropertyInfo prop)
         {
+            Property = prop;
             NumArgs = 1;
         }
 

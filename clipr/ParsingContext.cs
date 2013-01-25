@@ -4,6 +4,9 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
+using clipr.Annotations;
+using clipr.Arguments;
+using clipr.Triggers;
 
 namespace clipr
 {
@@ -140,40 +143,63 @@ namespace clipr
 
         #region Private Parsing Methods
 
-        private void ParseOptionalArgument<TS>(TS name, IDictionary<TS, PropertyInfo> argDict, Stack<string> iter)
+        private void ParseOptionalArgument<TS>(TS name, IEnumerable<KeyValuePair<TS, IShortNameArgument>> argDict, Stack<string> iter)
         {
-            PropertyInfo prop;
-            if (!argDict.TryGetValue(name, out prop))
+            var newDict = argDict.ToDictionary(
+                k => k.Key,
+                v => v.Value as IArgument);
+            ParseOptionalArgument(name, newDict, iter);
+        }
+
+        private void ParseOptionalArgument<TS>(TS name, IEnumerable<KeyValuePair<TS, ILongNameArgument>> argDict, Stack<string> iter)
+        {
+            var newDict = argDict.ToDictionary(
+                k => k.Key,
+                v => v.Value as IArgument);
+            ParseOptionalArgument(name, newDict, iter);
+        }
+
+        private void ParseOptionalArgument<TS>(TS name, IDictionary<TS, IArgument> argDict, Stack<string> iter)
+        {
+            IArgument arg;
+            if (!argDict.TryGetValue(name, out arg))
             {
                 throw new ParseException(name.ToString(), String.Format(
                     "Unknown argument name '{0}'.", name));
             }
 
-            var attr = prop.GetCustomAttribute<ArgumentAttribute>();
-            var mutexGroup = prop.GetCustomAttributes<MutuallyExclusiveGroupAttribute>();
-            foreach (var groupAttribute in mutexGroup)
+            if (arg is ITrigger<T>)
             {
-                if (!ParsedMutuallyExclusiveGroups.Add(groupAttribute.Name))
+                (arg as ITrigger<T>).OnParse();
+                throw new ParserExit();
+            }
+
+            if (arg.MutuallyExclusiveGroups != null)
+            {
+                foreach (var group in arg.MutuallyExclusiveGroups)
                 {
-                    throw new ParseException(name.ToString(), String.Format(
-                        @"Mutually exclusive group ""{0}"" violated.",
-                        groupAttribute.Name));
+                    if (!ParsedMutuallyExclusiveGroups.Add(group))
+                    {
+                        throw new ParseException(name.ToString(), String.Format(
+                            @"Mutually exclusive group ""{0}"" violated.",
+                            group));
+                    }
                 }
             }
 
-            if (iter == null && attr.Action.ConsumesArgumentValues())
+            if (iter == null && arg.Action.ConsumesArgumentValues())
             {
                 throw new ParseException(name.ToString(),
                     "Arguments that consume values cannot be grouped.");
             }
-            ParseArgument(name.ToString(), prop, iter);
+            ParseArgument(name.ToString(), arg, iter);
         }
 
         private void ParsePositionalArguments(Stack<string> args)
         {
-            foreach (var prop in Config.PositionalArguments)
+            foreach (var arg in Config.PositionalArguments)
             {
-                ParseArgument(prop.Name.ToLowerInvariant(), prop, args);
+                ParseArgument(arg.ArgumentName.ToLowerInvariant(), arg, args);
             }
         }
 
@@ -183,15 +209,15 @@ namespace clipr
         /// <param name="attrName">
         /// Name of the argument (whether short, long, or positional).
         /// </param>
-        /// <param name="prop">Property associated with the argument.</param>
+        /// <param name="arg">Property associated with the argument.</param>
         /// <param name="args">List of remaining unparsed arguments.</param>
-        private void ParseArgument(string attrName, PropertyInfo prop, Stack<string> args)
+        private void ParseArgument(string attrName, IArgument arg, Stack<string> args)
         {
-            var attr = prop.GetCustomAttribute<ArgumentAttribute>();
-            switch (attr.Action)
+            var prop = arg.Property;
+            switch (arg.Action)
             {
                 case ParseAction.Store:
-                    if (!attr.ConsumesMultipleArgs)
+                    if (!arg.ConsumesMultipleArgs)
                     {
                         if (args.Count == 0)
                         {
@@ -229,7 +255,7 @@ namespace clipr
                     break;
 
                 case ParseAction.StoreConst:
-                    prop.SetValue(Object, attr.Const, null);
+                    prop.SetValue(Object, arg.Const, null);
                     break;
 
                 case ParseAction.StoreTrue:
@@ -243,7 +269,7 @@ namespace clipr
                 case ParseAction.Append:
                     var appValues = (IList)prop.GetValue(Object, null) ??
                         (IList)Activator.CreateInstance(prop.PropertyType);
-                    if (!attr.ConsumesMultipleArgs)
+                    if (!arg.ConsumesMultipleArgs)
                     {
                         if (args.Count == 0)
                         {
@@ -272,7 +298,7 @@ namespace clipr
                 case ParseAction.AppendConst:
                     var constValues = (IList)prop.GetValue(Object, null) ??
                         (IList)Activator.CreateInstance(prop.PropertyType);
-                    constValues.Add(attr.Const);
+                    constValues.Add(arg.Const);
                     prop.SetValue(Object, constValues, null);
                     break;
 
@@ -286,7 +312,7 @@ namespace clipr
         private static void ParseVarargs(string attrName, IList list,
             PropertyInfo prop, Stack<string> args)
         {
-            var attr = prop.GetCustomAttribute<ArgumentAttribute>();
+            var attr = prop.GetCustomAttribute<ArgumentAttribute>();  // TODO no more Attributes
 
             var argsProcessed = 0;
 
@@ -346,7 +372,7 @@ namespace clipr
         {
             var missingRequiredMutexGroups = new HashSet<string>(
                 typeof(T).GetProperties().SelectMany(p =>
-                    p.GetCustomAttributes<MutuallyExclusiveGroupAttribute>()
+                    p.GetCustomAttributes<MutuallyExclusiveGroupAttribute>()  // TODO no more Attributes
                     .Where(a => a.Required)
                     .Select(a => a.Name)))
                 .Except(ParsedMutuallyExclusiveGroups);
