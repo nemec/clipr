@@ -9,7 +9,7 @@ namespace clipr.Annotations
         {
             var attr = prop.GetCustomAttribute<NamedArgumentAttribute>();
             attr.MutuallyExclusiveGroups = prop.GetMutuallyExclusiveGroups();
-            attr.ArgumentName = prop.Name;
+            attr.Name = prop.Name;
             attr.Property = prop;
             return attr;
         }
@@ -17,7 +17,7 @@ namespace clipr.Annotations
         public static IPositionalArgument ToPositionalArgument(this PropertyInfo prop)
         {
             var attr = prop.GetCustomAttribute<PositionalArgumentAttribute>();
-            attr.ArgumentName = prop.Name;
+            attr.Name = prop.Name;
             attr.Property = prop;
             return attr;
         }

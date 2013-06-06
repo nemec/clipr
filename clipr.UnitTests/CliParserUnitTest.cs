@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
+using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using clipr.Annotations;
 
@@ -243,6 +244,50 @@ namespace clipr.UnitTests
             CaseFoldingOptions obj;
             CliParser.TryParse("--ame tim".Split(), out obj);
             Assert.AreEqual(null, obj);
+        }
+
+        internal class InfiniteNamedWithPositional
+        {
+            [NamedArgument('n', 
+                Constraint = NumArgsConstraint.AtLeast, NumArgs = 1)]
+            public List<string> NamedArgs { get; set; }
+
+            [PositionalArgument(0)]
+            public string Positional { get; set; }
+        }
+
+        [TestMethod]
+        public void Parse_WithPositionalAgumentFollowingNamedWithNoLimit_LeavesLastArgumentForPositional()
+        {
+            var obj = CliParser.Parse<InfiniteNamedWithPositional>(
+                "-n one two three -- positional".Split());
+            Assert.AreEqual("positional", obj.Positional);
+        }
+
+        internal class InfiniteNamedWithOtherNamedFollowing
+        {
+            [NamedArgument('n',
+                Constraint = NumArgsConstraint.AtLeast, NumArgs = 1)]
+            public List<string> NamedArgs { get; set; }
+
+            [NamedArgument('o', "other")]
+            public string Other { get; set; }
+        }
+
+        [TestMethod]
+        public void Parse_WithLongNamedAgumentFollowingNamedWithNoLimit_StopsParsingAtFirstDash()
+        {
+            var obj = CliParser.Parse<InfiniteNamedWithOtherNamedFollowing>(
+                "-n one two three --other final".Split());
+            Assert.AreEqual("final", obj.Other);
+        }
+
+        [TestMethod]
+        public void Parse_WithShortNamedAgumentFollowingNamedWithNoLimit_StopsParsingAtFirstDash()
+        {
+            var obj = CliParser.Parse<InfiniteNamedWithOtherNamedFollowing>(
+                "-n one two three -o final".Split());
+            Assert.AreEqual("final", obj.Other);
         }
     }
 }

@@ -20,11 +20,14 @@ namespace clipr
             return null;
         }
 
-        internal static bool IsValidIList(this PropertyInfo prop)
+        internal static bool IsValidIEnumerable(this PropertyInfo prop)
         {
-            return prop.PropertyType.GetInterfaces().Any(
-                t => t.IsGenericType &&
-                     t.GetGenericTypeDefinition() == typeof (IList<>));
+            var enumT = typeof (IEnumerable<>);
+            var type = prop.PropertyType;
+
+            return type.IsGenericType && (
+                type.GetGenericTypeDefinition() == enumT ||
+                type.GetInterfaces().Any(t => t.GetGenericTypeDefinition()  == enumT));
         }
 
         internal static bool IsValid<T>(this PropertyInfo prop)
@@ -48,11 +51,11 @@ namespace clipr
                 TypeDescriptor.GetConverter(prop.PropertyType).IsValid(obj);
         }
 
-        internal static string[] GetMutuallyExclusiveGroups(this PropertyInfo prop)
+        internal static List<string> GetMutuallyExclusiveGroups(this PropertyInfo prop)
         {
             return prop.GetCustomAttributes<MutuallyExclusiveGroupAttribute>()
                 .Select(a => a.Name)
-                .ToArray();
+                .ToList();
         }
     }
 }

@@ -31,6 +31,34 @@ namespace clipr.UnitTests
         }
 
         [TestMethod]
+        public void Positional_WithPositionalArgumentAfterDoubleDash_ParsesPositionalArgument()
+        {
+            var opt = CliParser.Parse<OnePositionalArgument>("-- filename".Split());
+            Assert.AreEqual("filename", opt.Input);
+        }
+
+        [TestMethod]
+        public void Positional_WithDoubleDashPositionalArgumentAfterDoubleDash_ParsesPositionalArgument()
+        {
+            var opt = CliParser.Parse<OnePositionalArgument>("-- --".Split());
+            Assert.AreEqual("--", opt.Input);
+        }
+
+        [TestMethod]
+        public void Positional_WithPositionalArgumentThatLooksLikeLongNamedArgumentAfterDoubleDash_ParsesPositionalArgument()
+        {
+            var opt = CliParser.Parse<OnePositionalArgument>("-- --argument".Split());
+            Assert.AreEqual("--argument", opt.Input);
+        }
+
+        [TestMethod]
+        public void Positional_WithPositionalArgumentThatLooksLikeShortNamedArgumentAfterDoubleDash_ParsesPositionalArgument()
+        {
+            var opt = CliParser.Parse<OnePositionalArgument>("-- -o".Split());
+            Assert.AreEqual("-o", opt.Input);
+        }
+
+        [TestMethod]
         public void Positional_WithValueBeginningWithHyphenForced_ParsesValueAsPositional()
         {
             var opt = CliParser.Parse<OnePositionalArgument>("-- -hyphen".Split());
@@ -176,13 +204,13 @@ namespace clipr.UnitTests
 
         [TestMethod]
         [ExpectedException(typeof(ParseException))]
-        public void Positional_WithAtMostOneValueAndGivenOneValue_ThrowsException()
+        public void Positional_WithAtLeastTwoValuesAndGivenOneValue_ThrowsException()
         {
             CliParser.Parse<VarargAtLeastTwo>("value1".Split());
         }
 
         [TestMethod]
-        public void Positional_WithAtLeastOneValueAndGivenTwoValues_AddsValues()
+        public void Positional_WithAtLeastTwoValuesAndGivenTwoValues_AddsValues()
         {
             var expected = new List<string> { "value1", "value2" };
             var opt = CliParser.Parse<VarargAtLeastTwo>("value1 value2".Split());
@@ -190,7 +218,7 @@ namespace clipr.UnitTests
         }
 
         [TestMethod]
-        public void Positional_WithAtLeastOneValueAndGivenThreeValues_AddsValues()
+        public void Positional_WithAtLeastTwoValuesAndGivenThreeValues_AddsValues()
         {
             var expected = new List<string> { "value1", "value2", "value3" };
             var opt = CliParser.Parse<VarargAtLeastTwo>("value1 value2 value3".Split());

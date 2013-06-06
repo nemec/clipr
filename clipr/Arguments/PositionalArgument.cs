@@ -13,10 +13,5 @@ namespace clipr.Arguments
             : base(prop)
         {
         }
-
-        internal override string GetArgumentDisplayName()
-        {
-            return null;
-        }
     }
 }

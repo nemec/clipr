@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using clipr.Arguments;
 
@@ -11,9 +12,9 @@ namespace clipr.Usage
     {
         public ParserConfig<T> Config { get; set; }
 
-        public string ArgumentName { get { return "ResourceUsageGenerator"; } }
+        public string Name { get { return "ResourceUsageGenerator"; } }
 
-        public string[] MutuallyExclusiveGroups { get; set; }
+        public List<string> MutuallyExclusiveGroups { get; set; }
 
         public bool ConsumesMultipleArgs { get { return false; } }
 
@@ -66,6 +67,31 @@ namespace clipr.Usage
 
 
         public ParseAction Action
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+            set
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+
+        public uint NumArgs
+        {
+            get
+            {
+                throw new NotImplementedException();
+            }
+            set
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        public NumArgsConstraint Constraint
         {
             get
             {

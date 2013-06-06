@@ -58,7 +58,7 @@ namespace clipr
         /// </para>
         /// <para>
         /// This action must be used on an instance of
-        /// <see cref="IList"/> and if this argument is specified
+        /// <see cref="IEnumerable"/> and if this argument is specified
         /// multiple times, values are appended to the list rather
         /// than overwritten.
         /// </para>
@@ -75,7 +75,7 @@ namespace clipr
         /// </para>
         /// <para>
         /// This action must be used on an instance of
-        /// <see cref="IList"/> and if this argument is specified
+        /// <see cref="IEnumerable"/> and if this argument is specified
         /// multiple times, values are appended to the list rather
         /// than overwritten.
         /// </para>

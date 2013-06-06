@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using clipr.Arguments;
 
@@ -10,9 +11,9 @@ namespace clipr.Annotations
     [AttributeUsage(AttributeTargets.Property)]
     public abstract class ArgumentAttribute : Attribute, IArgument
     {
-        public string ArgumentName { get; internal set; }
+        public string Name { get; internal set; }
 
-        public string[] MutuallyExclusiveGroups { get; set; }
+        public List<string> MutuallyExclusiveGroups { get; set; }
 
         /// <summary>
         /// Description of the argument value. Used when

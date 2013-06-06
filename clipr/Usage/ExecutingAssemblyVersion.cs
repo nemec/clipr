@@ -1,24 +1,15 @@
 ﻿using System;
 using System.Reflection;
+using clipr.Triggers;
 
 namespace clipr.Usage
 {
     /// <summary>
     /// Version information pulled from the currently executing assembly.
     /// </summary>
-    public class ExecutingAssemblyVersion<T> : IVersion<T> where T : class
+    public class ExecutingAssemblyVersion<T> : TriggerBase<T>, IVersion<T> where T : class
     {
-        public string ArgumentName { get { return "Version"; } }
-
-        public string[] MutuallyExclusiveGroups { get; set; }
-
-        public bool ConsumesMultipleArgs { get { return false; } }
-
-        public object Const { get; set; }
-
-        public char? ShortName { get; set; }
-
-        public string LongName { get; set; }
+        public string Name { get { return "Version"; } }
 
         private readonly string _version;
 
@@ -49,29 +40,9 @@ namespace clipr.Usage
             Console.Error.WriteLine(GetVersion());
         }
 
-
-        public ParserConfig<T> Config { get; set; }
-
-        public PropertyInfo Property { get; set; }
-
-        public string MetaVar { get; set; }
-
         public string Description
         {
             get { return "Displays the version of the current executable."; }
-        }
-
-
-        public ParseAction Action
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
         }
     }
 }

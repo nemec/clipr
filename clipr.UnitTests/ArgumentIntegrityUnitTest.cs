@@ -31,13 +31,13 @@ namespace clipr.UnitTests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(DuplicateArgumentException))]
         public void ParseArgument_WithArgumentsOfDifferingCaseWhenCaseInsensitive_ThrowsException()
         {
             var opt = new DuplicateArgumentWhenCaseInsensitive();
             var parser = new CliParser<DuplicateArgumentWhenCaseInsensitive>(
                 opt, ParserOptions.CaseInsensitive);
-            parser.Parse("-n tim -n robert".Split());
+
+            AssertEx.Throws<DuplicateArgumentException>(() => parser.Parse("-n tim -n robert".Split()));
         }
 
         internal class DuplicateArguments
@@ -50,10 +50,11 @@ namespace clipr.UnitTests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(DuplicateArgumentException))]
         public void ParseArgument_WithDuplicateArguments_ThrowsException()
         {
-            new CliParser<DuplicateArguments>(new DuplicateArguments());
+            var parser = new CliParser<DuplicateArguments>(new DuplicateArguments());
+            AssertEx.Throws<DuplicateArgumentException>(
+                () => parser.Parse("-n orange".Split()));
         }
 
         #endregion
@@ -99,11 +100,11 @@ namespace clipr.UnitTests
 
         internal class MultiplePositionalArgsWithMultipleValues
         {
-            [PositionalArgument(0, NumArgs = 2)]
-            public IList<string> Listy { get; set; }
+            [PositionalArgument(0, NumArgs = 1, Constraint = NumArgsConstraint.AtLeast)]
+            public IEnumerable<string> Listy { get; set; }
 
             [PositionalArgument(1, NumArgs = 2)]
-            public IList<string> Listy2 { get; set; }
+            public IEnumerable<string> Listy2 { get; set; }
         }
 
         [TestMethod]
@@ -116,7 +117,7 @@ namespace clipr.UnitTests
 
         #endregion
 
-        #region Append/AppendConst implements IList<>.
+        #region Append/AppendConst implements IEnumerable<>.
 
         internal class ParseActionAppend
         {
@@ -126,7 +127,7 @@ namespace clipr.UnitTests
 
         [TestMethod]
         [ExpectedException(typeof(AggregateException))]
-        public void Argument_WithParseActionAppendAndDoesNotImplementIList_FailsValidation()
+        public void Argument_WithParseActionAppendAndDoesNotImplementIEnumerable_FailsValidation()
         {
             new CliParser<ParseActionAppend>(new ParseActionAppend());
         }
@@ -139,7 +140,7 @@ namespace clipr.UnitTests
 
         [TestMethod]
         [ExpectedException(typeof(AggregateException))]
-        public void Argument_WithParseActionAppendConstAndDoesNotImplementIList_FailsValidation()
+        public void Argument_WithParseActionAppendConstAndDoesNotImplementIEnumerable_FailsValidation()
         {
             new CliParser<ParseActionAppendConst>(new ParseActionAppendConst());
         }
@@ -172,7 +173,7 @@ namespace clipr.UnitTests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentIntegrityException))]
+        [ExpectedException(typeof(AggregateException))]
         public void Argument_WithInvalidCharacterAsShortName_FailsValidation()
         {
             new CliParser<InvalidShortName>(new InvalidShortName());
@@ -189,7 +190,7 @@ namespace clipr.UnitTests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentIntegrityException))]
+        [ExpectedException(typeof(AggregateException))]
         public void Argument_WithInvalidCharacterAsLongName_FailsValidation()
         {
             new CliParser<InvalidLongName>(new InvalidLongName());
@@ -264,23 +265,23 @@ namespace clipr.UnitTests
         #region Help short name validity.
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentIntegrityException))]
         public void Help_WithInvalidShortName_ThrowsException()
         {
             var help = new Usage.AutomaticHelpGenerator<object>();
             help.ShortName = '.';
 
-            new CliParser<object>(new object(), help);
+            AssertEx.ThrowsAggregateContaining<ArgumentIntegrityException>(
+                            () => new CliParser<object>(new object(), help));
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentIntegrityException))]
         public void Help_WithInvalidShortNameAsDigit_ThrowsException()
         {
             var help = new Usage.AutomaticHelpGenerator<object>();
             help.ShortName = '1';
 
-            new CliParser<object>(new object(), help);
+            AssertEx.ThrowsAggregateContaining<ArgumentIntegrityException>(
+                            () => new CliParser<object>(new object(), help));
         }
 
         #endregion
@@ -288,43 +289,45 @@ namespace clipr.UnitTests
         #region Help long name validity.
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentIntegrityException))]
         public void Help_WithInvalidLongName_ThrowsException()
         {
             var help = new Usage.AutomaticHelpGenerator<object>();
             help.LongName = "no.thing";
 
-            new CliParser<object>(new object(), help);
+            AssertEx.ThrowsAggregateContaining<ArgumentIntegrityException>(
+                            () => new CliParser<object>(new object(), help));
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentIntegrityException))]
         public void Help_WithInvalidLongNameLength_ThrowsException()
         {
             var help = new Usage.AutomaticHelpGenerator<object>();
             help.LongName = "n";
 
-            new CliParser<object>(new object(), help);
+            AssertEx.ThrowsAggregateContaining<ArgumentIntegrityException>(
+                () => new CliParser<object>(new object(), help));
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentIntegrityException))]
         public void Help_WithInvalidLongNameEndingWithDash_ThrowsException()
         {
             var help = new Usage.AutomaticHelpGenerator<object>();
             help.LongName = "none-";
 
-            new CliParser<object>(new object(), help);
+            AssertEx.ThrowsAggregateContaining<ArgumentIntegrityException>(
+                () => new CliParser<object>(new object(), help));
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentIntegrityException))]
         public void Help_WithInvalidLongNameBeginningWithDigit_ThrowsException()
         {
             var help = new Usage.AutomaticHelpGenerator<object>();
             help.LongName = "1none";
 
-            new CliParser<object>(new object(), help);
+            AssertEx.ThrowsAggregateContaining<ArgumentIntegrityException>(() =>
+            {
+                new CliParser<object>(new object(), help);
+            });
         }
 
         #endregion
@@ -339,7 +342,8 @@ namespace clipr.UnitTests
             var help = new Usage.AutomaticHelpGenerator<object>();
             //help.Version.ShortName = '.';
 
-            new CliParser<object>(new object(), help);
+            AssertEx.ThrowsAggregateContaining<ArgumentIntegrityException>(
+                () => new CliParser<object>(new object(), help));
         }
 
         [TestMethod]
@@ -350,7 +354,10 @@ namespace clipr.UnitTests
             var help = new Usage.AutomaticHelpGenerator<object>();
             //help.Version.ShortName = '1';
 
-            new CliParser<object>(new object(), help);
+            AssertEx.ThrowsAggregateContaining<ArgumentIntegrityException>(() =>
+            {
+                new CliParser<object>(new object(), help);
+            });
         }
 
         #endregion

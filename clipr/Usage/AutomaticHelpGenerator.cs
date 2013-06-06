@@ -6,6 +6,7 @@ using System.Text;
 using System.Linq;
 using clipr.Annotations;
 using clipr.Arguments;
+using clipr.Triggers;
 
 namespace clipr.Usage
 {
@@ -14,29 +15,9 @@ namespace clipr.Usage
     /// type.
     /// </summary>
     /// <typeparam name="T">Type to inspect.</typeparam>
-    public class AutomaticHelpGenerator<T> : IHelpGenerator<T> where T : class
+    public class AutomaticHelpGenerator<T> : TriggerBase<T>, IHelpGenerator<T> where T : class
     {
-        public ParserConfig<T> Config { get; set; }
-
-        public string ArgumentName { get { return "HelpGenerator"; } }
-
-        #region Unnecessary stuff
-
-        // TODO I don't like this
-
-        public string[] MutuallyExclusiveGroups { get; set; }
-
-        public bool ConsumesMultipleArgs { get { return false; } }
-
-        public object Const { get; set; }
-
-        #endregion
-        
-        public char? ShortName { get; set; }
-
-        public string LongName { get; set; }
-
-        public string MetaVar { get; set; }
+        public string Name { get { return "HelpGenerator"; } }
 
         public virtual string Description
         {
@@ -73,7 +54,7 @@ namespace clipr.Usage
             p => p.Index;
 
         private readonly Func<INamedArgument, string> _argumentDisplayName =
-            p => p.MetaVar ?? p.ArgumentName;
+            p => p.MetaVar ?? p.Name;
 
         /// <summary>
         /// Create a new generator.
@@ -301,7 +282,7 @@ namespace clipr.Usage
 
             if (!names.Any())
             {
-                names.Add(attr.ArgumentName);
+                names.Add(attr.Name);
             }
             return new ArgumentDisplay
             {
@@ -344,31 +325,6 @@ namespace clipr.Usage
         public void OnParse()
         {
             Console.Error.WriteLine(GetHelp());
-        }
-
-        public PropertyInfo Property
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
-
-
-        public ParseAction Action
-        {
-            get
-            {
-                throw new NotImplementedException();
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
         }
     }
 }

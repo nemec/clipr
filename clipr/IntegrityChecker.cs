@@ -3,10 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using clipr.Annotations;
+using clipr.Arguments;
+using clipr.Triggers;
 
 namespace clipr
 {
-    internal static class AttributeIntegrityChecker
+    internal class IntegrityChecker
     {
         /// <summary>
         /// <para>
@@ -25,7 +27,7 @@ namespace clipr
         /// <typeparam name="T">
         /// Perform integrity check on this type.
         /// </typeparam>
-        internal static void EnsureAttributeIntegrity<T>()
+        internal void EnsureAttributeIntegrity<T>()
         {
             var integrityExceptions = new List<Exception>();
 
@@ -51,19 +53,8 @@ namespace clipr
 
                 #endregion
 
-                integrityExceptions.AddRange(new[]
-                {
-                    NumArgsGreaterThanZeroCheck(attr),
-                    VarArgsConvertibleToIListCheck(prop, attr),
-                    PositionalArgumentsCannotStoreConstValues(prop, attr),
-                    PositionalArgumentsCannotAppendValues(prop, attr),
-                    PositionalArgumentsCannotStoreCount(prop, attr),
-                    AppendConvertibleToIList(prop, attr),
-                    CountActionConvertibleToIntCheck(prop, attr),
-                    StoreTrueFalseConvertibleToBoolCheck(prop, attr),
-                    ConstActionsCannotHaveNullValueCheck(prop, attr),
-                    ConvertibleConstValuesCheck(prop, attr)
-                }.Where(e => e != null));
+                integrityExceptions.AddRange(
+                    GetIntegrityExceptionsForArgument(prop, attr));
             }
 
             integrityExceptions.Add(LastPositionalArgumentCanTakeMultipleValuesCheck<T>());
@@ -77,50 +68,116 @@ namespace clipr
             }
         }
 
+        internal void EnsureTriggerIntegrity<TConf>(IEnumerable<ITrigger<TConf>> triggers)
+            where TConf : class 
+        {
+            var integrityExceptions = new List<Exception>();
+
+            foreach (var trigger in triggers.Where(t => t != null))
+            {
+                integrityExceptions.AddRange(
+                    GetIntegrityExceptionsForArgument(null, trigger));
+            }
+
+            integrityExceptions = integrityExceptions
+                .Where(e => e != null).ToList();
+            if (integrityExceptions.Any())
+            {
+                throw new AggregateException(integrityExceptions);
+            }
+        }
+
+        private IEnumerable<Exception> GetIntegrityExceptionsForArgument(PropertyInfo prop, IArgument attr)
+        {
+            return new[]
+                {
+                    NumArgsGreaterThanZeroCheck(attr),
+                    VarArgsConvertibleToIEnumerableCheck(prop, attr),
+                    ShortNameArgumentMustBeValidCharacter(attr),
+                    LongNameArgumentMustBeValidCharacter(attr),
+                    PositionalArgumentsCannotStoreConstValues(prop, attr),
+                    PositionalArgumentsCannotAppendValues(prop, attr),
+                    PositionalArgumentsCannotStoreCount(prop, attr),
+                    AppendConvertibleToIEnumerable(prop, attr),
+                    CountActionConvertibleToIntCheck(prop, attr),
+                    StoreTrueFalseConvertibleToBoolCheck(prop, attr),
+                    ConstActionsCannotHaveNullValueCheck(prop, attr),
+                    ConvertibleConstValuesCheck(prop, attr)
+                }.Where(e => e != null);
+        }
+
         /// <summary>
         /// NumArgs must not equal zero.
         /// </summary>
         /// <param name="attr"></param>
         /// <returns></returns>
-        private static Exception NumArgsGreaterThanZeroCheck(ArgumentAttribute attr)
+        private Exception NumArgsGreaterThanZeroCheck(IArgument attr)
         {
             if (attr.NumArgs == 0)
             {
                 return new ArgumentIntegrityException(
                     "Do not define an argument count less than 1. " +
                     "Any actions that do not require arguments will " +
-                    "ignore this property.");
+                    "ignore this property regardless of count.");
             }
             return null;
         }
 
         /// <summary>
-        /// Arguments that take multiple values must be convertible to IList.
+        /// Arguments that take multiple values must be convertible to IEnumerable.
         /// </summary>
         /// <param name="prop"></param>
         /// <param name="attr"></param>
         /// <returns></returns>
-        private static Exception VarArgsConvertibleToIListCheck(
-            PropertyInfo prop, ArgumentAttribute attr)
+        private Exception VarArgsConvertibleToIEnumerableCheck(
+            PropertyInfo prop, IArgument attr)
         {
-            if (attr.ConsumesMultipleArgs && !prop.IsValidIList())
+            if (attr.ConsumesMultipleArgs && !prop.IsValidIEnumerable())
             {
                 return new ArgumentIntegrityException(
                     "Arguments with a variable number of values or " +
                     "more than one required value must be attached " +
-                    "to a parameter assignable to IList.");
+                    "to a parameter assignable to IEnumerable.");
             }
             return null;
         }
 
-    /// <summary>
+        private Exception ShortNameArgumentMustBeValidCharacter(IArgument arg)
+        {
+            var sh = arg as IShortNameArgument;
+            if (sh != null 
+                && sh.ShortName.HasValue 
+                && !ArgumentValidation.IsAllowedShortName(sh.ShortName.Value))
+            {
+                return new ArgumentIntegrityException(String.Format(
+                    "Invalid argument {0}: {1}", sh.ShortName, 
+                    ArgumentValidation.IsAllowedShortNameExplanation));
+            }
+            return null;
+        }
+
+        private Exception LongNameArgumentMustBeValidCharacter(IArgument arg)
+        {
+            var sh = arg as ILongNameArgument;
+            if (sh != null 
+                && sh.LongName != null 
+                && !ArgumentValidation.IsAllowedLongName(sh.LongName))
+            {
+                return new ArgumentIntegrityException(String.Format(
+                    "Invalid argument {0}: {1}", sh.LongName,
+                    ArgumentValidation.IsAllowedLongNameExplanation));
+            }
+            return null;
+        }
+
+        /// <summary>
         /// Positional arguments cannot store const values.
         /// </summary>
         /// <param name="prop"></param>
         /// <param name="attr"></param>
         /// <returns></returns>
-        private static Exception PositionalArgumentsCannotStoreConstValues(
-            PropertyInfo prop, ArgumentAttribute attr)
+        private Exception PositionalArgumentsCannotStoreConstValues(
+            PropertyInfo prop, IArgument attr)
         {
             if (attr is PositionalArgumentAttribute &&
                     (attr.Action == ParseAction.StoreConst ||
@@ -140,8 +197,8 @@ namespace clipr
         /// <param name="prop"></param>
         /// <param name="attr"></param>
         /// <returns></returns>
-        private static Exception PositionalArgumentsCannotAppendValues(
-            PropertyInfo prop, ArgumentAttribute attr)
+        private Exception PositionalArgumentsCannotAppendValues(
+            PropertyInfo prop, IArgument attr)
         {
             if (attr is PositionalArgumentAttribute &&
                     attr.Action == ParseAction.Append)
@@ -159,8 +216,8 @@ namespace clipr
         /// <param name="prop"></param>
         /// <param name="attr"></param>
         /// <returns></returns>
-        private static Exception PositionalArgumentsCannotStoreCount(
-            PropertyInfo prop, ArgumentAttribute attr)
+        private Exception PositionalArgumentsCannotStoreCount(
+            PropertyInfo prop, IArgument attr)
         {
             if (attr is PositionalArgumentAttribute &&
                     attr.Action == ParseAction.Count)
@@ -173,22 +230,22 @@ namespace clipr
         }
 
         /// <summary>
-        /// Append and AppendConst actions must be convertible to IList.
+        /// Append and AppendConst actions must be convertible to IEnumerable{T}.
         /// </summary>
         /// <param name="prop"></param>
         /// <param name="attr"></param>
         /// <returns></returns>
-        private static Exception AppendConvertibleToIList(
-            PropertyInfo prop, ArgumentAttribute attr)
+        private Exception AppendConvertibleToIEnumerable(
+            PropertyInfo prop, IArgument attr)
         {
             if ((attr.Action == ParseAction.Append ||
                     attr.Action == ParseAction.AppendConst) &&
-                    !prop.IsValidIList())
+                    !prop.IsValidIEnumerable())
             {
                 return new ArgumentIntegrityException(
                     "Arguments with a ParseAction of 'Append' " +
                     "or 'AppendConst' must be attached to a " +
-                    "parameter assignable to IList.");
+                    "parameter assignable to IEnumerable<>.");
             }
             return null;
         }
@@ -199,8 +256,8 @@ namespace clipr
         /// <param name="prop"></param>
         /// <param name="attr"></param>
         /// <returns></returns>
-        private static Exception CountActionConvertibleToIntCheck(
-            PropertyInfo prop, ArgumentAttribute attr)
+        private Exception CountActionConvertibleToIntCheck(
+            PropertyInfo prop, IArgument attr)
         {
             if (attr.Action == ParseAction.Count && !prop.IsValid<int>())
             {
@@ -217,8 +274,8 @@ namespace clipr
         /// <param name="prop"></param>
         /// <param name="attr"></param>
         /// <returns></returns>
-        private static Exception StoreTrueFalseConvertibleToBoolCheck(
-            PropertyInfo prop, ArgumentAttribute attr)
+        private Exception StoreTrueFalseConvertibleToBoolCheck(
+            PropertyInfo prop, IArgument attr)
         {
             if ((attr.Action == ParseAction.StoreTrue ||
                      attr.Action == ParseAction.StoreFalse) &&
@@ -240,8 +297,8 @@ namespace clipr
         /// <param name="prop"></param>
         /// <param name="attr"></param>
         /// <returns></returns>
-        private static Exception ConstActionsCannotHaveNullValueCheck(
-            PropertyInfo prop, ArgumentAttribute attr)
+        private Exception ConstActionsCannotHaveNullValueCheck(
+            PropertyInfo prop, IArgument attr)
         {
             if ((attr.Action == ParseAction.StoreConst ||
                      attr.Action == ParseAction.AppendConst) &&
@@ -261,8 +318,8 @@ namespace clipr
         /// <param name="prop"></param>
         /// <param name="attr"></param>
         /// <returns></returns>
-        private static Exception ConvertibleConstValuesCheck(
-            PropertyInfo prop, ArgumentAttribute attr)
+        private Exception ConvertibleConstValuesCheck(
+            PropertyInfo prop, IArgument attr)
         {
             if ((attr.Action == ParseAction.StoreConst &&
                         !prop.ValueIsConvertible(attr.Const)) ||
@@ -282,7 +339,7 @@ namespace clipr
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        private static Exception LastPositionalArgumentCanTakeMultipleValuesCheck<T>()
+        private Exception LastPositionalArgumentCanTakeMultipleValuesCheck<T>()
         {
             var props = typeof(T).GetProperties()
                 .Where(p => p.GetCustomAttribute<PositionalArgumentAttribute>() != null);
@@ -305,7 +362,7 @@ namespace clipr
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        private static Exception PostParseZeroParametersCheck<T>()
+        private Exception PostParseZeroParametersCheck<T>()
         {
             var invalidPostParseMethods = typeof(T).GetMethods()
                 .Where(m => m.GetCustomAttribute<PostParseAttribute>() != null)

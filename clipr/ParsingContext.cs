@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
-using clipr.Annotations;
 using clipr.Arguments;
 using clipr.Triggers;
 
@@ -199,7 +198,7 @@ namespace clipr
         {
             foreach (var arg in Config.PositionalArguments)
             {
-                ParseArgument(arg.ArgumentName.ToLowerInvariant(), arg, args);
+                ParseArgument(arg.Name.ToLowerInvariant(), arg, args);
             }
         }
 
@@ -217,43 +216,38 @@ namespace clipr
             switch (arg.Action)
             {
                 case ParseAction.Store:
-                    if (!arg.ConsumesMultipleArgs)
                     {
-                        if (args.Count == 0)
+                        if (!arg.ConsumesMultipleArgs)
                         {
-                            throw new ParseException(attrName, String.Format(
-                                @"Argument ""{0}"" requires a value but " +
-                                "none was provided.", attrName));
-                        }
-                        var stringValue = args.Pop();
-                        try
-                        {
-                            prop.SetValue(Object, ConvertFrom(prop, stringValue), null);
-                        }
-                        catch (Exception e)
-                        {
-                            throw new ParseException(attrName, String.Format(
-                                @"Value ""{0}"" cannot be converted to the " +
-                                "required type {1}.",
-                                stringValue, prop.PropertyType), e);
-                        }
-                    }
-                    else
-                    {
-                        var values = (IList)prop.GetValue(Object, null);
-                        if (values != null)
-                        {
-                            values.Clear();  // Store overwrites always
+                            if (args.Count == 0)
+                            {
+                                throw new ParseException(attrName, String.Format(
+                                    @"Argument ""{0}"" requires a value but " +
+                                    "none was provided.", attrName));
+                            }
+                            var stringValue = args.Pop();
+                            try
+                            {
+                                prop.SetValue(Object, ConvertFrom(prop, stringValue), null);
+                            }
+                            catch (Exception e)
+                            {
+                                throw new ParseException(attrName, String.Format(
+                                    @"Value ""{0}"" cannot be converted to the " +
+                                    "required type {1}.",
+                                    stringValue, prop.PropertyType), e);
+                            }
                         }
                         else
                         {
-                            values = (IList)Activator.CreateInstance(prop.PropertyType);
-                        }
-                        ParseVarargs(attrName, values, prop, args);
-                        prop.SetValue(Object, values, null);
-                    }
-                    break;
+                            var existing = (IEnumerable)prop.GetValue(Object, null);
+                            var backingList = CreateGenericList(prop, existing);
 
+                            ParseVarargs(attrName, backingList, arg, args);
+                            prop.SetValue(Object, backingList, null);
+                        }
+                        break;
+                    }
                 case ParseAction.StoreConst:
                     prop.SetValue(Object, arg.Const, null);
                     break;
@@ -267,41 +261,45 @@ namespace clipr
                     break;
 
                 case ParseAction.Append:
-                    var appValues = (IList)prop.GetValue(Object, null) ??
-                        (IList)Activator.CreateInstance(prop.PropertyType);
-                    if (!arg.ConsumesMultipleArgs)
                     {
-                        if (args.Count == 0)
-                        {
-                            throw new ParseException(attrName);
-                        }
-                        var stringValue = args.Pop();
-                        try
-                        {
-                            appValues.Add(ConvertFromGeneric(prop, stringValue));
-                        }
-                        catch (Exception e)
-                        {
-                            throw new ParseException(attrName, String.Format(
-                                @"Value ""{0}"" cannot be converted to the " +
-                                "required type {1}.",
-                                stringValue, prop.PropertyType), e);
-                        }
-                    }
-                    else
-                    {
-                        ParseVarargs(attrName, appValues, prop, args);
+                        var existing = (IEnumerable)prop.GetValue(Object, null);
+                        var backingList = CreateGenericList(prop, existing);
 
+                        if (!arg.ConsumesMultipleArgs)
+                        {
+                            if (args.Count == 0)
+                            {
+                                throw new ParseException(attrName);
+                            }
+                            var stringValue = args.Pop();
+                            try
+                            {
+                                backingList.Add(ConvertFromGeneric(prop, stringValue));
+                            }
+                            catch (Exception e)
+                            {
+                                throw new ParseException(attrName, String.Format(
+                                    @"Value ""{0}"" cannot be converted to the " +
+                                    "required type {1}.",
+                                    stringValue, prop.PropertyType), e);
+                            }
+                        }
+                        else
+                        {
+                            ParseVarargs(attrName, backingList, arg, args);
+
+                        }
+                        prop.SetValue(Object, backingList, null);
+                        break;
                     }
-                    prop.SetValue(Object, appValues, null);
-                    break;
                 case ParseAction.AppendConst:
-                    var constValues = (IList)prop.GetValue(Object, null) ??
-                        (IList)Activator.CreateInstance(prop.PropertyType);
-                    constValues.Add(arg.Const);
-                    prop.SetValue(Object, constValues, null);
-                    break;
-
+                    {
+                        var existing = (IEnumerable) prop.GetValue(Object, null);
+                        var backingList = CreateGenericList(prop, existing);
+                        backingList.Add(arg.Const);
+                        prop.SetValue(Object, backingList, null);
+                        break;
+                    }
                 case ParseAction.Count:
                     var cnt = (int)prop.GetValue(Object, null);
                     prop.SetValue(Object, cnt + 1, null);
@@ -309,30 +307,28 @@ namespace clipr
             }
         }
 
-        private static void ParseVarargs(string attrName, IList list,
-            PropertyInfo prop, Stack<string> args)
+        private void ParseVarargs(string attrName, IList list,
+            IArgument arg, Stack<string> args)
         {
-            var attr = prop.GetCustomAttribute<ArgumentAttribute>();  // TODO no more Attributes
-
             var argsProcessed = 0;
 
             #region Set minimum and maximum argument count.
 
             uint minArgs = 0;
             uint maxArgs = 0;
-            switch (attr.Constraint)
+            switch (arg.Constraint)
             {
                 case NumArgsConstraint.Exactly:
-                    minArgs = attr.NumArgs;
-                    maxArgs = attr.NumArgs;
+                    minArgs = arg.NumArgs;
+                    maxArgs = arg.NumArgs;
                     break;
                 case NumArgsConstraint.AtLeast:
-                    minArgs = attr.NumArgs;
+                    minArgs = arg.NumArgs;
                     maxArgs = uint.MaxValue;
                     break;
                 case NumArgsConstraint.AtMost:
                     minArgs = 0;
-                    maxArgs = attr.NumArgs;
+                    maxArgs = arg.NumArgs;
                     break;
             }
 
@@ -341,16 +337,24 @@ namespace clipr
             while (args.Count > 0 && argsProcessed < maxArgs)
             {
                 var stringValue = args.Pop();
+
+                // Quit if we start a new argument here.
+                if (stringValue != null &&
+                    stringValue.StartsWith(Config.ArgumentPrefix.ToString()))
+                {
+                    args.Push(stringValue);
+                    break;
+                }
                 try
                 {
-                    list.Add(ConvertFromGeneric(prop, stringValue));
+                    list.Add(ConvertFromGeneric(arg.Property, stringValue));
                 }
                 catch (Exception e)
                 {
                     throw new ParseException(attrName, String.Format(
                         @"Value ""{0}"" cannot be converted to the " +
                         "required type {1}.",
-                        stringValue, prop.PropertyType), e);
+                        stringValue, arg.Property.PropertyType), e);
                 }
                 argsProcessed++;
             }
@@ -359,8 +363,8 @@ namespace clipr
             {
                 throw new ParseException(attrName, String.Format(
                     "Parameter {0} requires {1} {2} value(s).",
-                    attr.MetaVar ?? prop.Name,
-                    attr.Constraint == NumArgsConstraint.Exactly ?
+                    arg.MetaVar ?? arg.Name,
+                    arg.Constraint == NumArgsConstraint.Exactly ?
                         "exactly" : "at least",
                     minArgs));
             }
@@ -370,11 +374,8 @@ namespace clipr
 
         private void ParsingCleanup()
         {
-            var missingRequiredMutexGroups = new HashSet<string>(
-                typeof(T).GetProperties().SelectMany(p =>
-                    p.GetCustomAttributes<MutuallyExclusiveGroupAttribute>()  // TODO no more Attributes
-                    .Where(a => a.Required)
-                    .Select(a => a.Name)))
+            var missingRequiredMutexGroups = Config
+                .RequiredMutuallyExclusiveArguments
                 .Except(ParsedMutuallyExclusiveGroups);
             if (missingRequiredMutexGroups.Any())
             {
@@ -401,6 +402,24 @@ namespace clipr
             return TypeDescriptor.GetConverter(
                 prop.PropertyType.GetGenericArguments().First())
                 .ConvertFromInvariantString(value);
+        }
+
+        private static IList CreateGenericList(PropertyInfo prop, IEnumerable initial)
+        {
+            var type = prop.PropertyType.GetGenericArguments();
+            if (!type.Any())
+            {
+                return null;
+            }
+            var list = (IList) Activator.CreateInstance(typeof (List<>).MakeGenericType(type));
+            if (initial != null)
+            {
+                foreach (var elem in initial)
+                {
+                    list.Add(elem);
+                }
+            }
+            return list;
         }
     }
 }

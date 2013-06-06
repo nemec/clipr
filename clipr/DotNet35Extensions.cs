@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace clipr
 {
@@ -16,6 +17,7 @@ namespace clipr
         /// </summary>
         /// <param name="exceptions"></param>
         public AggregateException(IEnumerable<Exception> exceptions)
+            : base("", exceptions.First())
         {
             _exceptions = exceptions;
         }

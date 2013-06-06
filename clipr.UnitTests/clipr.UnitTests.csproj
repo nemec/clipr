@@ -63,6 +63,8 @@
     <Compile Include="SubCommandUnitTest.cs" />
     <Compile Include="PostParseUnitTest.cs" />
     <Compile Include="StringExtensionsUnitTest.cs" />
+    <Compile Include="AssertEx.cs" />
+    <Compile Include="FluentInterfaceUnitTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\clipr\clipr.csproj">
