@@ -142,19 +142,21 @@ namespace clipr
 
         #region Private Parsing Methods
 
-        private void ParseOptionalArgument<TS>(TS name, IEnumerable<KeyValuePair<TS, IShortNameArgument>> argDict, Stack<string> iter)
+        private void ParseOptionalArgument<TS>(TS name, Dictionary<TS, IShortNameArgument> argDict, Stack<string> iter)
         {
             var newDict = argDict.ToDictionary(
                 k => k.Key,
-                v => v.Value as IArgument);
+                v => v.Value as IArgument,
+                argDict.Comparer);
             ParseOptionalArgument(name, newDict, iter);
         }
 
-        private void ParseOptionalArgument<TS>(TS name, IEnumerable<KeyValuePair<TS, ILongNameArgument>> argDict, Stack<string> iter)
+        private void ParseOptionalArgument<TS>(TS name, Dictionary<TS, ILongNameArgument> argDict, Stack<string> iter)
         {
             var newDict = argDict.ToDictionary(
                 k => k.Key,
-                v => v.Value as IArgument);
+                v => v.Value as IArgument,
+                argDict.Comparer);
             ParseOptionalArgument(name, newDict, iter);
         }
 

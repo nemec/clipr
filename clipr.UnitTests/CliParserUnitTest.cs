@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
-using System.Reflection;
+using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using clipr.Annotations;
 
@@ -23,7 +23,7 @@ namespace clipr.UnitTests
         {
             var parser = new CliParser<CaseFoldingOptions>(
                 new CaseFoldingOptions(), ParserOptions.CaseInsensitive);
-            parser.Parse("--name timothy".Split());
+            parser.Parse("--Name timothy".Split());
         }
 
         [TestMethod]
@@ -39,7 +39,7 @@ namespace clipr.UnitTests
         {
             var parser = new CliParser<CaseFoldingOptions>(
                 new CaseFoldingOptions(), ParserOptions.CaseInsensitive);
-            parser.Parse("-n timothy".Split());
+            parser.Parse("-N timothy".Split());
         }
 
         [TestMethod]
@@ -288,6 +288,21 @@ namespace clipr.UnitTests
             var obj = CliParser.Parse<InfiniteNamedWithOtherNamedFollowing>(
                 "-n one two three -o final".Split());
             Assert.AreEqual("final", obj.Other);
+        }
+
+        internal class EnumerableArguments
+        {
+            [NamedArgument('n',
+                Constraint = NumArgsConstraint.AtLeast, NumArgs = 1)]
+            public IEnumerable<int> Numbers { get; set; } 
+        }
+
+        [TestMethod]
+        public void Parse_WithIEnumerableNamedArgument_ParsesIntoIEnumerable()
+        {
+            var obj = CliParser.Parse<EnumerableArguments>(
+                "-n 1 4 6 8".Split());
+            Assert.AreEqual(4, obj.Numbers.Count());
         }
     }
 }
