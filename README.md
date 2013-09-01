@@ -22,7 +22,7 @@ to take the arguments already sent to any Console project and fill a
 class with those values, even if they contain custom Types. Here's a quick
 but powerful example of the objects this library enables you to build:
 
-    [Command(Description = "This is a set of options.")]
+    [ApplicationInfo(Description = "This is a set of options.")]
     public class Options
     {
         [NamedArgument('v', "verbose", Action = ParseAction.Count,
