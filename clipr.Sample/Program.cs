@@ -106,9 +106,38 @@ namespace clipr.Sample
             Console.WriteLine("File name to add: {0}", opt.AddInfo.Filename);  // oranges.txt
         }
 
+        public class ConditionalOptions
+        {
+            public string Filename { get; set; }
+
+            public string Url { get; set; }
+        }
+
+        public static void FluentConditional(string destinationFromConfig, string[] args)
+        {
+            var opt = new ConditionalOptions();
+            var parser = new CliParser<ConditionalOptions>(opt);
+
+            switch (destinationFromConfig)
+            {
+                case "file":
+                    parser.HasNamedArgument(c => c.Filename)
+                          .WithShortName('f');
+                    break;
+                //case "http":
+                default:
+                    parser.HasNamedArgument(c => c.Url)
+                          .WithShortName('u');
+                    break;
+            }
+
+            parser.Parse(args);
+        }
+
         static void Main(string[] args)
         {
-            FluentWithVerb("-n3 add oranges.txt".Split());
+            //FluentWithVerb("-n3 add oranges.txt".Split());
+            FluentConditional("file", "-u http://file".Split());
         }
     }
 }

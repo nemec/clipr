@@ -61,6 +61,18 @@ but powerful example of the objects this library enables you to build:
 
 ##Changelog
 
+###2013-09-01 1.3.0
+
+* Fleshed out Fluent interface.
+* Reorganized imports so attributes are part of the base clipr namsepace.
+* Added support for Verbs (sub-options).
+
+
+###2013-06-07 1.2.0 
+
+* Added alternative Fluent interface for defining commands
+* Fixed bug where varargs parameters would consume arguments that start with -.
+
 ###2013-01-16 
 
 * Added TryParse method
@@ -84,12 +96,10 @@ be used.
 
 ##Parse vs. Tryparse vs. StrictParse
 
-There are two ways to parse a list of arguments. The former, `Parse()`, will
+There are three ways to parse a list of arguments. The former, `Parse()`, will
 attempt to parse the input arguments and throw a ParseException if something
 went wrong while parsing or a ParserExit exception if the help or version
-information were triggered and printed to the console. If successful argument
-parsing isn't required to run your application, this is probably the correct
-method to use.
+information were triggered and printed to the console.
 
 The `TryParse()` method is similar to the typical TryParse methods found
 on integers and datetimes. It returns a boolean value of true if parsing
@@ -107,11 +117,11 @@ spirit, the `StrictParse()` method will not throw any exceptions
 (if you see one, report it on the Github page). Instead, it will print the
 error message and the one-line usage documentation, then terminate using
 `Environment.Exit`. Note that your program **will not have the opportunity
-to clean up** when that happens. If you've allocated any resouces or left
-some important files in a half-written state, unpredictible things may happen.
-Of course, parsing arguments is usually the first thing you do in `Main` so
-it's not usually going to be an issue, but `Environment.Exit` is not the
-cleanest form of flow control so I feel it deserves a mention.
+to clean up** when that happens. If you've allocated any unmanaged resouces 
+or left some important files in a half-written state, unpredictible things
+may happen. Of course, parsing arguments is usually the first thing you do
+in `Main` so it's not usually going to be an issue, but `Environment.Exit`
+is not the cleanest form of flow control so I feel it deserves a mention.
 
 #Integrity Checking
 
@@ -119,7 +129,7 @@ One of the most important non-functional features of a
 library like this is making sure that you, the developer, don't have to
 test the input with various garbage to make sure you've implemented the
 library correctly. In that spirit, I've done my best to sanity check the
-Attributes you place on your options class when the parser is created
+Attributes you place on your options class when the parser is initialized
 (before any arguments are passed to it). You shouldn't have to wait until
 a user passes the wrong arguments in to discover that you've defined a
 duplicate argument short name or that the constant values you're storing
@@ -164,7 +174,7 @@ can be performed when the user specifies an argument.
   after the argument in a property.
 * StoreConst: Instead letting the user choose which value is stored, a value
   stored in the Attribute's Const property will be used. Intended to avoid
-  the `if(opts.FlagWasSet){ opts.SomeOtherProperty = MyConstantValue; }` --
+  `if(opts.FlagWasSet){ opts.SomeOtherProperty = MyConstantValue; }` --
   when parsing is finished, you should be ready to roll! Additionally, as long
   as the value stored in Const is convertible to the property type (through
   TypeDescriptor magic, more on that later), the property will be filled when
@@ -176,14 +186,15 @@ can be performed when the user specifies an argument.
   specify command line flags that consume no values (eg. `myprog.exe -v`).
 * StoreFalse: The opposite of StoreTrue. Since booleans are value types with
   a default value of false, it's worth noting here that nullable boolean
-  properties work just fine here, too (`bool? MyFlag { get; set; }`).
+  properties work just fine, too (`bool? MyFlag { get; set; }`).
 * Append: Like Store, but if a user specifies the flag more than once the
   parsed values are appended to the existing ones rather than replacing them
-  (eg. `myprog.exe -f file1.txt -f file2.txt`).
-* AppendConst: Combine StoreConst and Append and you've got it. It's a
-  pretty simple concept.
+  (eg. `myprog.exe -f file1.txt -f file2.txt`). The backing property must
+  be some sort of IList.
+* AppendConst: Combine StoreConst and Append and you've got it.
 * Count: Counts the number of times the flag was specified as an argument.
-  Good for specifying a "level" (like verbosity).
+  Good for specifying a "level" (like verbosity). There is no way to limit
+  the number of times a user specifies the argument.
 
 ##Variable Argument Count
 
@@ -193,8 +204,8 @@ property, which gives the value limit for the argument. The second part,
 constraints, comes in three flavors: Exact, AtLeast, and AtMost. Any named
 argument may take exactly the number of values specified or use that as
 the minimum or maximum number consumed. Since positional arguments are not
-separated in any discernable way only the *last* positional argument,
-by Index, may use the constraints AtLease or AtMost. All previous positional
+delimited in any discernable way only the *last* positional argument,
+by Index, may use the constraints AtLeast or AtMost. All previous positional
 arguments must consume an exact number of values.
 
 ####Force Positional Argument Parsing
@@ -202,7 +213,7 @@ arguments must consume an exact number of values.
 If, for any reason, you want the parser to stop parsing named arguments
 and count the rest as positional arguments, use a `--`. This is useful
 in cases where you want a positional argument that begins with a `-`
-(`./prog.exe -- -o --continue`) or when a named argument would otherwise
+(`./prog.exe -- --sometext--`) or when a named argument would otherwise
 consume your positional arguments as one of its own
 (`./prog.exe --consumes-optional-value -- positional`).
 
@@ -235,19 +246,16 @@ Some notes on verbs:
     deeply).
   * Multiple verb attributes may be registered for the same verb. These
     will act like aliases (`svn co` vs. `svn checkout`).
-  * PostParse methods will be executed in order from innermost to outermost,
-    which means that whenever a PostParse method is executed, the
-    configuration class *and* all its verbs will be fully initialized by
-    that point.
+  * PostParse methods 
 
 ##Post-Parse Triggers
 
 Using the PostParseAttribute you can mark parameterless methods to be
-automatically run once parsing is completed. At present, this is not a
-terribly useful feature but in the future these command classes will be
-able to be nested as sub-commands (think `svn checkout`). Each sub-command
-will then be able to trigger a different feature depending on which
-sub-command was provided.
+automatically run once parsing is completed. When PostParse methods are
+nested within Verbs, they will be executed in order from innermost class
+to outermost, which means that whenever a PostParse method is executed, the
+configuration class *and* all its verbs will be fully initialized by that
+point.
 
 ##Generated Help and Version Information
 
@@ -278,6 +286,12 @@ property within the `IHelpGenerator`.
 ##Fluent Interface
 
 Instead of attributes, the parser may be configured using a fluent interface.
+There are five branches off of the parser to configure new arguments:
+`HasNamedArgument`, `HasNamedArgumentList`, `HasPositionalArgument`,
+`HasPositionalArgumentList`, and `HasVerb`. The argument instances returned
+from each of these may be used to configure the individual argument and
+you may return to the parser by chaining the `And` property when finished
+configuring.
 
     var opt = new Options();
 
