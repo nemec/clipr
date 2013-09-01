@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using clipr.Annotations;
+using clipr.Utils;
 
 // ReSharper disable ObjectCreationAsStatement
 // ReSharper disable UseObjectOrCollectionInitializer
@@ -406,6 +406,32 @@ namespace clipr.UnitTests
             //help.Version.LongName = "1none";
 
             new CliParser<object>(new object(), help);
+        }
+
+        #endregion
+
+        #region Config cannot contain both Positional and Verbs
+
+        internal class PositionalAndVerbOptions
+        {
+            [PositionalArgument(0)]
+            public string Name { get; set; }
+
+            [Verb("sub")]
+            public PositionalAndVerbSubOptions SubOptions { get; set; }
+        }
+
+        internal class PositionalAndVerbSubOptions
+        {
+            public string Age { get; set; }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof (AggregateException))]
+        public void CheckIntegrity_WithConfigContainingBothPositionalAndVerbs_ThrowsException()
+        {
+            new CliParser<PositionalAndVerbOptions>(
+                new PositionalAndVerbOptions());
         }
 
         #endregion

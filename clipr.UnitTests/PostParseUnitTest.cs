@@ -1,5 +1,4 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
-using clipr.Annotations;
 
 namespace clipr.UnitTests
 {

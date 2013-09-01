@@ -1,7 +1,7 @@
 ﻿using System.Reflection;
 using clipr.Arguments;
 
-namespace clipr.Annotations
+namespace clipr.Utils
 {
     internal static class AttributeConverter
     {

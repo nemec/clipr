@@ -1,12 +1,12 @@
 ﻿using System;
 
-namespace clipr.Annotations
+namespace clipr
 {
     /// <summary>
-    /// Provides extra information about the set of options.
+    /// Provides extra information about the main set of arguments.
     /// </summary>
     [AttributeUsage(AttributeTargets.Class)]
-    public class CommandAttribute : Attribute
+    public class ApplicationInfoAttribute : Attribute
     {
         /// <summary>
         /// Name of the command/program.

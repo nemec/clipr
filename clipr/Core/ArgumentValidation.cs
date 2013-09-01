@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text.RegularExpressions;
 
-namespace clipr
+namespace clipr.Core
 {
     internal static class ArgumentValidation
     {

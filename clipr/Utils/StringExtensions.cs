@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 
-namespace clipr
+namespace clipr.Utils
 {
     /// <summary>
     /// 

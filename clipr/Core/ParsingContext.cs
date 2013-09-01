@@ -2,14 +2,20 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using clipr.Arguments;
 using clipr.Triggers;
 
-namespace clipr
+namespace clipr.Core
 {
-    internal class ParsingContext<T> where T : class
+    internal interface IParsingContext
+    {
+        void Parse(string[] args);
+    }
+
+    internal class ParsingContext<T> : IParsingContext where T : class
     {
         private ParserConfig<T> Config { get; set; }
 
@@ -39,9 +45,7 @@ namespace clipr
         public void Parse(string[] args)
         {
             var positionalDelimiter = "" + Config.ArgumentPrefix + Config.ArgumentPrefix;
-
             var values = new Stack<string>(args.Reverse());
-
             var positionalArgumentStore = new List<string>();
 
             while (values.Count > 0)
@@ -123,6 +127,16 @@ namespace clipr
                     continue;
                 }
 
+                // Only first positional argument is eligible to be a verb
+                if (!positionalArgumentStore.Any() && 
+                    Config.Verbs.ContainsKey(arg))
+                {
+                    var verbConfig = Config.Verbs[arg];
+                    verbConfig.Context.Parse(values.ToArray());
+                    verbConfig.Property.SetValue(Object, verbConfig.Object, null);
+                    break;
+                }
+
                 positionalArgumentStore.Add(arg);
             }
 
@@ -171,7 +185,7 @@ namespace clipr
 
             if (arg is ITrigger<T>)
             {
-                (arg as ITrigger<T>).OnParse();
+                (arg as ITrigger<T>).OnParse(Config);
                 throw new ParserExit();
             }
 
@@ -342,7 +356,8 @@ namespace clipr
 
                 // Quit if we start a new argument here.
                 if (stringValue != null &&
-                    stringValue.StartsWith(Config.ArgumentPrefix.ToString()))
+                    stringValue.StartsWith(Config.ArgumentPrefix
+                        .ToString(CultureInfo.InvariantCulture)))
                 {
                     args.Push(stringValue);
                     break;
@@ -378,13 +393,13 @@ namespace clipr
         {
             var missingRequiredMutexGroups = Config
                 .RequiredMutuallyExclusiveArguments
-                .Except(ParsedMutuallyExclusiveGroups);
+                .Except(ParsedMutuallyExclusiveGroups).ToArray();
             if (missingRequiredMutexGroups.Any())
             {
                 throw new ParseException(null, String.Format(
                     @"Required mutually exclusive group(s) ""{0}"" were " +
                     "not provided.",
-                    String.Join(", ", missingRequiredMutexGroups.ToArray())));
+                    String.Join(", ", missingRequiredMutexGroups)));
             }
 
             foreach (var method in Config.PostParseMethods)

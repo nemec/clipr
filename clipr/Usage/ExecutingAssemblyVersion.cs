@@ -7,7 +7,7 @@ namespace clipr.Usage
     /// <summary>
     /// Version information pulled from the currently executing assembly.
     /// </summary>
-    public class ExecutingAssemblyVersion<T> : TriggerBase<T>, IVersion<T> where T : class
+    public class ExecutingAssemblyVersion<T> : TriggerBase, IVersion<T> where T : class
     {
         public string Name { get { return "Version"; } }
 
@@ -35,7 +35,7 @@ namespace clipr.Usage
             get { return "Version"; }
         }
 
-        public void OnParse()
+        public void OnParse(IParserConfig<T> config)
         {
             Console.Error.WriteLine(GetVersion());
         }

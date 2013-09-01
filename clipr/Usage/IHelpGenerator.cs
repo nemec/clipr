@@ -17,7 +17,8 @@ namespace clipr.Usage
         /// <summary>
         /// Build a complete description of valid options.
         /// </summary>
+        /// <param name="config">Configuration settings.</param>
         /// <returns></returns>
-        string GetHelp();
+        string GetHelp(IParserConfig<T> config);
     }
 }

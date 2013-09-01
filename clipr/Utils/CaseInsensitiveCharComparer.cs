@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace clipr
+namespace clipr.Utils
 {
     internal class CaseInsensitiveCharComparer : IEqualityComparer<char>
     {

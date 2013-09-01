@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace clipr
+namespace clipr.Core
 {
     /// <summary>
     /// Thrown when the parser needs to immediately exit, such as

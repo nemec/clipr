@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using clipr.Annotations;
+using clipr.Utils;
 
 namespace clipr.UnitTests
 {

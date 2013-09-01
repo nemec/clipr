@@ -1,5 +1,5 @@
 ﻿using System.Collections;
-using clipr.Annotations;
+using clipr.Core;
 
 namespace clipr
 {

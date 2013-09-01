@@ -2,7 +2,7 @@
 using System.ComponentModel;
 using System.Globalization;
 
-namespace clipr
+namespace clipr.Utils
 {
     /// <summary>
     /// Provides a simpler abstraction to the <see cref="TypeConverter"/>

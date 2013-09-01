@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace clipr
+namespace clipr.Utils
 {
     /// <summary>
     /// An exception that aggregates multiple other exceptions together.
@@ -16,12 +16,14 @@ namespace clipr
         /// given exceptions.
         /// </summary>
         /// <param name="exceptions"></param>
+// ReSharper disable PossibleMultipleEnumeration
         public AggregateException(IEnumerable<Exception> exceptions)
             : base("", exceptions.First())
         {
             _exceptions = exceptions;
         }
-        
+// ReSharper restore PossibleMultipleEnumeration
+
         /// <summary>
         /// Handle each exception.
         /// </summary>

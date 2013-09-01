@@ -4,9 +4,9 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Linq;
-using clipr.Annotations;
 using clipr.Arguments;
 using clipr.Triggers;
+using clipr.Utils;
 
 namespace clipr.Usage
 {
@@ -15,7 +15,7 @@ namespace clipr.Usage
     /// type.
     /// </summary>
     /// <typeparam name="T">Type to inspect.</typeparam>
-    public class AutomaticHelpGenerator<T> : TriggerBase<T>, IHelpGenerator<T> where T : class
+    public class AutomaticHelpGenerator<T> : TriggerBase, IHelpGenerator<T> where T : class
     {
         public string Name { get { return "HelpGenerator"; } }
 
@@ -130,7 +130,10 @@ namespace clipr.Usage
                     builder.Append(" ");
                 }
 
-                // TODO print enum choices
+                if (prop.GetType().IsSubclassOf(typeof (Enum)))
+                {
+                    AddEnumFormat(builder, prop);
+                }
 
                 if (attr.Constraint == NumArgsConstraint.AtLeast)
                 {
@@ -146,7 +149,22 @@ namespace clipr.Usage
             return builder.ToString();
         }
 
-        public string GetHelp()
+        private static void AddEnumFormat(StringBuilder builder, PropertyInfo prop)
+        {
+            builder.Append("{");
+            var names = Enum.GetNames(prop.GetType());
+            for (var i = 0; i < names.Length; i++)
+            {
+                builder.Append(names[i]);
+                if (i < names.Length - 1)
+                {
+                    builder.Append("|");
+                }
+            }
+            builder.Append("}");
+        }
+
+        public string GetHelp(IParserConfig<T> config)
         {
             var positionalArgs = typeof (T).GetProperties()
                 .Where(p => p.GetCustomAttribute<PositionalArgumentAttribute>() != null)
@@ -158,7 +176,7 @@ namespace clipr.Usage
                 .Select(p => p.GetCustomAttribute<NamedArgumentAttribute>() as INamedArgument)
                 .ToList();
 
-            foreach (var trigger in Config.Triggers)
+            foreach (var trigger in config.Triggers)
             {
                 var names = new List<string>();
                 if (trigger.ShortName.HasValue)
@@ -177,11 +195,11 @@ namespace clipr.Usage
 
             var positionalDisplay = positionalArgs
                 .OrderBy(_argumentIndex)
-                .Select(GetArgumentsForDisplay);
+                .Select(GetArgumentsForDisplay).ToList();
 
             var namedDisplay = namedArgs
                 .OrderBy(_argumentDisplayName)
-                .Select(GetArgumentsForDisplay);
+                .Select(GetArgumentsForDisplay).ToList();
 
             var tabstop = positionalDisplay
                 .Concat(namedDisplay)
@@ -192,7 +210,7 @@ namespace clipr.Usage
 
             helpDataBuilder.AppendLine(GetUsage());
 
-            var metadata = typeof (T).GetCustomAttribute<CommandAttribute>();
+            var metadata = typeof (T).GetCustomAttribute<ApplicationInfoAttribute>();
             if (metadata != null && metadata.Description != null)
             {
                 helpDataBuilder.AppendLine();
@@ -322,9 +340,9 @@ namespace clipr.Usage
             get { return "Help"; }
         }
 
-        public void OnParse()
+        public void OnParse(IParserConfig<T> config)
         {
-            Console.Error.WriteLine(GetHelp());
+            Console.Error.WriteLine(GetHelp(config));
         }
     }
 }

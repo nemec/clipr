@@ -2,11 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using clipr.Annotations;
 using clipr.Arguments;
 using clipr.Triggers;
+using clipr.Utils;
 
-namespace clipr
+namespace clipr.Core
 {
     internal class IntegrityChecker
     {
@@ -59,6 +59,7 @@ namespace clipr
 
             integrityExceptions.Add(LastPositionalArgumentCanTakeMultipleValuesCheck<T>());
             integrityExceptions.Add(PostParseZeroParametersCheck<T>());
+            integrityExceptions.Add(ConfigMayNotContainBothPositionalArgumentsAndVerbs<T>());
 
             integrityExceptions = integrityExceptions
                 .Where(e => e != null).ToList();
@@ -342,8 +343,9 @@ namespace clipr
         private Exception LastPositionalArgumentCanTakeMultipleValuesCheck<T>()
         {
             var props = typeof(T).GetProperties()
-                .Where(p => p.GetCustomAttribute<PositionalArgumentAttribute>() != null);
-            foreach (var prop in props.Take(props.Count() - 1))
+                .Where(p => p.GetCustomAttribute<PositionalArgumentAttribute>() != null)
+                .ToList();
+            foreach (var prop in props.Take(props.Count - 1))
             {
                 var attr = prop.GetCustomAttribute<PositionalArgumentAttribute>();
                 if (attr.HasVariableNumArgs)
@@ -353,6 +355,29 @@ namespace clipr
                             "last positional argument so it must take " +
                             "a constant number of values.", prop.Name));
                 }
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Configuration objects may not use both positional parameters
+        /// and verbs in the same object.
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <returns></returns>
+        private static Exception ConfigMayNotContainBothPositionalArgumentsAndVerbs<T>()
+        {
+            var positionalCount = typeof (T)
+                .GetProperties()
+                .Count(p => p.GetCustomAttribute<PositionalArgumentAttribute>() != null);
+            var verbCount = typeof (T)
+                .GetProperties()
+                .Count(p => p.GetCustomAttributes<VerbAttribute>().Any());
+            if (positionalCount > 0 && verbCount > 0)
+            {
+                return new ArgumentIntegrityException(
+                    "Configuration object may not contain both " +
+                    "Positional arguments and Verbs.");
             }
             return null;
         }

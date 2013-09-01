@@ -3,9 +3,8 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
-using clipr.Annotations;
 
-namespace clipr
+namespace clipr.Utils
 {
     internal static class PropertyExtensions
     {

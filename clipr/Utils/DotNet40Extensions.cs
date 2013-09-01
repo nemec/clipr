@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace clipr
+namespace clipr.Utils
 {
     /// <summary>
     /// Extensions to convert .Net4.0-compatible code to the .Net4.5 syntax.
@@ -40,10 +40,7 @@ namespace clipr
         /// <returns></returns>
         public static IEnumerable<T> GetCustomAttributes<T>(this MemberInfo member) where T : Attribute
         {
-            foreach (var attr in member.GetCustomAttributes(typeof(T), false))
-            {
-                yield return (T) attr;
-            }
+            return member.GetCustomAttributes(typeof(T), false).Cast<T>();
         }
     }
 }

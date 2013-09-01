@@ -16,11 +16,11 @@ namespace clipr.Triggers
         /// <summary>
         /// Configuration of the parser.
         /// </summary>
-        ParserConfig<T> Config { get; set; }
+        //ParserConfig<T> Config { get; set; }
 
         /// <summary>
         /// Method executed when the short or long name is parsed.
         /// </summary>
-        void OnParse();
+        void OnParse(IParserConfig<T> config);
     }
 }

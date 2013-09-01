@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using AggregateException = clipr.Utils.AggregateException;
 
 namespace clipr.UnitTests
 {

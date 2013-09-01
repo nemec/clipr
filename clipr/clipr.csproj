@@ -45,8 +45,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Annotations\ArgumentAttribute.cs" />
-    <Compile Include="Annotations\AttributeConverter.cs" />
+    <Compile Include="Core\ArgumentAttribute.cs" />
+    <Compile Include="Fluent\Verb.cs" />
+    <Compile Include="Utils\AttributeConverter.cs" />
     <Compile Include="ArgumentIntegrityException.cs" />
     <Compile Include="Arguments\IArgument.cs" />
     <Compile Include="Arguments\ILongNameArgument.cs" />
@@ -55,16 +56,16 @@
     <Compile Include="Arguments\IShortNameArgument.cs" />
     <Compile Include="Arguments\NamedArgument.cs" />
     <Compile Include="Arguments\PositionalArgument.cs" />
-    <Compile Include="ArgumentValidation.cs" />
-    <Compile Include="IntegrityChecker.cs" />
+    <Compile Include="Core\ArgumentValidation.cs" />
+    <Compile Include="Core\IntegrityChecker.cs" />
     <Compile Include="Arguments\BaseArgument.cs" />
-    <Compile Include="Annotations\AttributeParserConfig.cs" />
-    <Compile Include="CaseInsensitiveCharComparer.cs" />
+    <Compile Include="Core\AttributeParserConfig.cs" />
+    <Compile Include="Utils\CaseInsensitiveCharComparer.cs" />
     <Compile Include="CliParser.cs" />
-    <Compile Include="Annotations\CommandAttribute.cs" />
-    <Compile Include="DotNet35Extensions.cs" />
-    <Compile Include="DotNet40Extensions.cs" />
-    <Compile Include="Annotations\MutuallyExclusiveGroupAttribute.cs" />
+    <Compile Include="ApplicationInfoAttribute.cs" />
+    <Compile Include="Utils\DotNet35Extensions.cs" />
+    <Compile Include="Utils\DotNet40Extensions.cs" />
+    <Compile Include="MutuallyExclusiveGroupAttribute.cs" />
     <Compile Include="Fluent\ArgumentBase.cs" />
     <Compile Include="Fluent\Consumes.cs" />
     <Compile Include="Fluent\FluentExtensions.cs" />
@@ -75,30 +76,30 @@
     <Compile Include="Fluent\Positional.cs" />
     <Compile Include="Fluent\PositionalBase.cs" />
     <Compile Include="Fluent\PositionalList.cs" />
-    <Compile Include="ParserConfig.cs" />
-    <Compile Include="ParserExit.cs" />
-    <Compile Include="ParsingContext.cs" />
+    <Compile Include="Core\ParserConfig.cs" />
+    <Compile Include="Core\ParserExit.cs" />
+    <Compile Include="Core\ParsingContext.cs" />
     <Compile Include="Triggers\ITrigger.cs" />
-    <Compile Include="StringExtensions.cs" />
+    <Compile Include="Utils\StringExtensions.cs" />
     <Compile Include="Triggers\TriggerBase.cs" />
     <Compile Include="Usage\ExecutingAssemblyVersion.cs" />
     <Compile Include="Usage\IVersion.cs" />
     <Compile Include="PostParseAttribute.cs" />
-    <Compile Include="Annotations\SubCommandAttribute.cs" />
+    <Compile Include="VerbAttribute.cs" />
     <Compile Include="Usage\AutomaticHelpGenerator.cs" />
     <Compile Include="DuplicateArgumentException.cs" />
     <Compile Include="Usage\IHelpGenerator.cs" />
-    <Compile Include="Annotations\NamedArgumentAttribute.cs" />
+    <Compile Include="NamedArgumentAttribute.cs" />
     <Compile Include="NumArgsConstraint.cs" />
     <Compile Include="ParseAction.cs" />
     <Compile Include="ParseException.cs" />
     <Compile Include="ParserOptions.cs" />
-    <Compile Include="Annotations\PositionalArgumentAttribute.cs" />
+    <Compile Include="PositionalArgumentAttribute.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="PropertyExtensions.cs" />
+    <Compile Include="Utils\PropertyExtensions.cs" />
     <Compile Include="Usage\ResourceKeyAttribute.cs" />
     <Compile Include="Usage\ResourceUsageGenerator.cs" />
-    <Compile Include="StringTypeConverter.cs" />
+    <Compile Include="Utils\StringTypeConverter.cs" />
   </ItemGroup>
   <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

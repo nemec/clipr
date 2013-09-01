@@ -4,11 +4,8 @@ using System.Reflection;
 
 namespace clipr.Triggers
 {
-    public abstract class TriggerBase<TConf>
-        where TConf : class 
+    public abstract class TriggerBase
     {
-        public ParserConfig<TConf> Config { get; set; }
-
         public List<string> MutuallyExclusiveGroups { get; set; }
 
         public bool ConsumesMultipleArgs { get { return false; } }

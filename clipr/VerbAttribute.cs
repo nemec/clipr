@@ -1,12 +1,12 @@
 ﻿using System;
 
-namespace clipr.Annotations
+namespace clipr
 {
     /// <summary>
     /// Mark the property as a subcommand. (cf. 'svn checkout')
     /// </summary>
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = true)]
-    internal class SubCommandAttribute : Attribute
+    public class VerbAttribute : Attribute
     {
         /// <summary>
         /// Name of the subcommand. If provided as an argument, it
@@ -23,7 +23,7 @@ namespace clipr.Annotations
         /// Create a new subcommand.
         /// </summary>
         /// <param name="name"></param>
-        public SubCommandAttribute(string name)
+        public VerbAttribute(string name)
         {
             Name = name;
         }
@@ -33,7 +33,7 @@ namespace clipr.Annotations
         /// </summary>
         /// <param name="name"></param>
         /// <param name="description"></param>
-        public SubCommandAttribute(string name, string description)
+        public VerbAttribute(string name, string description)
         {
             Name = name;
             Description = description;

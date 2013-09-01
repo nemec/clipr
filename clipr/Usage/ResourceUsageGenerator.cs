@@ -40,7 +40,7 @@ namespace clipr.Usage
         }
 
 
-        public string GetHelp()
+        public string GetHelp(IParserConfig<T> config)
         {
             throw new NotImplementedException();
         }
@@ -50,7 +50,7 @@ namespace clipr.Usage
             get { return "ResourceUsageGenerator"; }
         }
 
-        public void OnParse()
+        public void OnParse(IParserConfig<T> config)
         {
             throw new NotImplementedException();
         }

@@ -2,10 +2,11 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Reflection;
-using clipr.Annotations;
+using clipr.Core;
 using clipr.Fluent;
 using clipr.Triggers;
 using clipr.Usage;
+using clipr.Utils;
 
 namespace clipr
 {
@@ -495,12 +496,45 @@ namespace clipr
             throw new InvalidOperationException();
         }
 
-        #endregion
-
-        // TODO sdkj
-        /*public bool Validate()
+        public Verb<TConf> HasVerb<TArg>(string verbName, Expression<Func<TConf, TArg>> expr, CliParser<TArg> subParser)
+            where TArg : class
         {
-            
-        }*/
+            if (FluentConfig == null)
+            {
+                FluentConfig = new FluentParserConfig<TConf>(Options, Triggers);
+            }
+
+            ParserConfig<TArg> subConfig;
+            if (subParser.FluentConfig != null)
+            {
+                subParser.FluentConfig.ProcessArguments();
+                subConfig = subParser.FluentConfig;
+            }
+            else
+            {
+                subConfig = new AttributeParserConfig<TArg>(Options, null /* TODO process triggers in verb */);
+            }
+
+            var body = (MemberExpression)expr.Body;
+            if (body.NodeType == ExpressionType.MemberAccess)
+            {
+                var prop = (PropertyInfo)(body).Member;
+
+                FluentConfig.Verbs.Add(verbName,
+                    new VerbConfig
+                        {
+                            Property = prop,
+                            Object = subParser.Object,
+                            Context = new ParsingContext<TArg>(
+                                subParser.Object,
+                                subConfig)
+                        });
+
+                return new Verb<TConf>(this);
+            }
+            throw new InvalidOperationException();
+        }
+
+        #endregion
     }
 }

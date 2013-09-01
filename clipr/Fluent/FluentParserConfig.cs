@@ -15,7 +15,7 @@ namespace clipr.Fluent
              *  .HasNamedOption(c => c.Verbose)
              *      .WithLongName("verb")
              *      .WithShortName() // lower case v by defaults
-             *  And
+             *  .And
              *   .HasPositionalOption(c => c.OutputFile)
              *      .HasMetaVar("out")
              *      .HasDescription("Some text.")
@@ -27,7 +27,8 @@ namespace clipr.Fluent
              *      .CountsInvocations()
              *      .StoresTrue()
              *      .StoresFalse()
-             * 
+             *  .And
+             *   .HasVerb("add", c => c.AddInfo)
              * */
         }
 

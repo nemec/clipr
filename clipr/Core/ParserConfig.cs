@@ -3,15 +3,39 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using clipr.Arguments;
+using clipr.Core;
 using clipr.Triggers;
+using clipr.Utils;
 
 namespace clipr
 {
-    public abstract class ParserConfig<T> where T : class
+    public interface IParserConfig<T> where T : class
+    {
+        char ArgumentPrefix { get; set; }
+        IEnumerable<ITrigger<T>> Triggers { get; set; }
+        void InitializeTriggers(IEnumerable<ITrigger<T>> triggers);
+        char? GetShortName(IShortNameArgument arg);
+        char? GetShortName(IShortNameArgument arg, string errorMessage);
+        string GetLongName(ILongNameArgument arg);
+        string GetLongName(ILongNameArgument arg, string errorMessage);
+    }
+
+    internal class VerbConfig
+    {
+        public object Object { get; set; }
+
+        public IParsingContext Context { get; set; }
+
+        public PropertyInfo Property { get; set; }
+    }
+
+    internal abstract class ParserConfig<T> : IParserConfig<T> where T : class
     {
         public readonly char[] LongOptionSeparator = new[] { '=' };
 
         public char ArgumentPrefix { get; set; }
+
+        protected readonly ParserOptions Options; 
 
         internal readonly Dictionary<char, IShortNameArgument> ShortNameArguments;
 
@@ -19,7 +43,7 @@ namespace clipr
 
         internal readonly List<IPositionalArgument> PositionalArguments;
 
-        internal readonly Dictionary<string, PropertyInfo> SubCommands;
+        internal readonly Dictionary<string, VerbConfig> Verbs;
 
         internal readonly List<MethodInfo> PostParseMethods;
 
@@ -29,6 +53,7 @@ namespace clipr
 
         protected ParserConfig(ParserOptions options, IEnumerable<ITrigger<T>> triggers)
         {
+            Options = options;
             ArgumentPrefix = '-';
 
             if (options.HasFlag(ParserOptions.CaseInsensitive))
@@ -43,20 +68,23 @@ namespace clipr
             }
 
             PositionalArguments = new List<IPositionalArgument>();
-            SubCommands = new Dictionary<string, PropertyInfo>();
+            Verbs = new Dictionary<string, VerbConfig>();
             PostParseMethods = new List<MethodInfo>();
             RequiredMutuallyExclusiveArguments = new HashSet<string>();
 
             InitializeTriggers(triggers);
         }
 
-        private void InitializeTriggers(IEnumerable<ITrigger<T>> triggers)
+        public void InitializeTriggers(IEnumerable<ITrigger<T>> triggers)
         {
             Triggers = triggers;
+            if (triggers == null)
+            {
+                return;
+            }
+
             foreach (var trigger in Triggers.Where(p => p != null))
             {
-                trigger.Config = this;
-
                 var sn = GetShortName(trigger, String.Format(
                     "Trigger '{0}' argument {1} is not a valid short name. {2}",
                     trigger.PluginName, trigger.ShortName,
@@ -85,7 +113,7 @@ namespace clipr
             }
         }
 
-        protected char? GetShortName(IShortNameArgument arg)
+        public char? GetShortName(IShortNameArgument arg)
         {
             return GetShortName(arg, String.Format(
                 "Short name {0} is not allowed. {1}",
@@ -93,7 +121,7 @@ namespace clipr
                 ArgumentValidation.IsAllowedShortNameExplanation));
         }
 
-        protected char? GetShortName(IShortNameArgument arg, string errorMessage)
+        public char? GetShortName(IShortNameArgument arg, string errorMessage)
         {
             if (arg.ShortName.HasValue)
             {
@@ -106,7 +134,7 @@ namespace clipr
             return null;
         }
 
-        protected string GetLongName(ILongNameArgument arg)
+        public string GetLongName(ILongNameArgument arg)
         {
             return GetLongName(arg, String.Format(
                 "Long name {0} is not allowed. {1}",
@@ -114,7 +142,7 @@ namespace clipr
                 ArgumentValidation.IsAllowedLongNameExplanation));
         }
 
-        protected string GetLongName(ILongNameArgument arg, string errorMessage)
+        public string GetLongName(ILongNameArgument arg, string errorMessage)
         {
             if (arg.LongName != null)
             {

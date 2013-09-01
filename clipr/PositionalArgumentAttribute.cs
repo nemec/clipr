@@ -1,6 +1,7 @@
 ﻿using clipr.Arguments;
+using clipr.Core;
 
-namespace clipr.Annotations
+namespace clipr
 {
     /// <summary>
     /// <para>

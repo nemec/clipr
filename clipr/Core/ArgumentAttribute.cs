@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using clipr.Arguments;
 
-namespace clipr.Annotations
+namespace clipr.Core
 {
     /// <summary>
     /// Base class for various argument types.

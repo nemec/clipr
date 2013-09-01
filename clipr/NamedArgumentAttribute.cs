@@ -1,7 +1,8 @@
 ﻿using System;
 using clipr.Arguments;
+using clipr.Core;
 
-namespace clipr.Annotations
+namespace clipr
 {
     /// <summary>
     /// An argument triggered by either a short or long name.
