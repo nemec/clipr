@@ -215,6 +215,31 @@ If at least one MutuallyExclusiveGroupAttribute for a group is required and
 the user does *not* provide one of the member arguments, an error is also
 generated.
 
+##Verbs
+
+Verbs are the name given to a set of initial arguments that conditionally
+parse a set of configuration options based on the given verb. Think
+`git add` and `git commit`. Each has a different set of options that's
+used in a different way. Each verb class is a valid configuration class,
+so verbs are basically a way to combine multiple sets of configurations,
+conditionally, into one. Imagine that in addition to `./git`, there was
+also `./git-add` and `./git-commit` each with its own configuration classes.
+With clipr, you can reuse those individual classes in `./git` as verbs.
+
+Some notes on verbs:
+
+  * A configuration class cannot contain both positional parameters and
+    verbs (although the verb itself may define its own positional parameters).
+  * Verbs may be nested arbitrarily deep, so long as you adhere to the
+    above requirement (although it's not recommended that you nest too
+    deeply).
+  * Multiple verb attributes may be registered for the same verb. These
+    will act like aliases (`svn co` vs. `svn checkout`).
+  * PostParse methods will be executed in order from innermost to outermost,
+    which means that whenever a PostParse method is executed, the
+    configuration class *and* all its verbs will be fully initialized by
+    that point.
+
 ##Post-Parse Triggers
 
 Using the PostParseAttribute you can mark parameterless methods to be
@@ -250,6 +275,59 @@ will be an easy way to specify the version manually, but until then you'll
 have to implement the `IVersion` interface yourself and replace the `Version`
 property within the `IHelpGenerator`.
 
-## TODO
+##Fluent Interface
 
-* Sort positional arguments by index rather than alphabetically.
+Instead of attributes, the parser may be configured using a fluent interface.
+
+    var opt = new Options();
+
+    new CliParser<Options>(opt)
+        .HasNamedArgument(o => o.Verbosity)
+            .WithShortName('v')
+            .CountsInvocations()
+    .And
+        .HasNamedArgument(o => o.OutputFile)
+            .WithShortName()
+    .And
+        .HasPositionalArgumentList(o => o.Numbers)
+            .HasDescription("These are numbers.")
+            .Consumes.AtLeast(1)
+    .And
+        .Parse("-vvv -o out.txt 3 4 5 6".Split());
+
+    Console.WriteLine(opt.Verbosity);
+    // >>> 3
+
+    Console.WriteLine(opt.OutputFile);
+    // >>> output.txt
+    
+    var sum = 0;
+    foreach (var number in opt.Numbers)
+    {
+        sum += number;
+    }
+    Console.WriteLine(sum);
+    // >>> 9
+
+You may also add a Verb to the parser config with this syntax:
+
+    var opt = new Options();
+    new CliParser<Options>(opt)
+        .HasVerb("add", c => c.AddVerb,
+                  // Note that in the Fluent Interface, you're nesting parsers
+                  // Theoretically this means you can nest an 
+                  // Attribute-configured parser inside a Fluent parser
+                  // (although you cannot do the opposite, due to limitations
+                  // with Attributes).
+                  new CliParser<AddFileOptions>(new AddFileOptions())
+                      .HasPositionalArgument(c => c.Filename)
+                      .And)  // A necessary evil if defining inline.
+    .And
+        .Parse("add myfile.txt");
+
+    Console.WriteLine(opt.AddVerb);
+    // myfile.txt
+
+##TODO
+
+Render help information for verbs
