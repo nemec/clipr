@@ -130,7 +130,7 @@ namespace clipr.Usage
                     builder.Append(" ");
                 }
 
-                if (prop.GetType().IsSubclassOf(typeof (Enum)))
+                if (prop.PropertyType.IsSubclassOf(typeof (Enum)))
                 {
                     AddEnumFormat(builder, prop);
                 }
