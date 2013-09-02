@@ -208,7 +208,11 @@ delimited in any discernable way only the *last* positional argument,
 by Index, may use the constraints AtLeast or AtMost. All previous positional
 arguments must consume an exact number of values.
 
-####Force Positional Argument Parsing
+##Default Argument Values
+
+Set default values for a property in the config object's constructor.
+
+##Force Positional Argument Parsing
 
 If, for any reason, you want the parser to stop parsing named arguments
 and count the rest as positional arguments, use a `--`. This is useful
