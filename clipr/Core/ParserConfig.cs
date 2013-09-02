@@ -26,7 +26,7 @@ namespace clipr
 
         public IParsingContext Context { get; set; }
 
-        public PropertyInfo Property { get; set; }
+        public IValueStoreDefinition Store { get; set; }
     }
 
     internal abstract class ParserConfig<T> : IParserConfig<T> where T : class

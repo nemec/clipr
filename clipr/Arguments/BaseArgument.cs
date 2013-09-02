@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using System.Reflection;
+using clipr.Core;
 
 namespace clipr.Arguments
 {
@@ -34,21 +34,21 @@ namespace clipr.Arguments
             }
         }
 
-        public PropertyInfo Property { get; set; }
+        public IValueStoreDefinition Store { get; set; }
 
         /// <summary>
         /// Create a new Argument.
         /// </summary>
-        protected BaseArgument(PropertyInfo prop)
+        protected BaseArgument(IValueStoreDefinition value)
         {
-            Initialize(prop);
+            Initialize(value);
         }
 
-        private void Initialize(PropertyInfo prop)
+        private void Initialize(IValueStoreDefinition value)
         {
-            Name = prop.Name;
+            Name = value.Name;
             MetaVar = Name;
-            Property = prop;
+            Store = value;
             NumArgs = 1;
         }
     }

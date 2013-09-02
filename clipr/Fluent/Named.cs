@@ -1,12 +1,12 @@
-﻿using System.Reflection;
+﻿using clipr.Core;
 
 namespace clipr.Fluent
 {
     public class Named<TConfig, TArg> : NamedBase<TConfig, Named<TConfig, TArg>, TArg>
         where TConfig : class
     {
-        internal Named(CliParser<TConfig> parser, PropertyInfo prop)
-            : base(parser, prop)
+        internal Named(CliParser<TConfig> parser, IValueStoreDefinition store)
+            : base(parser, store)
         {
         }
 

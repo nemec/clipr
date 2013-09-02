@@ -89,6 +89,6 @@ namespace clipr.Core
             NumArgs = 1;
         }
 
-        public PropertyInfo Property { get; set; }
+        public IValueStoreDefinition Store { get; set; }
     }
 }

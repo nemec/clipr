@@ -1,12 +1,12 @@
-﻿using System.Reflection;
+﻿using clipr.Core;
 
 namespace clipr.Fluent
 {
     public class NamedList<TConfig, TArg> : NamedBase<TConfig, NamedList<TConfig, TArg>, TArg>
         where TConfig : class 
     {
-        internal NamedList(CliParser<TConfig> parser, PropertyInfo prop)
-            : base(parser, prop)
+        internal NamedList(CliParser<TConfig> parser, IValueStoreDefinition store)
+            : base(parser, store)
         {
             Consumes = new Consumes<TConfig, NamedBase<TConfig, NamedList<TConfig, TArg>, TArg>, TArg>(this);
         }

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Reflection;
 using clipr.Arguments;
+using clipr.Core;
 
 namespace clipr.Usage
 {
@@ -55,7 +55,7 @@ namespace clipr.Usage
             throw new NotImplementedException();
         }
 
-        public PropertyInfo Property { get; set; }
+        public IValueStoreDefinition Store { get; set; }
 
 
         public string MetaVar { get; set; }

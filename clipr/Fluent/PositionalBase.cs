@@ -1,5 +1,5 @@
-﻿using System.Reflection;
-using clipr.Arguments;
+﻿using clipr.Arguments;
+using clipr.Core;
 
 namespace clipr.Fluent
 {
@@ -12,10 +12,10 @@ namespace clipr.Fluent
 
         internal override BaseArgument BaseArgument { get { return Arg; } }
 
-        protected PositionalBase(CliParser<TConfig> parser, PropertyInfo prop)
+        protected PositionalBase(CliParser<TConfig> parser, IValueStoreDefinition store)
             : base(parser)
         {
-            Arg = Arg = new PositionalArgument(prop);
+            Arg = Arg = new PositionalArgument(store);
         } 
     }
 }

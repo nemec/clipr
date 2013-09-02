@@ -1,4 +1,4 @@
-﻿using System.Reflection;
+﻿using clipr.Core;
 
 namespace clipr.Arguments
 {
@@ -9,8 +9,8 @@ namespace clipr.Arguments
         /// </summary>
         public int Index { get; set; }
 
-        public PositionalArgument(PropertyInfo prop)
-            : base(prop)
+        public PositionalArgument(IValueStoreDefinition store)
+            : base(store)
         {
         }
     }

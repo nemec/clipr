@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Reflection;
+using clipr.Core;
 
 namespace clipr.Arguments
 {
@@ -65,9 +66,9 @@ namespace clipr.Arguments
         List<string> MutuallyExclusiveGroups { get; }
 
         /// <summary>
-        /// Backing property for the argument. Parsed values are set on
+        /// Backing store for the argument. Parsed values are set on
         /// this property.
         /// </summary>
-        PropertyInfo Property { get; }
+        IValueStoreDefinition Store { get; }
     }
 }

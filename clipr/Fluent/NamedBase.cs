@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
-using System.Reflection;
 using clipr.Arguments;
+using clipr.Core;
 
 namespace clipr.Fluent
 {
@@ -16,10 +16,10 @@ namespace clipr.Fluent
 
         internal override BaseArgument BaseArgument { get { return Arg; } }
 
-        protected NamedBase(CliParser<TConfig> parser, PropertyInfo prop)
+        protected NamedBase(CliParser<TConfig> parser, IValueStoreDefinition store)
             : base(parser)
         {
-            Arg = new NamedArgument(prop);
+            Arg = new NamedArgument(store);
             HasDefaultName = false;
         }
 

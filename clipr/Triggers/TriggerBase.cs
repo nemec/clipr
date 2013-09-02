@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Reflection;
+using clipr.Core;
 
 namespace clipr.Triggers
 {
@@ -18,11 +18,7 @@ namespace clipr.Triggers
 
         public string MetaVar { get; set; }
 
-        public PropertyInfo Property
-        {
-            get { return null; }
-            set { throw new NotImplementedException(); }
-        }
+        public IValueStoreDefinition Store { get { return null; } }
 
 
         public ParseAction Action

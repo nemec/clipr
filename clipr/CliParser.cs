@@ -424,76 +424,88 @@ namespace clipr
 
         #region Fluent API
 
-        public Named<TConf, TArg> HasNamedArgument<TArg>(Expression<Func<TConf, TArg>> expr)
+        public Named<TConf, TArg> HasNamedArgument<TArg>(
+            Expression<Func<TConf, TArg>> getExpr)
+        {
+            return HasNamedArgument(getExpr, null);
+        }
+
+        public Named<TConf, TArg> HasNamedArgument<TArg>(
+            Expression<Func<TConf, TArg>> getExpr,
+            Expression<Action<TConf, TArg>> setExpr)
         {
             if (FluentConfig == null)
             {
                 FluentConfig = new FluentParserConfig<TConf>(Options, Triggers);
             }
             
-            var body = (MemberExpression)expr.Body;
-            if (body.NodeType == ExpressionType.MemberAccess)
-            {
-                var prop = (PropertyInfo)(body).Member;
-                var named = new Named<TConf, TArg>(this, prop);
-                FluentConfig.Add(named);
-                return named;
-            }
-            throw new InvalidOperationException();
+            var named = new Named<TConf, TArg>(this,
+                GetDefinitionFromExpression(getExpr, setExpr));
+            FluentConfig.Add(named);
+            return named;
         }
 
-        public NamedList<TConf, TArg> HasNamedArgumentList<TArg>(Expression<Func<TConf, TArg>> expr)
+        public NamedList<TConf, TArg> HasNamedArgumentList<TArg>(
+            Expression<Func<TConf, TArg>> getExpr)
+        {
+            return HasNamedArgumentList(getExpr, null);
+        }
+
+        public NamedList<TConf, TArg> HasNamedArgumentList<TArg>(
+            Expression<Func<TConf, TArg>> getExpr,
+            Expression<Action<TConf, TArg>> setExpr)
         {
             if (FluentConfig == null)
             {
                 FluentConfig = new FluentParserConfig<TConf>(Options, Triggers);
             }
 
-            var body = (MemberExpression)expr.Body;
-            if (body.NodeType == ExpressionType.MemberAccess)
-            {
-                var prop = (PropertyInfo)(body).Member;
-                var named = new NamedList<TConf, TArg>(this, prop);
-                FluentConfig.Add(named);
-                return named;
-            }
-            throw new InvalidOperationException();
+            var named = new NamedList<TConf, TArg>(this,
+                GetDefinitionFromExpression(getExpr, setExpr));
+            FluentConfig.Add(named);
+            return named;
         }
 
-        public Positional<TConf, TArg> HasPositionalArgument<TArg>(Expression<Func<TConf, TArg>> expr)
+        public Positional<TConf, TArg> HasPositionalArgument<TArg>(
+            Expression<Func<TConf, TArg>> getExpr)
+        {
+            return HasPositionalArgument(getExpr, null);
+        }
+
+        public Positional<TConf, TArg> HasPositionalArgument<TArg>(
+            Expression<Func<TConf, TArg>> getExpr,
+            Expression<Action<TConf, TArg>> setExpr)
         {
             if (FluentConfig == null)
             {
                 FluentConfig = new FluentParserConfig<TConf>(Options, Triggers);
             }
 
-            var body = (MemberExpression)expr.Body;
-            if (body.NodeType == ExpressionType.MemberAccess)
-            {
-                var prop = (PropertyInfo)(body).Member;
-                var positional = new Positional<TConf, TArg>(this, prop);
-                FluentConfig.Add(positional);
-                return positional;
-            }
-            throw new InvalidOperationException();
+            var positional = new Positional<TConf, TArg>(this,
+                GetDefinitionFromExpression(getExpr, setExpr));
+            FluentConfig.Add(positional);
+            return positional;
         }
 
-        public PositionalList<TConf, TArg> HasPositionalArgumentList<TArg>(Expression<Func<TConf, TArg>> expr)
+        public PositionalList<TConf, TArg> HasPositionalArgumentList<TArg>(
+            Expression<Func<TConf, TArg>> getExpr)
+        {
+            return HasPositionalArgumentList(getExpr, null);
+        }
+
+        public PositionalList<TConf, TArg> HasPositionalArgumentList<TArg>(
+            Expression<Func<TConf, TArg>> getExpr,
+            Expression<Action<TConf, TArg>> setExpr)
         {
             if (FluentConfig == null)
             {
                 FluentConfig = new FluentParserConfig<TConf>(Options, Triggers);
             }
 
-            var body = (MemberExpression)expr.Body;
-            if (body.NodeType == ExpressionType.MemberAccess)
-            {
-                var prop = (PropertyInfo)(body).Member;
-                var positional = new PositionalList<TConf, TArg>(this, prop);
-                FluentConfig.Add(positional);
-                return positional;
-            }
-            throw new InvalidOperationException();
+            var positional = new PositionalList<TConf, TArg>(this, 
+                    GetDefinitionFromExpression(getExpr, setExpr));
+            FluentConfig.Add(positional);
+            return positional;
         }
 
         public Verb<TConf> HasVerb<TArg>(string verbName, Expression<Func<TConf, TArg>> expr, CliParser<TArg> subParser)
@@ -515,23 +527,102 @@ namespace clipr
                 subConfig = new AttributeParserConfig<TArg>(Options, null /* TODO process triggers in verb */);
             }
 
-            var body = (MemberExpression)expr.Body;
-            if (body.NodeType == ExpressionType.MemberAccess)
+            FluentConfig.Verbs.Add(verbName,
+                new VerbConfig
+                    {
+                        Store = GetDefinitionFromExpression(expr, null),
+                        Object = subParser.Object,
+                        Context = new ParsingContext<TArg>(
+                            subParser.Object,
+                            subConfig)
+                    });
+
+            return new Verb<TConf>(this);
+        }
+
+        private static IValueStoreDefinition GetDefinitionFromExpression<TArg>(
+            Expression<Func<TConf, TArg>> getExpr,
+            Expression<Action<TConf, TArg>> setExpr)
+        {
+            var body = getExpr.Body as MemberExpression;
+            if (body != null && body.NodeType == ExpressionType.MemberAccess)
             {
                 var prop = (PropertyInfo)(body).Member;
-
-                FluentConfig.Verbs.Add(verbName,
-                    new VerbConfig
-                        {
-                            Property = prop,
-                            Object = subParser.Object,
-                            Context = new ParsingContext<TArg>(
-                                subParser.Object,
-                                subConfig)
-                        });
-
-                return new Verb<TConf>(this);
+                return new PropertyValueStore(prop);
             }
+
+            var methodBody = getExpr.Body as MethodCallExpression;
+            if (methodBody != null && methodBody.NodeType == ExpressionType.Call)
+            {
+                var getter = methodBody.Method;
+                MethodInfo setter;
+
+                if (setExpr == null)
+                {
+                    string setMethodName;
+                    if (getter.Name.Contains("get"))
+                    {
+                        setMethodName = getter.Name.Replace("get", "set");
+                    }
+                    else
+                    {
+                        throw new InvalidOperationException(String.Format(
+                            "Missing setter for {0}.", getter.Name));
+                    }
+
+                    var declaringType = getter.DeclaringType;
+                    if (declaringType == null)
+                    {
+                        throw new InvalidOperationException(String.Format(
+                            "Cannot find declaring type for getter {0}.",
+                            getter.Name));
+                    }
+                    setter = declaringType.GetMethod(setMethodName);
+
+                    if (setter.GetParameters().Length != 2)
+                    {
+                        throw new InvalidOperationException(String.Format(
+                            "Auto-generated setter {0} must accept only" +
+                            "two arguments.", setter.Name));
+                    }
+                }
+                else
+                {
+                    var setterBody = getExpr.Body as MethodCallExpression;
+                    if (setterBody == null || methodBody.NodeType != ExpressionType.Call)
+                    {
+                        throw new InvalidOperationException(
+                            "Setter must be a method call if getter is method call.");
+                    }
+                    setter = setterBody.Method;
+                }
+
+                var name = "<unknown>";
+                if (methodBody.Arguments.Count != 0)
+                {
+                    var arg = methodBody.Arguments[0];
+                    if (arg is ConstantExpression)
+                    {
+                        // Try to grab the value of the first argument.
+                        // Works best for dict indexers (dict["key"]).
+                        name = (arg as ConstantExpression).Value.ToString();
+                    }
+                    else
+                    {
+                        // Go nuclear. Evaluate the first argument (even
+                        // if it contains method calls) and assign the name
+                        // to the argument's string value.
+                        name = Expression
+                            .Lambda(arg)
+                            .Compile()
+                            .DynamicInvoke()
+                            .ToString();
+                    }
+                }
+
+                return new IndexerValueStore(name, name, getter, setter);
+            }
+
             throw new InvalidOperationException();
         }
 

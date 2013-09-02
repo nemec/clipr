@@ -108,7 +108,7 @@ namespace clipr.Core
                         {
                             Context = context,
                             Object = obj,
-                            Property = prop
+                            Store = new PropertyValueStore(prop)
                         };
 
                     Verbs.Add(verbName, verbConfig);

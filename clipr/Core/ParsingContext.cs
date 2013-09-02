@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Globalization;
 using System.Linq;
-using System.Reflection;
 using clipr.Arguments;
 using clipr.Triggers;
 
@@ -133,7 +132,7 @@ namespace clipr.Core
                 {
                     var verbConfig = Config.Verbs[arg];
                     verbConfig.Context.Parse(values.ToArray());
-                    verbConfig.Property.SetValue(Object, verbConfig.Object, null);
+                    verbConfig.Store.SetValue(Object, verbConfig.Object);
                     break;
                 }
 
@@ -228,7 +227,7 @@ namespace clipr.Core
         /// <param name="args">List of remaining unparsed arguments.</param>
         private void ParseArgument(string attrName, IArgument arg, Stack<string> args)
         {
-            var prop = arg.Property;
+            var store = arg.Store;
             switch (arg.Action)
             {
                 case ParseAction.Store:
@@ -244,42 +243,42 @@ namespace clipr.Core
                             var stringValue = args.Pop();
                             try
                             {
-                                prop.SetValue(Object, ConvertFrom(prop, stringValue), null);
+                                store.SetValue(Object, ConvertFrom(store, stringValue));
                             }
                             catch (Exception e)
                             {
                                 throw new ParseException(attrName, String.Format(
                                     @"Value ""{0}"" cannot be converted to the " +
                                     "required type {1}.",
-                                    stringValue, prop.PropertyType), e);
+                                    stringValue, store.Type), e);
                             }
                         }
                         else
                         {
-                            var existing = (IEnumerable)prop.GetValue(Object, null);
-                            var backingList = CreateGenericList(prop, existing);
+                            var existing = (IEnumerable)store.GetValue(Object);
+                            var backingList = CreateGenericList(store, existing);
 
                             ParseVarargs(attrName, backingList, arg, args);
-                            prop.SetValue(Object, backingList, null);
+                            store.SetValue(Object, backingList);
                         }
                         break;
                     }
                 case ParseAction.StoreConst:
-                    prop.SetValue(Object, arg.Const, null);
+                    store.SetValue(Object, arg.Const);
                     break;
 
                 case ParseAction.StoreTrue:
-                    prop.SetValue(Object, true, null);
+                    store.SetValue(Object, true);
                     break;
 
                 case ParseAction.StoreFalse:
-                    prop.SetValue(Object, false, null);
+                    store.SetValue(Object, false);
                     break;
 
                 case ParseAction.Append:
                     {
-                        var existing = (IEnumerable)prop.GetValue(Object, null);
-                        var backingList = CreateGenericList(prop, existing);
+                        var existing = (IEnumerable)store.GetValue(Object);
+                        var backingList = CreateGenericList(store, existing);
 
                         if (!arg.ConsumesMultipleArgs)
                         {
@@ -290,14 +289,14 @@ namespace clipr.Core
                             var stringValue = args.Pop();
                             try
                             {
-                                backingList.Add(ConvertFromGeneric(prop, stringValue));
+                                backingList.Add(ConvertFromGeneric(store, stringValue));
                             }
                             catch (Exception e)
                             {
                                 throw new ParseException(attrName, String.Format(
                                     @"Value ""{0}"" cannot be converted to the " +
                                     "required type {1}.",
-                                    stringValue, prop.PropertyType), e);
+                                    stringValue, store.Type), e);
                             }
                         }
                         else
@@ -305,20 +304,20 @@ namespace clipr.Core
                             ParseVarargs(attrName, backingList, arg, args);
 
                         }
-                        prop.SetValue(Object, backingList, null);
+                        store.SetValue(Object, backingList);
                         break;
                     }
                 case ParseAction.AppendConst:
                     {
-                        var existing = (IEnumerable) prop.GetValue(Object, null);
-                        var backingList = CreateGenericList(prop, existing);
+                        var existing = (IEnumerable) store.GetValue(Object);
+                        var backingList = CreateGenericList(store, existing);
                         backingList.Add(arg.Const);
-                        prop.SetValue(Object, backingList, null);
+                        store.SetValue(Object, backingList);
                         break;
                     }
                 case ParseAction.Count:
-                    var cnt = (int)prop.GetValue(Object, null);
-                    prop.SetValue(Object, cnt + 1, null);
+                    var cnt = (int)store.GetValue(Object);
+                    store.SetValue(Object, cnt + 1);
                     break;
             }
         }
@@ -364,14 +363,14 @@ namespace clipr.Core
                 }
                 try
                 {
-                    list.Add(ConvertFromGeneric(arg.Property, stringValue));
+                    list.Add(ConvertFromGeneric(arg.Store, stringValue));
                 }
                 catch (Exception e)
                 {
                     throw new ParseException(attrName, String.Format(
                         @"Value ""{0}"" cannot be converted to the " +
                         "required type {1}.",
-                        stringValue, arg.Property.PropertyType), e);
+                        stringValue, arg.Store.Type), e);
                 }
                 argsProcessed++;
             }
@@ -408,22 +407,22 @@ namespace clipr.Core
             }
         }
 
-        private static object ConvertFrom(PropertyInfo prop, string value)
+        private static object ConvertFrom(IValueStoreDefinition store, string value)
         {
-            return TypeDescriptor.GetConverter(prop.PropertyType)
+            return TypeDescriptor.GetConverter(store.Type)
                                     .ConvertFromInvariantString(value);
         }
 
-        private static object ConvertFromGeneric(PropertyInfo prop, string value)
+        private static object ConvertFromGeneric(IValueStoreDefinition store, string value)
         {
             return TypeDescriptor.GetConverter(
-                prop.PropertyType.GetGenericArguments().First())
+                store.Type.GetGenericArguments().First())
                 .ConvertFromInvariantString(value);
         }
 
-        private static IList CreateGenericList(PropertyInfo prop, IEnumerable initial)
+        private static IList CreateGenericList(IValueStoreDefinition store, IEnumerable initial)
         {
-            var type = prop.PropertyType.GetGenericArguments();
+            var type = store.Type.GetGenericArguments();
             if (!type.Any())
             {
                 return null;

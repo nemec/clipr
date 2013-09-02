@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Reflection;
+using clipr.Core;
 
 namespace clipr.Arguments
 {
@@ -29,8 +29,8 @@ namespace clipr.Arguments
 
         public string LongName { get; set; }
 
-        public NamedArgument(PropertyInfo prop)
-            : base(prop)
+        public NamedArgument(IValueStoreDefinition store)
+            : base(store)
         {
         }
     }

@@ -46,6 +46,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Core\ArgumentAttribute.cs" />
+    <Compile Include="Core\IndexerValueStore.cs" />
+    <Compile Include="Core\IValueStore.cs" />
+    <Compile Include="Core\PropertyValueStore.cs" />
     <Compile Include="Fluent\Verb.cs" />
     <Compile Include="Utils\AttributeConverter.cs" />
     <Compile Include="ArgumentIntegrityException.cs" />

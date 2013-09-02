@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using clipr.Arguments;
+using clipr.Core;
 
 namespace clipr.Utils
 {
@@ -10,7 +11,7 @@ namespace clipr.Utils
             var attr = prop.GetCustomAttribute<NamedArgumentAttribute>();
             attr.MutuallyExclusiveGroups = prop.GetMutuallyExclusiveGroups();
             attr.Name = prop.Name;
-            attr.Property = prop;
+            attr.Store = new PropertyValueStore(prop);
             return attr;
         }
 
@@ -18,7 +19,7 @@ namespace clipr.Utils
         {
             var attr = prop.GetCustomAttribute<PositionalArgumentAttribute>();
             attr.Name = prop.Name;
-            attr.Property = prop;
+            attr.Store = new PropertyValueStore(prop);
             return attr;
         }
     }
