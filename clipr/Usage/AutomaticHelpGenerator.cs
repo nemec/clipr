@@ -152,7 +152,7 @@ namespace clipr.Usage
         private static void AddEnumFormat(StringBuilder builder, PropertyInfo prop)
         {
             builder.Append("{");
-            var names = Enum.GetNames(prop.GetType());
+            var names = Enum.GetNames(prop.PropertyType);
             for (var i = 0; i < names.Length; i++)
             {
                 builder.Append(names[i]);
