@@ -6,6 +6,7 @@ using System.Globalization;
 using System.Linq;
 using clipr.Arguments;
 using clipr.Triggers;
+using clipr.Utils;
 
 namespace clipr.Core
 {
@@ -28,6 +29,7 @@ namespace clipr.Core
             Config = config;
 
             ParsedMutuallyExclusiveGroups = new HashSet<string>();
+            ObjectTypeConverter.Register();
         }
 
         /// <summary>

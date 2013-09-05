@@ -61,6 +61,10 @@ but powerful example of the objects this library enables you to build:
 
 ##Changelog
 
+###2013-09-04 1.4.0
+
+* Added Dictionary Backend
+
 ###2013-09-01 1.3.0
 
 * Fleshed out Fluent interface.
@@ -287,6 +291,18 @@ will be an easy way to specify the version manually, but until then you'll
 have to implement the `IVersion` interface yourself and replace the `Version`
 property within the `IHelpGenerator`.
 
+##TypeDescriptor / TypeConverter
+
+Custom types may be used as config values, but only if a 
+[TypeConverter](http://msdn.microsoft.com/en-us/library/ayybcxe5.aspx) is
+defined for that type. Since TypeConverters are big, messy beasts, and
+for purposes of this library there is only one conversion case
+(string -> MyType), the `clipr.Utils` namespace contains a
+`StringTypeConverter` that simplifies the conversion interface. After
+implementing the converter, tag your custom class with a
+[TypeConverterAttribute](http://msdn.microsoft.com/en-us/library/system.componentmodel.typeconverterattribute.aspx)
+to register the converter with .Net.
+
 ##Fluent Interface
 
 Instead of attributes, the parser may be configured using a fluent interface.
@@ -345,6 +361,45 @@ You may also add a Verb to the parser config with this syntax:
 
     Console.WriteLine(opt.AddVerb);
     // myfile.txt
+
+##Dictionary Backend
+
+In addition to binding to a class (via properties), it is also possible
+to bind to keys in a dictionary by specifying the indexer (plus key name)
+in lieu of a property. The downside is that this requires all keys and 
+all values to share the same type, respectively (the TypeConverter will
+leave the values in a Dictionary<string, object> as strings). Once you get
+past that, what this does is let you *dynamically* define the available
+configuration properties at runtime (which is as good as you're going to
+get, given that .Net currently doesn't allow ExpandoObject or dynamic
+in Expressions).
+
+    var key = 1;
+    var opt = new Dictionary<int, string>();
+    var parser = new CliParser<Dictionary<int, string>>(opt);
+    parser.HasNamedArgument(c => c[key])
+            .WithShortName('n');
+
+    parser.Parse("-n frank".Split());
+
+    Console.WriteLine("Parsed Keys:");
+    foreach (var kv in opt)
+    {
+        Console.WriteLine("\t{0}: {1}", kv.Key, kv.Value);
+    }
+    // Parsed Keys:
+    //    1: frank
+
+Notes:
+
+* Any type with an indexer will work, it doesn't have to be a Dictionary.
+* Non-constant key expressions will be evaluated at configuration time
+  (such as dict[MyProperty] or dict[MethodCall()]), so variables may
+  also be used as keys without issue.
+* Since they're evaluated in configuration (rather than parsing), *any*
+  type may be used as the indexer key, even if it's not convertible
+  from a string.
+
 
 ##TODO
 

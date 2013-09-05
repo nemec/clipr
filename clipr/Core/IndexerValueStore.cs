@@ -5,7 +5,7 @@ namespace clipr.Core
 {
     internal class IndexerValueStore : IValueStoreDefinition
     {
-        public IndexerValueStore(string name, string key, MethodInfo getter, MethodInfo setter)
+        public IndexerValueStore(string name, object key, MethodInfo getter, MethodInfo setter)
         {
             Name = name;
             Getter = getter;
@@ -17,7 +17,7 @@ namespace clipr.Core
 
         private MethodInfo Setter { get; set; }
 
-        private string Key { get; set; }
+        private object Key { get; set; }
 
         public string Name { get; private set; }
 

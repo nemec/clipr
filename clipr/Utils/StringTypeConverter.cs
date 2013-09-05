@@ -27,6 +27,16 @@ namespace clipr.Utils
                 base.ConvertFrom(context, culture, value);
         }
 
+        /// <summary>
+        /// Convert the string value to an instance of
+        /// <typeparamref name="T"/>.
+        /// </summary>
+        /// <param name="culture">
+        /// The <see cref="T:System.Globalization.CultureInfo"/> to use as
+        /// the current culture.
+        /// </param>
+        /// <param name="value">String value to transform.</param>
+        /// <returns></returns>
         public abstract T ConvertFrom(CultureInfo culture, string value); 
 
         public override bool IsValid(ITypeDescriptorContext context, object value)
@@ -35,6 +45,12 @@ namespace clipr.Utils
             return s != null ? IsValid(s) : base.IsValid(context, value);
         }
 
+        /// <summary>
+        /// Identify whether or not the string can be converted to
+        /// <typeparamref name="T" />.
+        /// </summary>
+        /// <param name="value">String value to transform.</param>
+        /// <returns>True if string is convertible.</returns>
         public abstract bool IsValid(string value);
     }
 }

@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Dynamic;
-using clipr.Fluent;
 
 namespace clipr.Sample
 {
@@ -151,11 +149,28 @@ namespace clipr.Sample
             }
         }
 
+        public static void DictBackendMethodConfig(string[] args)
+        {
+            const int key = 1;
+            var opt = new Dictionary<int, object>();
+            var parser = new CliParser<Dictionary<int, object>>(opt);
+            parser.HasNamedArgument(c => c[key])
+                  .WithShortName('n');
+
+            parser.Parse(args);
+
+            Console.WriteLine("Parsed Keys:");
+            foreach (var kv in opt)
+            {
+                Console.WriteLine("\t{0}: {1}", kv.Key, kv.Value);
+            }
+        }
+
         static void Main()
         {
             //FluentWithVerb("-n3 add oranges.txt".Split());
             //FluentConditional("http", "-u http://file".Split());
-            DictBackedConfiguration("-n frank".Split());
+            DictBackendMethodConfig("-n frank".Split());
         }
     }
 }
