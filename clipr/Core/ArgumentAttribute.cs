@@ -31,11 +31,22 @@ namespace clipr.Core
         /// </summary>
         public uint NumArgs { get; set; }
 
+        public  bool ExplicitlySetConstraint { get; private set; }
+        private NumArgsConstraint _constraint;
+
         /// <summary>
         /// Specifies whether or not <see cref="NumArgs"/> defines
         /// the minimum, maximum, or exact number of arguments allowed.
         /// </summary>
-        public NumArgsConstraint Constraint { get; set; }
+        public NumArgsConstraint Constraint
+        {
+            get { return _constraint; }
+            set
+            {
+                ExplicitlySetConstraint = true;
+                _constraint = value;
+            }
+        }
 
         /// <summary>
         /// Defines an alternate character to be used as a placeholder

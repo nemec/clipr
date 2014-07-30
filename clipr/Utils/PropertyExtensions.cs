@@ -26,7 +26,7 @@ namespace clipr.Utils
 
             return type.IsGenericType && (
                 type.GetGenericTypeDefinition() == enumT ||
-                type.GetInterfaces().Any(t => t.GetGenericTypeDefinition()  == enumT));
+                type.GetInterfaces().Any(t => t.IsGenericType && t.GetGenericTypeDefinition()  == enumT));
         }
 
         internal static bool IsValid<T>(this PropertyInfo prop)

@@ -61,6 +61,13 @@ but powerful example of the objects this library enables you to build:
 
 ##Changelog
 
+###2014-07-30 1.4.1
+
+* Implemented ability to assign TypeConverters on a per-property basis
+  to allow overriding built-in types.
+* Fix bug when serializing to Lists.
+* Set Constraint to accept 1+ parameters when action is Append or AppendConst.
+
 ###2013-09-04 1.4.0
 
 * Added Dictionary Backend

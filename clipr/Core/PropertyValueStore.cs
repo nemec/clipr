@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using System.ComponentModel;
 
 namespace clipr.Core
 {
@@ -7,9 +8,12 @@ namespace clipr.Core
     {
         private PropertyInfo Property { get; set; }
 
-        public PropertyValueStore(PropertyInfo prop)
+        public TypeConverter[] Converters { get; private set; }
+
+        public PropertyValueStore(PropertyInfo prop, TypeConverter[] converters = null)
         {
             Property = prop;
+            Converters = converters ?? new TypeConverter[0];
         }
 
         public string Name { get { return Property.Name; } }

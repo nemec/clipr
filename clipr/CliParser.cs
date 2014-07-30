@@ -7,6 +7,8 @@ using clipr.Fluent;
 using clipr.Triggers;
 using clipr.Usage;
 using clipr.Utils;
+using System.ComponentModel;
+using System.Linq;
 
 namespace clipr
 {
@@ -572,7 +574,11 @@ namespace clipr
                         .DynamicInvoke();
                 }
 
-                return new IndexerValueStore(name.ToString(), name, getter, setter);
+                var converters = getter.ReturnType.GetCustomAttributes<TypeConverterAttribute>()
+                    .Select(a => Activator.CreateInstance(Type.GetType(a.ConverterTypeName)))
+                        .OfType<TypeConverter>().ToArray();
+
+                return new IndexerValueStore(name.ToString(), name, getter, setter, converters);
             }
 
             throw new InvalidOperationException();

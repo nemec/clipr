@@ -14,6 +14,11 @@ namespace clipr.Utils
     /// <typeparam name="T">Custom destination type.</typeparam>
     public abstract class StringTypeConverter<T> : TypeConverter
     {
+        public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
+        {
+            return typeof(T) == destinationType;
+        }
+
         public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
         {
             return sourceType == typeof (String) || base.CanConvertFrom(context, sourceType);

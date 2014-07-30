@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using clipr.Utils;
+using System.Globalization;
 
 namespace clipr.Sample
 {
@@ -166,11 +168,44 @@ namespace clipr.Sample
             }
         }
 
+        public class CustomDateTimeConverter : StringTypeConverter<DateTime>
+        {
+            private static readonly string[] Formats = new[]{ "yyyyMMdd", "yyyy/MM/dd", "yyyy-MM-dd" };
+
+            public override DateTime ConvertFrom(System.Globalization.CultureInfo culture, string value)
+            {
+                return DateTime.ParseExact(value, Formats, CultureInfo.InvariantCulture, DateTimeStyles.None);
+            }
+            public override bool IsValid(string value)
+            {
+                DateTime date;
+                return DateTime.TryParseExact(value, Formats, CultureInfo.InvariantCulture, DateTimeStyles.None, out date);
+            }
+        }
+
+        [ApplicationInfo(Description = "This is a set of options.")]
+        public class CustomDateTimeOptions
+        {
+            [System.ComponentModel.TypeConverter(typeof(CustomDateTimeConverter))]
+            [NamedArgument('d', "date", Action = ParseAction.Append,
+                           Description = "Store the date.")]
+            public List<DateTime> CurrentDate { get; set; }
+        }
+
+        static void CustomDateTime(string[] args)
+        {
+            var opt = CliParser.Parse<CustomDateTimeOptions>(args);
+            Console.WriteLine(opt.CurrentDate[1]);
+            // >>> 
+        }
+
+
         static void Main()
         {
             //FluentWithVerb("-n3 add oranges.txt".Split());
             //FluentConditional("http", "-u http://file".Split());
-            DictBackendMethodConfig("-n frank".Split());
+            //DictBackendMethodConfig("-n frank".Split());
+            CustomDateTime("-d 20140730 2013-09-10".Split());
         }
     }
 }

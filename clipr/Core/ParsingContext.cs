@@ -411,14 +411,34 @@ namespace clipr.Core
 
         private static object ConvertFrom(IValueStoreDefinition store, string value)
         {
+            var customConverter = store.Converters != null
+                ? store.Converters
+                    .FirstOrDefault(c => c.CanConvertTo(store.Type) && 
+                                    c.CanConvertFrom(typeof(string)))
+                    : null;
+            if(customConverter != null)
+            {
+                return customConverter.ConvertFromInvariantString(value);
+            }
+            
             return TypeDescriptor.GetConverter(store.Type)
                                     .ConvertFromInvariantString(value);
         }
 
         private static object ConvertFromGeneric(IValueStoreDefinition store, string value)
         {
-            return TypeDescriptor.GetConverter(
-                store.Type.GetGenericArguments().First())
+            var convertType = store.Type.GetGenericArguments().First();
+            var customConverter = store.Converters != null
+                ? store.Converters
+                    .FirstOrDefault(c => c.CanConvertTo(convertType) && 
+                                         c.CanConvertFrom(typeof(string)))
+                : null;
+            if(customConverter != null)
+            {
+                return customConverter.ConvertFromInvariantString(value);
+            }
+
+            return TypeDescriptor.GetConverter(convertType)
                 .ConvertFromInvariantString(value);
         }
 
