@@ -40,7 +40,7 @@ namespace clipr.Utils
                 {
                     new TypeConverterAttribute(typeof(ObjectTypeConverter)) 
                 };
-            TypeDescriptor.AddAttributes(typeof(object), attr);
+            //TypeDescriptor.AddAttributes(typeof(object), attr);  //TODO this breaks most type conversion since we override object...
         }
     }
 }
