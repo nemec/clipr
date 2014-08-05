@@ -16,11 +16,11 @@ namespace clipr.Core
         public static bool IsAllowedLongName(string name)
         {
             return name != null &&
-                Regex.IsMatch(name, @"^[a-zA-Z][a-zA-Z0-9\-]*[a-zA-Z0-9]$");
+                Regex.IsMatch(name, @"^[a-zA-Z][a-zA-Z0-9\-_]*[a-zA-Z0-9]$");
         }
 
         internal const string IsAllowedLongNameExplanation =
             "Long arguments must begin with a letter, contain a letter, " +
-            "digit, or hyphen, and end with a letter or a digit.";
+            "digit, underscore, or hyphen, and end with a letter or a digit.";
     }
 }
