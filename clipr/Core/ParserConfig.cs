@@ -8,14 +8,57 @@ using clipr.Utils;
 
 namespace clipr.Core
 {
+    /// <summary>
+    /// Configuration for the parser.
+    /// </summary>
+    /// <typeparam name="T">Option class.</typeparam>
     public interface IParserConfig<T> where T : class
     {
+        /// <summary>
+        /// The character prefix to use for designating arguments
+        /// (typically a hyphen).
+        /// </summary>
         char ArgumentPrefix { get; set; }
+
+        /// <summary>
+        /// The list of registered triggers.
+        /// </summary>
         IEnumerable<ITrigger<T>> Triggers { get; set; }
+
+        /// <summary>
+        /// Initialize all triggers.
+        /// </summary>
+        /// <param name="triggers"></param>
         void InitializeTriggers(IEnumerable<ITrigger<T>> triggers);
+
+        /// <summary>
+        /// Retrieve the short character from an argument or throw an exception.
+        /// </summary>
+        /// <param name="arg"></param>
+        /// <returns></returns>
         char? GetShortName(IShortNameArgument arg);
+
+        /// <summary>
+        /// Retrieve the short character from an argument or throw an exception.
+        /// </summary>
+        /// <param name="arg"></param>
+        /// <param name="errorMessage"></param>
+        /// <returns></returns>
         char? GetShortName(IShortNameArgument arg, string errorMessage);
+
+        /// <summary>
+        /// Retrieve the long name from an argument or throw an exception.
+        /// </summary>
+        /// <param name="arg"></param>
+        /// <returns></returns>
         string GetLongName(ILongNameArgument arg);
+
+        /// <summary>
+        /// Retrieve the long name from an argument or throw an exception.
+        /// </summary>
+        /// <param name="arg"></param>
+        /// <param name="errorMessage"></param>
+        /// <returns></returns>
         string GetLongName(ILongNameArgument arg, string errorMessage);
     }
 

@@ -18,9 +18,11 @@ namespace clipr.Usage
     /// <typeparam name="T">Type to inspect.</typeparam>
     public class AutomaticHelpGenerator<T> : TriggerBase, IHelpGenerator<T> where T : class
     {
-        public string Name { get { return "HelpGenerator"; } }
+        /// <inheritdoc/>
+        public override string Name { get { return "HelpGenerator"; } }
 
-        public virtual string Description
+        /// <inheritdoc/>
+        public override string Description
         {
             get { return "Display this help document."; }
         }
@@ -31,21 +33,33 @@ namespace clipr.Usage
 
         private const int Spacing = 2;
 
+        /// <summary>
+        /// Description for the version help.
+        /// </summary>
         protected virtual string VersionDescription
         {
             get { return "Display version information."; }
         }
 
+        /// <summary>
+        /// Title of the usage section.
+        /// </summary>
         protected virtual string UsageTitle
         {
             get { return "usage"; }
         }
 
+        /// <summary>
+        /// Title of the positional arguments section.
+        /// </summary>
         protected virtual string PositionalArgumentsTitle
         {
             get { return "positional arguments"; }
         }
 
+        /// <summary>
+        /// Title of the optional arguments section.
+        /// </summary>
         protected virtual string OptionalArgumentsTitle
         {
             get { return "optional arguments"; }
@@ -66,6 +80,10 @@ namespace clipr.Usage
             LongName = "help";
         }
 
+        /// <summary>
+        /// Get the usage as a string.
+        /// </summary>
+        /// <returns></returns>
         public string GetUsage()
         {
             var assembly = Assembly.GetEntryAssembly();
@@ -165,6 +183,11 @@ namespace clipr.Usage
             builder.Append("}");
         }
 
+        /// <summary>
+        /// Get all help information.
+        /// </summary>
+        /// <param name="config"></param>
+        /// <returns></returns>
         public string GetHelp(IParserConfig<T> config)
         {
             var positionalArgs = typeof (T).GetProperties()
@@ -336,11 +359,18 @@ namespace clipr.Usage
             public string Description { get; set; }
         }
 
+        /// <summary>
+        /// Name of the plugin.
+        /// </summary>
         public string PluginName
         {
             get { return "Help"; }
         }
 
+        /// <summary>
+        /// Action to perform when this trigger is parsed.
+        /// </summary>
+        /// <param name="config"></param>
         public void OnParse(IParserConfig<T> config)
         {
             Console.Error.WriteLine(GetHelp(config));

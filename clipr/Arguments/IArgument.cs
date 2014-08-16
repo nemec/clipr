@@ -1,9 +1,11 @@
 ﻿using System.Collections.Generic;
-using System.Reflection;
 using clipr.Core;
 
 namespace clipr.Arguments
 {
+    /// <summary>
+    /// Basic properties of an argument.
+    /// </summary>
     public interface IArgument
     {
         /// <summary>

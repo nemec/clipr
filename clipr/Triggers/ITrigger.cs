@@ -15,11 +15,6 @@ namespace clipr.Triggers
         string PluginName { get; }
 
         /// <summary>
-        /// Configuration of the parser.
-        /// </summary>
-        //ParserConfig<T> Config { get; set; }
-
-        /// <summary>
         /// Method executed when the short or long name is parsed.
         /// </summary>
         void OnParse(IParserConfig<T> config);

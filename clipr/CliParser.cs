@@ -427,10 +427,12 @@ namespace clipr
         #region Fluent API
 
         /// <summary>
-        /// 
+        /// Configure a named argument with a single value.
         /// </summary>
-        /// <typeparam name="TArg"></typeparam>
-        /// <param name="getExpr"></param>
+        /// <typeparam name="TArg">Argument type.</typeparam>
+        /// <param name="getExpr">
+        /// Getter expression describing where the value is stored.
+        /// </param>
         /// <returns></returns>
         public Named<TConf, TArg> HasNamedArgument<TArg>(
             Expression<Func<TConf, TArg>> getExpr)
@@ -446,6 +448,14 @@ namespace clipr
             return named;
         }
 
+        /// <summary>
+        /// Configure a named argument with multiple values.
+        /// </summary>
+        /// <typeparam name="TArg">Argument type.</typeparam>
+        /// <param name="getExpr">
+        /// Getter expression describing where the values are stored.
+        /// </param>
+        /// <returns></returns>
         public NamedList<TConf, TArg> HasNamedArgumentList<TArg>(
             Expression<Func<TConf, TArg>> getExpr)
         {
@@ -460,6 +470,14 @@ namespace clipr
             return named;
         }
 
+        /// <summary>
+        /// Configure a positional argument with a single value.
+        /// </summary>
+        /// <typeparam name="TArg">Argument type.</typeparam>
+        /// <param name="getExpr">
+        /// Getter expression describing where the value is stored.
+        /// </param>
+        /// <returns></returns>
         public Positional<TConf, TArg> HasPositionalArgument<TArg>(
             Expression<Func<TConf, TArg>> getExpr)
         {
@@ -474,6 +492,14 @@ namespace clipr
             return positional;
         }
 
+        /// <summary>
+        /// Configure a positional argument with a multiple values.
+        /// </summary>
+        /// <typeparam name="TArg">Argument type.</typeparam>
+        /// <param name="getExpr">
+        /// Getter expression describing where the values are stored.
+        /// </param>
+        /// <returns></returns>
         public PositionalList<TConf, TArg> HasPositionalArgumentList<TArg>(
             Expression<Func<TConf, TArg>> getExpr)
         {
@@ -488,7 +514,16 @@ namespace clipr
             return positional;
         }
 
-        public Verb<TConf> HasVerb<TArg>(string verbName, Expression<Func<TConf, TArg>> expr, CliParser<TArg> subParser)
+        /// <summary>
+        /// Configure a verb containing sub-options.
+        /// </summary>
+        /// <typeparam name="TArg">Type containing the sub-options.</typeparam>
+        /// <param name="verbName">Name of the verb</param>
+        /// <param name="expr">Getter for the sub-option object</param>
+        /// <param name="subParser">A parser configured to parse the sub-options.</param>
+        /// <returns></returns>
+        public Verb<TConf> HasVerb<TArg>(
+            string verbName, Expression<Func<TConf, TArg>> expr, CliParser<TArg> subParser)
             where TArg : class
         {
             if (FluentConfig == null)

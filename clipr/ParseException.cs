@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 
 namespace clipr
 {
@@ -17,7 +18,7 @@ namespace clipr
         /// </summary>
         /// <param name="token"></param>
         internal ParseException(char token)
-            : this(token.ToString())
+            : this(token.ToString(CultureInfo.InvariantCulture))
         {
         }
 
@@ -27,7 +28,7 @@ namespace clipr
         /// <param name="token"></param>
         /// <param name="message"></param>
         internal ParseException(char token, string message)
-            : this(token.ToString(), message)
+            : this(token.ToString(CultureInfo.InvariantCulture), message)
         {
         }
 
@@ -39,7 +40,7 @@ namespace clipr
         /// <param name="message"></param>
         /// <param name="innerException"></param>
         internal ParseException(char token, string message, Exception innerException)
-            : this(token.ToString(), message, innerException)
+            : this(token.ToString(CultureInfo.InvariantCulture), message, innerException)
         {
         }
 
@@ -76,6 +77,7 @@ namespace clipr
             Token = token;
         }
 
+        /// <inheritdoc/>
         public override string ToString()
         {
             if (Token != null)

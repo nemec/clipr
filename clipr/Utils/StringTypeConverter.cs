@@ -14,16 +14,19 @@ namespace clipr.Utils
     /// <typeparam name="T">Custom destination type.</typeparam>
     public abstract class StringTypeConverter<T> : TypeConverter
     {
+        /// <inheritdoc/>
         public override bool CanConvertTo(ITypeDescriptorContext context, Type destinationType)
         {
             return typeof(T) == destinationType;
         }
 
+        /// <inheritdoc/>
         public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
         {
             return sourceType == typeof (String) || base.CanConvertFrom(context, sourceType);
         }
 
+        /// <inheritdoc/>
         public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
         {
             var s = value as string;
@@ -42,8 +45,9 @@ namespace clipr.Utils
         /// </param>
         /// <param name="value">String value to transform.</param>
         /// <returns></returns>
-        public abstract T ConvertFrom(CultureInfo culture, string value); 
+        public abstract T ConvertFrom(CultureInfo culture, string value);
 
+        /// <inheritdoc/>
         public override bool IsValid(ITypeDescriptorContext context, object value)
         {
             var s = value as string;

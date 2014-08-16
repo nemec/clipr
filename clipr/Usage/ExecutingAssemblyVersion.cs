@@ -10,7 +10,8 @@ namespace clipr.Usage
     /// </summary>
     public class ExecutingAssemblyVersion<T> : TriggerBase, IVersion<T> where T : class
     {
-        public string Name { get { return "Version"; } }
+        /// <inheritdoc/>
+        public override string Name { get { return "Version"; } }
 
         private readonly string _version;
 
@@ -26,22 +27,34 @@ namespace clipr.Usage
             LongName = "version";
         }
 
+        /// <summary>
+        /// Get the version of this application.
+        /// </summary>
+        /// <returns></returns>
         public string GetVersion()
         {
             return _version;
         }
 
+        /// <summary>
+        /// Get the name of this plugin.
+        /// </summary>
         public string PluginName
         {
             get { return "Version"; }
         }
 
+        /// <summary>
+        /// Action to perform when trigger is parsed.
+        /// </summary>
+        /// <param name="config"></param>
         public void OnParse(IParserConfig<T> config)
         {
             Console.Error.WriteLine(GetVersion());
         }
 
-        public string Description
+        /// <inheritdoc/>
+        public override string Description
         {
             get { return "Displays the version of the current executable."; }
         }

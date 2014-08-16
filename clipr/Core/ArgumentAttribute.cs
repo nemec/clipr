@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Reflection;
 using clipr.Arguments;
 
 namespace clipr.Core
@@ -11,8 +10,10 @@ namespace clipr.Core
     [AttributeUsage(AttributeTargets.Property)]
     public abstract class ArgumentAttribute : Attribute, IArgument
     {
+        /// <inheritdoc/>
         public string Name { get; internal set; }
 
+        /// <inheritdoc/>
         public List<string> MutuallyExclusiveGroups { get; set; }
 
         /// <summary>
@@ -31,6 +32,10 @@ namespace clipr.Core
         /// </summary>
         public uint NumArgs { get; set; }
 
+        /// <summary>
+        /// Determine whether or not the constraint was explicitly set by
+        /// the user.
+        /// </summary>
         public  bool ExplicitlySetConstraint { get; private set; }
         private NumArgsConstraint _constraint;
 
@@ -100,6 +105,7 @@ namespace clipr.Core
             NumArgs = 1;
         }
 
+        /// <inheritdoc/>
         public IValueStoreDefinition Store { get; set; }
     }
 }

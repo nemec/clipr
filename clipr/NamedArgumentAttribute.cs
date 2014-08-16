@@ -19,6 +19,7 @@ namespace clipr
         /// </summary>
         public string LongName { get; internal set; }
 
+        /// <inheritdoc/>
         public bool Required { get; set; }
 
         /// <summary>
