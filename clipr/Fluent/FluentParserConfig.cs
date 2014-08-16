@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using clipr.Arguments;
+using clipr.Core;
 using clipr.Triggers;
 
 namespace clipr.Fluent
@@ -45,6 +46,10 @@ namespace clipr.Fluent
                 if (arg.LongName != null)
                 {
                     LongNameArguments.Add(arg.LongName, arg);
+                }
+                if (arg.Required)
+                {
+                    RequiredNamedArguments.Add(arg.Name);
                 }
             }
         }

@@ -6,7 +6,6 @@ using System.Globalization;
 using System.Linq;
 using clipr.Arguments;
 using clipr.Triggers;
-using clipr.Utils;
 
 namespace clipr.Core
 {
@@ -21,15 +20,17 @@ namespace clipr.Core
 
         private T Object { get; set; }
 
-        private HashSet<string> ParsedMutuallyExclusiveGroups { get; set; }
+        private readonly HashSet<string> _parsedMutuallyExclusiveGroups;
+
+        private readonly HashSet<string> _parsedNamedArguments;
 
         public ParsingContext(T obj, ParserConfig<T> config)
         {
             Object = obj;
             Config = config;
 
-            ParsedMutuallyExclusiveGroups = new HashSet<string>();
-            ObjectTypeConverter.Register();
+            _parsedMutuallyExclusiveGroups = new HashSet<string>();
+            _parsedNamedArguments = new HashSet<string>();
         }
 
         /// <summary>
@@ -161,7 +162,7 @@ namespace clipr.Core
         {
             var newDict = argDict.ToDictionary(
                 k => k.Key,
-                v => v.Value as IArgument,
+                v => v.Value as INamedArgumentBase,
                 argDict.Comparer);
             ParseOptionalArgument(name, newDict, iter);
         }
@@ -170,14 +171,14 @@ namespace clipr.Core
         {
             var newDict = argDict.ToDictionary(
                 k => k.Key,
-                v => v.Value as IArgument,
+                v => v.Value as INamedArgumentBase,
                 argDict.Comparer);
             ParseOptionalArgument(name, newDict, iter);
         }
 
-        private void ParseOptionalArgument<TS>(TS name, IDictionary<TS, IArgument> argDict, Stack<string> iter)
+        private void ParseOptionalArgument<TS>(TS name, IDictionary<TS, INamedArgumentBase> argDict, Stack<string> iter)
         {
-            IArgument arg;
+            INamedArgumentBase arg;
             if (!argDict.TryGetValue(name, out arg))
             {
                 throw new ParseException(name.ToString(), String.Format(
@@ -190,11 +191,13 @@ namespace clipr.Core
                 throw new ParserExit();
             }
 
+            _parsedNamedArguments.Add(arg.Name);
+
             if (arg.MutuallyExclusiveGroups != null)
             {
                 foreach (var group in arg.MutuallyExclusiveGroups)
                 {
-                    if (!ParsedMutuallyExclusiveGroups.Add(group))
+                    if (!_parsedMutuallyExclusiveGroups.Add(group))
                     {
                         throw new ParseException(name.ToString(), String.Format(
                             @"Mutually exclusive group ""{0}"" violated.",
@@ -245,7 +248,18 @@ namespace clipr.Core
                             var stringValue = args.Pop();
                             try
                             {
-                                store.SetValue(Object, ConvertFrom(store, stringValue));
+                                object converted;
+                                if (TryConvertFrom(store, stringValue, out converted))
+                                {
+                                    store.SetValue(Object, converted);
+                                }
+                                else
+                                {
+                                    throw new ParseException(attrName, String.Format(
+                                        @"Value ""{0}"" cannot be converted to the " +
+                                        "required type {1}.",
+                                        stringValue, store.Type));
+                                }
                             }
                             catch (Exception e)
                             {
@@ -291,7 +305,18 @@ namespace clipr.Core
                             var stringValue = args.Pop();
                             try
                             {
-                                backingList.Add(ConvertFromGeneric(store, stringValue));
+                                object converted;
+                                if (TryConvertFromGeneric(store, stringValue, out converted))
+                                {
+                                    backingList.Add(converted);
+                                }
+                                else
+                                {
+                                    throw new ParseException(attrName, String.Format(
+                                        @"Value ""{0}"" cannot be converted to the " +
+                                        "required type {1}.",
+                                        stringValue, arg.Store.Type));
+                                }
                             }
                             catch (Exception e)
                             {
@@ -365,7 +390,18 @@ namespace clipr.Core
                 }
                 try
                 {
-                    list.Add(ConvertFromGeneric(arg.Store, stringValue));
+                    object converted;
+                    if (TryConvertFromGeneric(arg.Store, stringValue, out converted))
+                    {
+                        list.Add(converted);
+                    }
+                    else
+                    {
+                        throw new ParseException(attrName, String.Format(
+                            @"Value ""{0}"" cannot be converted to the " +
+                            "required type {1}.",
+                            stringValue, arg.Store.Type));
+                    }
                 }
                 catch (Exception e)
                 {
@@ -394,7 +430,7 @@ namespace clipr.Core
         {
             var missingRequiredMutexGroups = Config
                 .RequiredMutuallyExclusiveArguments
-                .Except(ParsedMutuallyExclusiveGroups).ToArray();
+                .Except(_parsedMutuallyExclusiveGroups).ToArray();
             if (missingRequiredMutexGroups.Any())
             {
                 throw new ParseException(null, String.Format(
@@ -403,43 +439,74 @@ namespace clipr.Core
                     String.Join(", ", missingRequiredMutexGroups)));
             }
 
+            var missingRequiredNamedArguments = Config
+                .RequiredNamedArguments
+                .Except(_parsedNamedArguments).ToArray();
+            if (missingRequiredNamedArguments.Any())
+            {
+                throw new ParseException(null, String.Format(
+                    @"Required named argument(s) ""{0}"" were " +
+                    "not provided.",
+                    String.Join(", ", missingRequiredNamedArguments)));
+            }
+
             foreach (var method in Config.PostParseMethods)
             {
                 method.Invoke(Object, null);
             }
         }
 
-        private static object ConvertFrom(IValueStoreDefinition store, string value)
+        private static bool TryConvertFrom(IValueStoreDefinition store, string value, out object obj)
         {
             var customConverter = store.Converters != null
                 ? store.Converters
-                    .FirstOrDefault(c => c.CanConvertTo(store.Type) && 
-                                    c.CanConvertFrom(typeof(string)))
-                    : null;
-            if(customConverter != null)
+                    .FirstOrDefault(c => c.CanConvertFrom(typeof(string)))
+                : null;
+            if (customConverter != null)
             {
-                return customConverter.ConvertFromInvariantString(value);
+                obj = customConverter.ConvertFromInvariantString(value);
+                return true;
             }
-            
-            return TypeDescriptor.GetConverter(store.Type)
-                                    .ConvertFromInvariantString(value);
+
+            var converter = TypeDescriptor.GetConverter(store.Type);
+            if (converter.CanConvertFrom(typeof(string)))
+            {
+                obj = converter.ConvertFromInvariantString(value);
+                return true;
+            }
+            obj = null;
+            return false;
         }
 
-        private static object ConvertFromGeneric(IValueStoreDefinition store, string value)
+        private static bool TryConvertFromGeneric(IValueStoreDefinition store, string value, out object obj)
         {
-            var convertType = store.Type.GetGenericArguments().First();
-            var customConverter = store.Converters != null
-                ? store.Converters
-                    .FirstOrDefault(c => c.CanConvertTo(convertType) && 
-                                         c.CanConvertFrom(typeof(string)))
-                : null;
-            if(customConverter != null)
+            var tempStore = new DummyValueStore
             {
-                return customConverter.ConvertFromInvariantString(value);
+                Name = store.Name,
+                Converters = store.Converters,
+                Type = store.Type.GetGenericArguments().First()
+            };
+
+            return TryConvertFrom(tempStore, value, out obj);
+        }
+
+        private class DummyValueStore : IValueStoreDefinition
+        {
+            public string Name { get; set; }
+
+            public TypeConverter[] Converters { get; set; }
+
+            public void SetValue(object source, object value)
+            {
+                throw new NotImplementedException();
             }
 
-            return TypeDescriptor.GetConverter(convertType)
-                .ConvertFromInvariantString(value);
+            public object GetValue(object source)
+            {
+                throw new NotImplementedException();
+            }
+
+            public Type Type { get; set; }
         }
 
         private static IList CreateGenericList(IValueStoreDefinition store, IEnumerable initial)

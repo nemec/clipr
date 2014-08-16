@@ -16,6 +16,7 @@ namespace clipr.Core
             InitializeNamedArguments();
             InitializePostParseMethods();
             InitializePositionalArguments();
+            InitializeRequiredNamedArguments();
             InitializeRequiredMutuallyExclusiveArguments();
         }
 
@@ -26,6 +27,18 @@ namespace clipr.Core
                     .SelectMany(p => p.GetCustomAttributes<MutuallyExclusiveGroupAttribute>()
                     .Where(a => a.Required)
                     .Select(a => a.Name)));
+        }
+
+        private void InitializeRequiredNamedArguments()
+        {
+            RequiredNamedArguments.UnionWith(
+                LongNameArguments.Values
+                    .Where(a => a.Required)
+                    .Select(a => a.Name));
+            RequiredNamedArguments.UnionWith(
+                ShortNameArguments.Values
+                    .Where(a => a.Required)
+                    .Select(a => a.Name));
         }
 
         private void InitializePositionalArguments()

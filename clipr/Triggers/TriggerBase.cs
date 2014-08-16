@@ -16,6 +16,8 @@ namespace clipr.Triggers
 
         public string LongName { get; set; }
 
+        public bool Required { get { return false; }}
+
         public string MetaVar { get; set; }
 
         public IValueStoreDefinition Store { get { return null; } }

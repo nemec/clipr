@@ -1,7 +1,7 @@
 ﻿
 namespace clipr.Arguments
 {
-    public interface ILongNameArgument : IArgument
+    public interface ILongNameArgument : INamedArgumentBase
     {
         /// <summary>
         /// Longer, multi-character name for the argument.

@@ -8,7 +8,7 @@ namespace clipr.Usage
     /// <summary>
     /// Generate usage information from localizable resource files.
     /// </summary>
-    internal class ResourceUsageGenerator<T> : IHelpGenerator<T> where T : class, INamedArgument
+    internal class ResourceUsageGenerator<T> : IHelpGenerator<T> where T : class, INamedArgumentBase
     {
         public ParserConfig<T> Config { get; set; }
 
@@ -23,6 +23,8 @@ namespace clipr.Usage
         public char? ShortName { get; set; }
 
         public string LongName { get; set; }
+
+        public bool Required { get { return false; } }
 
         /// <summary>
         /// Create a new usage generator with the

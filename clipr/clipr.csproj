@@ -84,7 +84,6 @@
     <Compile Include="Core\ParserExit.cs" />
     <Compile Include="Core\ParsingContext.cs" />
     <Compile Include="Triggers\ITrigger.cs" />
-    <Compile Include="Utils\ObjectTypeConverter.cs" />
     <Compile Include="Utils\StringExtensions.cs" />
     <Compile Include="Triggers\TriggerBase.cs" />
     <Compile Include="Usage\ExecutingAssemblyVersion.cs" />

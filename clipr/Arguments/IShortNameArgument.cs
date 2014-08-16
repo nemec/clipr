@@ -1,7 +1,7 @@
 ﻿
 namespace clipr.Arguments
 {
-    public interface IShortNameArgument : IArgument
+    public interface IShortNameArgument : INamedArgumentBase
     {
         /// <summary>
         /// Single character name for the argument.

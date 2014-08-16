@@ -11,7 +11,7 @@ namespace clipr.Core
         }
 
         internal const string IsAllowedShortNameExplanation =
-            "Short arguments must be letters.";
+            "Short named arguments must be letters.";
 
         public static bool IsAllowedLongName(string name)
         {
@@ -20,7 +20,7 @@ namespace clipr.Core
         }
 
         internal const string IsAllowedLongNameExplanation =
-            "Long arguments must begin with a letter, contain a letter, " +
+            "Long named arguments must begin with a letter, contain a letter, " +
             "digit, underscore, or hyphen, and end with a letter or a digit.";
     }
 }

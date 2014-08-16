@@ -1,6 +1,8 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2012
+# Visual Studio 2013
+VisualStudioVersion = 12.0.30501.0
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "clipr", "clipr\clipr.csproj", "{63FEC7E8-FAB5-47D7-8BB6-490725659889}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "clipr.Sample", "clipr.Sample\clipr.Sample.csproj", "{68F2DE76-31F6-4FA6-B30B-BD4DE49A411C}"
@@ -32,15 +34,10 @@ Global
 		{8D16FF01-C8B5-47BB-951C-931DD217736A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8D16FF01-C8B5-47BB-951C-931DD217736A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
-	GlobalSection(NestedProjects) = preSolution
-	EndGlobalSection
-	GlobalSection(MonoDevelopProperties) = preSolution
-		StartupItem = clipr.Sample\clipr.Sample.csproj
-	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
-	GlobalSection(Performance) = preSolution
-		HasPerformanceSessions = true
+	GlobalSection(MonoDevelopProperties) = preSolution
+		StartupItem = clipr.Sample\clipr.Sample.csproj
 	EndGlobalSection
 EndGlobal

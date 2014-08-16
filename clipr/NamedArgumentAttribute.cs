@@ -19,6 +19,8 @@ namespace clipr
         /// </summary>
         public string LongName { get; internal set; }
 
+        public bool Required { get; set; }
+
         /// <summary>
         /// An argument name suitable for displaying on a help page.
         /// 

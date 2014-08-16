@@ -29,6 +29,8 @@ namespace clipr.Arguments
 
         public string LongName { get; set; }
 
+        public bool Required { get; set; }
+
         public NamedArgument(IValueStoreDefinition store)
             : base(store)
         {

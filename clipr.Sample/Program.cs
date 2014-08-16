@@ -199,13 +199,31 @@ namespace clipr.Sample
             // >>> 
         }
 
+        public class RequiredNamedArgument
+        {
+            [NamedArgument('d', "date", Required = true,
+                           Description = "Store the date.")]
+            public string CurrentDate { get; set; }
+
+            [NamedArgument('c', Action = ParseAction.StoreTrue)]
+            public bool Other { get; set; }
+        }
+
+        static void ParseRequiredNamedArgument(string[] args)
+        {
+            var opt = CliParser.Parse<RequiredNamedArgument>(args);
+            Console.WriteLine(opt.CurrentDate);
+            // >>> 
+        }
+
 
         static void Main()
         {
             //FluentWithVerb("-n3 add oranges.txt".Split());
             //FluentConditional("http", "-u http://file".Split());
             //DictBackendMethodConfig("-n frank".Split());
-            CustomDateTime("-d 20140730 2013-09-10".Split());
+            //CustomDateTime("-d 20140730 2013-09-10".Split());
+            ParseRequiredNamedArgument("-c -d 10/13/2010".Split());
         }
     }
 }

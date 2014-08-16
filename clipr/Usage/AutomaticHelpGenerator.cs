@@ -5,6 +5,7 @@ using System.Reflection;
 using System.Text;
 using System.Linq;
 using clipr.Arguments;
+using clipr.Core;
 using clipr.Triggers;
 using clipr.Utils;
 
@@ -53,7 +54,7 @@ namespace clipr.Usage
         private readonly Func<IPositionalArgument, int> _argumentIndex =
             p => p.Index;
 
-        private readonly Func<INamedArgument, string> _argumentDisplayName =
+        private readonly Func<INamedArgumentBase, string> _argumentDisplayName =
             p => p.MetaVar ?? p.Name;
 
         /// <summary>
@@ -173,7 +174,7 @@ namespace clipr.Usage
 
             var namedArgs = typeof(T).GetProperties()
                 .Where(p => p.GetCustomAttribute<NamedArgumentAttribute>() != null)
-                .Select(p => p.GetCustomAttribute<NamedArgumentAttribute>() as INamedArgument)
+                .Select(p => p.GetCustomAttribute<NamedArgumentAttribute>() as INamedArgumentBase)
                 .ToList();
 
             foreach (var trigger in config.Triggers)

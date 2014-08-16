@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using clipr.Arguments;
-using clipr.Core;
 using clipr.Triggers;
 using clipr.Utils;
 
-namespace clipr
+namespace clipr.Core
 {
     public interface IParserConfig<T> where T : class
     {
@@ -31,7 +30,7 @@ namespace clipr
 
     internal abstract class ParserConfig<T> : IParserConfig<T> where T : class
     {
-        public readonly char[] LongOptionSeparator = new[] { '=' };
+        public readonly char[] LongOptionSeparator = { '=' };
 
         public char ArgumentPrefix { get; set; }
 
@@ -48,6 +47,8 @@ namespace clipr
         internal readonly List<MethodInfo> PostParseMethods;
 
         internal readonly HashSet<string> RequiredMutuallyExclusiveArguments;
+
+        internal readonly HashSet<string> RequiredNamedArguments; 
 
         public IEnumerable<ITrigger<T>> Triggers { get; set; }
 
@@ -71,6 +72,7 @@ namespace clipr
             Verbs = new Dictionary<string, VerbConfig>();
             PostParseMethods = new List<MethodInfo>();
             RequiredMutuallyExclusiveArguments = new HashSet<string>();
+            RequiredNamedArguments = new HashSet<string>();
 
             InitializeTriggers(triggers);
         }

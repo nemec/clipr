@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Reflection;
+using clipr.Core;
 using clipr.Triggers;
 
 namespace clipr.Usage

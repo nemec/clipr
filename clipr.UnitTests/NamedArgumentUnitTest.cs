@@ -132,6 +132,33 @@ namespace clipr.UnitTests
             Assert.AreEqual("tim", opt.Name);
         }
 
+        internal class NamedArgumentWithRequired
+        {
+            [NamedArgument('c', "celery", Required = true)]
+            public string Celery { get; set; }
+        }
+
+        [TestMethod]
+        public void Argument_WithRequiredLongNamedArgumentProvided_ParsesArgumentValue()
+        {
+            var opt = CliParser.Parse<NamedArgumentWithRequired>("--celery puppy".Split());
+            Assert.AreEqual("puppy", opt.Celery);
+        }
+
+        [TestMethod]
+        public void Argument_WithRequiredShortNamedArgumentProvided_ParsesArgumentValue()
+        {
+            var opt = CliParser.Parse<NamedArgumentWithRequired>("-c puppy".Split());
+            Assert.AreEqual("puppy", opt.Celery);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ParseException))]
+        public void Argument_WithRequiredNamedArgumentMissing_ThrowsException()
+        {
+            CliParser.Parse<NamedArgumentWithRequired>(new string[0]);
+        }
+
         internal class MutuallyExclusive
         {
             [NamedArgument('a')]

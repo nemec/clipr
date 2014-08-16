@@ -60,6 +60,7 @@
     <Compile Include="ArgumentIntegrityUnitTest.cs" />
     <Compile Include="CliParserUnitTest.cs" />
     <Compile Include="ResourceUsageGeneratorUnitTest.cs" />
+    <Compile Include="TypeConverterUnitTest.cs" />
     <Compile Include="VerbUnitTest.cs" />
     <Compile Include="PostParseUnitTest.cs" />
     <Compile Include="StringExtensionsUnitTest.cs" />

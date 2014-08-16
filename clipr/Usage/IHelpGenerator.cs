@@ -1,4 +1,5 @@
-﻿using clipr.Triggers;
+﻿using clipr.Core;
+using clipr.Triggers;
 
 namespace clipr.Usage
 {

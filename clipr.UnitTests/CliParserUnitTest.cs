@@ -1,10 +1,7 @@
 ﻿using System.Collections.Generic;
-using System.ComponentModel;
-using System.Globalization;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using clipr.Core;
-using clipr.Utils;
 
 // ReSharper disable ObjectCreationAsStatement
 
@@ -82,57 +79,6 @@ namespace clipr.UnitTests
         {
             var opt = CliParser.Parse<EnumTypeConversion>("-s fulltime".Split());
             Assert.AreEqual(EnumTypeConversion.EmploymentStatus.FullTime, opt.Employment);
-        }
-
-        internal class CustomTypeConversion
-        {
-            [NamedArgument("set")]
-            public CustomType Custom { get; set; }
-
-            [TypeConverter(typeof(CustomTypeConverter))]
-            public class CustomType
-            {
-                public int Value { get; set; }
-            }
-
-            public class CustomTypeConverter : StringTypeConverter<CustomType>
-            {
-                public override CustomType ConvertFrom(CultureInfo culture, string value)
-                {
-                    var converted = int.Parse(value);
-                    return new CustomType
-                        {
-                            Value = converted
-                        };
-                }
-
-                public override bool IsValid(string value)
-                {
-                    int converted;
-                    return int.TryParse(value, out converted);
-                }
-            }
-        }
-
-        [TestMethod]
-        public void CustomTypeConversion_ParseShortArgOnEnum_ConvertsStringArgumentToCustomType()
-        {
-            var opt = CliParser.Parse<CustomTypeConversion>("--set=3".Split());
-            Assert.AreEqual(3, opt.Custom.Value);
-        }
-
-        internal class ListTypeConversion
-        {
-            [NamedArgument("numbers", NumArgs = 2)]
-            public List<int> Numbers { get; set; }
-        }
-
-        [TestMethod]
-        public void ListTypeConversion_GivenMultipleIntegers_ConvertsAndAddsToList()
-        {
-            var expected = new List<int> {1, 2};
-            var opt = CliParser.Parse<ListTypeConversion>("--numbers 1 2".Split());
-            CollectionAssert.AreEqual(expected, opt.Numbers);
         }
 
         public class MixedNamedAndPositional
