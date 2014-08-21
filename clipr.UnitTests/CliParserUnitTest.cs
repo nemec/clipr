@@ -251,5 +251,80 @@ namespace clipr.UnitTests
                 "-n 1 4 6 8".Split());
             Assert.AreEqual(4, obj.Numbers.Count());
         }
+
+        [StaticEnumeration]
+        internal class SomeEnum
+        {
+            public static readonly SomeEnum First = new SomeEnum();
+            public static readonly SomeEnum Second = new SomeEnum();
+        }
+
+        internal class StaticEnumerationOptions
+        {
+            [NamedArgument('e')]
+            public SomeEnum Value { get; set; } 
+        }
+
+        [TestMethod]
+        public void Parse_WithStaticEnumerationDefinedOnClass_ParsesIntoValue()
+        {
+            var obj = CliParser.Parse<StaticEnumerationOptions>(
+                "-e first".Split());
+            Assert.AreSame(SomeEnum.First, obj.Value);
+        }
+
+        [StaticEnumeration]
+        internal class SomeEnumWithSubclass
+        {
+            public static readonly SomeEnumWithSubclass First = new EnumSubclass();
+            public static readonly EnumSubclass Second = new EnumSubclass();
+
+            public class EnumSubclass : SomeEnumWithSubclass 
+            {
+            }
+        }
+
+        internal class StaticEnumerationWithSubclassOptions
+        {
+            [NamedArgument('e')]
+            public SomeEnum Value { get; set; } 
+        }
+
+        [TestMethod]
+        public void Parse_WithStaticEnumerationSubclassCovariantDefinedOnClass_ParsesIntoValue()
+        {
+            var obj = CliParser.Parse<StaticEnumerationOptions>(
+                "-e first".Split());
+            Assert.AreSame(SomeEnum.First, obj.Value);
+        }
+
+        [TestMethod]
+        public void Parse_WithStaticEnumerationSubclassDefinedOnClass_ParsesIntoValue()
+        {
+            var obj = CliParser.Parse<StaticEnumerationOptions>(
+                "-e second".Split());
+            Assert.AreSame(SomeEnum.Second, obj.Value);
+        }
+
+        internal class SomeEnumNonStatic
+        {
+            public static readonly SomeEnumNonStatic First = new SomeEnumNonStatic();
+            public static readonly SomeEnumNonStatic Second = new SomeEnumNonStatic();
+        }
+
+        internal class StaticEnumerationOptionsExplicit
+        {
+            [StaticEnumeration]
+            [NamedArgument('e')]
+            public SomeEnumNonStatic Value { get; set; } 
+        }
+
+        [TestMethod]
+        public void Parse_WithStaticEnumerationDefinedOnProperty_ParsesIntoValue()
+        {
+            var obj = CliParser.Parse<StaticEnumerationOptionsExplicit>(
+                "-e first".Split());
+            Assert.AreSame(SomeEnumNonStatic.First, obj.Value);
+        }
     }
 }

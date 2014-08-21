@@ -61,6 +61,7 @@
     <Compile Include="CliParserUnitTest.cs" />
     <Compile Include="ResourceUsageGeneratorUnitTest.cs" />
     <Compile Include="TypeConverterUnitTest.cs" />
+    <Compile Include="HelpGeneratorUnitTest.cs" />
     <Compile Include="VerbUnitTest.cs" />
     <Compile Include="PostParseUnitTest.cs" />
     <Compile Include="StringExtensionsUnitTest.cs" />

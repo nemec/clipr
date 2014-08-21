@@ -51,6 +51,8 @@
     <Compile Include="Core\IndexerValueStore.cs" />
     <Compile Include="Core\PropertyValueStore.cs" />
     <Compile Include="Fluent\Verb.cs" />
+    <Compile Include="StaticEnumerationAttribute.cs" />
+    <Compile Include="Usage\EnumerationDescriptionAttribute.cs" />
     <Compile Include="Utils\AttributeConverter.cs" />
     <Compile Include="ArgumentIntegrityException.cs" />
     <Compile Include="Arguments\IArgument.cs" />
@@ -89,6 +91,7 @@
     <Compile Include="Usage\ExecutingAssemblyVersion.cs" />
     <Compile Include="Usage\IVersion.cs" />
     <Compile Include="PostParseAttribute.cs" />
+    <Compile Include="Utils\StaticEnumerationConverter.cs" />
     <Compile Include="VerbAttribute.cs" />
     <Compile Include="Usage\AutomaticHelpGenerator.cs" />
     <Compile Include="DuplicateArgumentException.cs" />

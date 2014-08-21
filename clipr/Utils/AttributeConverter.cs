@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System.Collections.Generic;
+using System.Reflection;
 using clipr.Arguments;
 using clipr.Core;
 using System.ComponentModel;
@@ -11,9 +12,41 @@ namespace clipr.Utils
     {
         private static TypeConverter[] GetConverters(PropertyInfo prop)
         {
-            var attrs = prop.GetCustomAttributes<TypeConverterAttribute>().ToList();
-            var types = attrs.Select(a => Activator.CreateInstance(Type.GetType(a.ConverterTypeName))).ToList();
-            return types.OfType<TypeConverter>().ToArray();
+            var staticEnumConverter = GetStaticEnumerationConverter(prop);
+
+            var types = prop.GetCustomAttributes<TypeConverterAttribute>()
+                .Select(a =>
+                    Activator.CreateInstance(Type.GetType(a.ConverterTypeName)))
+                .ToList();
+            return staticEnumConverter
+                .Concat(types.OfType<TypeConverter>())
+                .ToArray();
+        }
+
+        private static IEnumerable<TypeConverter> GetStaticEnumerationConverter(PropertyInfo prop)
+        {
+            var attr = prop.GetCustomAttribute<StaticEnumerationAttribute>()
+                ?? prop.PropertyType.GetCustomAttribute<StaticEnumerationAttribute>();
+            if (attr == null)
+            {
+                return Enumerable.Empty<TypeConverter>();
+            }
+
+            var type = prop.PropertyType;
+            var fields = type.GetFields(
+                BindingFlags.Public | BindingFlags.Static)
+                .Where(f => f.IsInitOnly &&  // readonly
+                            type.IsAssignableFrom(f.FieldType))  // same type as class, or subclass
+                .ToDictionary(k => k.Name, StringComparer.InvariantCultureIgnoreCase);
+            if (!fields.Any())
+            {
+                return Enumerable.Empty<TypeConverter>();
+            }
+
+            return new TypeConverter[]
+            {
+                new StaticEnumerationConverter(type, fields)
+            };
         }
 
         private static void SetDefaults(ArgumentAttribute attr)
