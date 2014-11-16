@@ -12,12 +12,20 @@ namespace clipr
         /// Name of the subcommand. If provided as an argument, it
         /// will trigger parsing of the subcommand.
         /// </summary>
-        public string Name { get; private set; }
+        public string Name { get; set; }
 
         /// <summary>
         /// Description of the subcommand, suitable for help pages.
         /// </summary>
-        public string Description { get; private set; }
+        public string Description { get; set; }
+        
+        /// <summary>
+        /// Create a new subcommand.
+        /// </summary>
+        public VerbAttribute()
+        {
+            
+        }
 
         /// <summary>
         /// Create a new subcommand.
