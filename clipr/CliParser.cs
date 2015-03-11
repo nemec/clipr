@@ -202,6 +202,8 @@ namespace clipr
 
         private ParserOptions Options { get; set; }
 
+        private IHelpGenerator<TConf> HelpGenerator { get; set; }
+
         private IEnumerable<ITrigger<TConf>> Triggers { get; set; }
 
         private FluentParserConfig<TConf> FluentConfig { get; set; } 
@@ -309,6 +311,7 @@ namespace clipr
             }
             Object = obj;
             Options = options;
+            HelpGenerator = usageGenerator;
 
             Triggers = new ITrigger<TConf>[]
             {
@@ -341,7 +344,6 @@ namespace clipr
         /// <returns>The object parsed from the argument list.</returns>
         public void StrictParse(string[] args)
         {
-            var usageGenerator = new AutomaticHelpGenerator<TConf>();
             try
             {
                 Parse(args);
@@ -349,17 +351,17 @@ namespace clipr
             }
             catch (ParseException e)
             {
-                Console.Error.WriteLine(usageGenerator.GetUsage());
+                Console.Error.WriteLine(HelpGenerator.GetUsage());
                 Console.Error.WriteLine(e.Message);
             }
             catch (ArgumentIntegrityException e)
             {
-                Console.Error.WriteLine(usageGenerator.GetUsage());
+                Console.Error.WriteLine(HelpGenerator.GetUsage());
                 Console.Error.WriteLine(e.Message);
             }
             catch (AggregateException ex)
             {
-                Console.Error.WriteLine(usageGenerator.GetUsage());
+                Console.Error.WriteLine(HelpGenerator.GetUsage());
                 ex.Handle(e =>
                 {
                     Console.Error.WriteLine(e.Message);
