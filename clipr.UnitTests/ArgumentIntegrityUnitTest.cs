@@ -410,6 +410,45 @@ namespace clipr.UnitTests
 
         #endregion
 
+        #region Positional argument checks respect value Index
+
+        internal class MultiplePositionalArgsDefinedOutOfOrder
+        {
+            [PositionalArgument(1, NumArgs = 1, Constraint = NumArgsConstraint.AtLeast)]
+            public IEnumerable<string> Listy2 { get; set; }
+
+            [PositionalArgument(0, NumArgs = 1)]
+            public IEnumerable<string> Listy { get; set; }
+        }
+
+        [TestMethod]
+        public void PositionalArgument_SpecifiedOutOfOrder_PassesValidation()
+        {
+            new CliParser<MultiplePositionalArgsDefinedOutOfOrder>(
+                new MultiplePositionalArgsDefinedOutOfOrder());
+        }
+
+        internal class MultiplePositionalArgsDefinedSuperClass
+        {
+            [PositionalArgument(0, NumArgs = 1)]
+            public IEnumerable<string> Listy { get; set; }
+        }
+
+        internal class MultiplePositionalArgsDefinedSubClass : MultiplePositionalArgsDefinedSuperClass
+        {
+            [PositionalArgument(1, NumArgs = 1, Constraint = NumArgsConstraint.AtLeast)]
+            public IEnumerable<string> Listy2 { get; set; }
+        }
+
+        [TestMethod]
+        public void PositionalArgument_SpecifiedInSubClass_PassesValidation()
+        {
+            new CliParser<MultiplePositionalArgsDefinedSubClass>(
+                new MultiplePositionalArgsDefinedSubClass());
+        }
+
+        #endregion
+
         #region Config cannot contain both Positional and Verbs
 
         internal class PositionalAndVerbOptions

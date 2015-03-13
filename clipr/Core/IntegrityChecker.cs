@@ -344,6 +344,7 @@ namespace clipr.Core
         {
             var props = typeof(T).GetProperties()
                 .Where(p => p.GetCustomAttribute<PositionalArgumentAttribute>() != null)
+                .OrderBy(p => p.GetCustomAttribute<PositionalArgumentAttribute>().Index)
                 .ToList();
             foreach (var prop in props.Take(props.Count - 1))
             {
