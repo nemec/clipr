@@ -160,8 +160,9 @@ There are two types of arguments that may be defined: Named and Positional
 arguments.
 
 * Named arguments are those set off by short names or long names
-  (such as `-v` or `--verbose`). They are always optional
-  (in that the parser will not show an error if one is not specified) and may
+  (such as `-v` or `--verbose`). They are optional (in that the parser 
+  will not show an error if one is not specified) unless explicitly
+  marked as required and may
   be given in any order (eg. the parser does not care if you use
   `-v --input file.txt` or `--input file.txt -v`).
 * Positional arguments, on the other hand, are always required and must be
