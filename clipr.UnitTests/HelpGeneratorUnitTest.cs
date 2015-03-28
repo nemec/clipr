@@ -21,11 +21,6 @@ namespace clipr.UnitTests
             public MyEnum Value { get; set; }
         }
 
-        [TestMethod]
-        public void GenerateUsage_WithStaticEnum_ListsEnumValues()
-        {
-            var generator = new AutomaticHelpGenerator<StaticEnumOptions>();
-            // TODO
-        }
+        // TODO GenerateUsage_WithStaticEnum_ListsEnumValues()
     }
 }

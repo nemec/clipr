@@ -61,10 +61,18 @@ but powerful example of the objects this library enables you to build:
 
 ##Changelog
 
+###2015-03-28 1.4.6
+
+* Relax restrictions preventing NumArgs=0 when it's the lower bound
+  (NumArgsConstraint.AtLeast). It is still disallowed for the exact
+  count and the upper bound.
+
 ###2014-08-21 1.4.5
+
 * Implement static enumeration parsing (see below)
 
 ###2014-08-15 1.4.4
+
 * Implement required named arguments (via property)
 
 ###2014-07-30 1.4.1

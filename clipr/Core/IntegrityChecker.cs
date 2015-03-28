@@ -114,12 +114,13 @@ namespace clipr.Core
         /// <returns></returns>
         private Exception NumArgsGreaterThanZeroCheck(IArgument attr)
         {
-            if (attr.NumArgs == 0)
+            if (attr.NumArgs == 0 && attr.Constraint != NumArgsConstraint.AtLeast)
             {
                 return new ArgumentIntegrityException(
-                    "Do not define an argument count less than 1. " +
+                    "A NumArgs value of zero may only be the lower bound " +
+                    "on the number of arguments (NumArgsConstraint.AtLeast). " +
                     "Any actions that do not require arguments will " +
-                    "ignore this property regardless of count.");
+                    "ignore this property regardless of its value.");
             }
             return null;
         }

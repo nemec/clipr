@@ -116,7 +116,7 @@ namespace clipr.UnitTests
             {
                 Input = "input.txt",
                 Output = new List<string>
-                        {
+                {
                             "out1.txt",
                             "out2.txt"
                         }
@@ -246,6 +246,73 @@ namespace clipr.UnitTests
                 "10 6 8 Nancy Rick Tim".Split());
             CollectionAssert.AreEqual(expectedVotes, opt.Votes);
             CollectionAssert.AreEqual(expectedNames, opt.Names);
+        }
+
+        #endregion
+
+        #region Positional arguments with lower bound of zero
+
+        internal class PositionalArgumentLowerBoundCountEqualsZero
+        {
+            [PositionalArgument(0, NumArgs = 0, Constraint = NumArgsConstraint.AtLeast)]
+            public List<string> Args { get; set; }
+        }
+
+        [TestMethod]
+        public void PositionalArgument_WithLowerBoundCountEqualsZero_ParsesNoArguments1886105196()
+        {
+            var opts = new PositionalArgumentLowerBoundCountEqualsZero();
+            var arguments = new string[0];
+            var parser = new CliParser<PositionalArgumentLowerBoundCountEqualsZero>(opts);
+
+            parser.Parse(arguments);
+
+            Assert.AreEqual(0, opts.Args.Count);
+        }
+
+        [TestMethod]
+        public void PositionalArgument_WithLowerBoundCountEqualsZero_ParsesAllArguments445959719()
+        {
+            var opts = new PositionalArgumentLowerBoundCountEqualsZero();
+            var arguments = new[] { "first", "second" };
+            var parser = new CliParser<PositionalArgumentLowerBoundCountEqualsZero>(opts);
+
+            parser.Parse(arguments);
+
+            Assert.AreEqual(2, opts.Args.Count);
+        }
+
+        internal class MultiplePositionalArgumentLowerBoundCountEqualsZero
+        {
+            [PositionalArgument(0)]
+            public string FixedArg { get; set; }
+
+            [PositionalArgument(1, NumArgs = 0, Constraint = NumArgsConstraint.AtLeast)]
+            public List<string> Args { get; set; }
+        }
+
+        [TestMethod]
+        public void PositionalArgument_WithMultiplePositionalArgumentsAndLowerBoundCountEqualsZero_ParsesOtherArguments2128719744()
+        {
+            var opts = new MultiplePositionalArgumentLowerBoundCountEqualsZero();
+            var arguments = new[] { "fixed" };
+            var parser = new CliParser<MultiplePositionalArgumentLowerBoundCountEqualsZero>(opts);
+
+            parser.Parse(arguments);
+
+            Assert.AreEqual(0, opts.Args.Count);
+        }
+
+        [TestMethod]
+        public void PositionalArgument_WithMultiplePositionalArgumentsAndLowerBoundCountEqualsZero_ParsesAllArguments158709799()
+        {
+            var opts = new MultiplePositionalArgumentLowerBoundCountEqualsZero();
+            var arguments = new[] { "fixed", "first", "second" };
+            var parser = new CliParser<MultiplePositionalArgumentLowerBoundCountEqualsZero>(opts);
+
+            parser.Parse(arguments);
+
+            Assert.AreEqual(2, opts.Args.Count);
         }
 
         #endregion

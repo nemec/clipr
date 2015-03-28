@@ -154,6 +154,13 @@ namespace clipr.Usage
                     AddEnumFormat(builder, prop);
                 }
 
+                var staticEnum = (prop.GetCustomAttribute<StaticEnumerationAttribute>() ??
+                                  prop.PropertyType.GetCustomAttribute<StaticEnumerationAttribute>()) != null;
+                if (staticEnum)
+                {
+                    AddStaticEnumFormat(builder, prop);
+                }
+
                 if (attr.Constraint == NumArgsConstraint.AtLeast)
                 {
                     builder.Append("... ");
@@ -180,6 +187,19 @@ namespace clipr.Usage
                     builder.Append("|");
                 }
             }
+            builder.Append("}");
+        }
+
+        private static void AddStaticEnumFormat(StringBuilder builder, PropertyInfo prop)
+        {
+            builder.Append("{");
+            var names = prop.PropertyType.GetFields(
+                BindingFlags.Public | BindingFlags.Static)
+                .Where(f => f.IsInitOnly &&
+                            prop.PropertyType.IsAssignableFrom(f.FieldType))
+                .Select(f => f.Name)
+                .ToArray();
+            builder.Append(String.Join("|", names));
             builder.Append("}");
         }
 

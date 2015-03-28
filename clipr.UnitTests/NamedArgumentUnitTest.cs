@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using System.Collections.Generic;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace clipr.UnitTests
 {
@@ -192,6 +193,41 @@ namespace clipr.UnitTests
         public void MutuallyExclusive_ArgumentsDoNotIncludeRequiredGroup_ThrowsParseException()
         {
             CliParser.Parse<MutuallyExclusive>("-c three".Split());
+        }
+
+        internal class NamedArgumentLowerBoundCountEqualsZero
+        {
+            public NamedArgumentLowerBoundCountEqualsZero()
+            {
+                Args = new List<string>();
+            }
+
+            [NamedArgument('s', NumArgs = 0, Constraint = NumArgsConstraint.AtLeast)]
+            public List<string> Args { get; set; }
+        }
+
+        [TestMethod]
+        public void NamedArgument_WithLowerBoundCountEqualsZero_ParsesNoArguments()
+        {
+            var opts = new NamedArgumentLowerBoundCountEqualsZero();
+            var arguments = new string[0];
+            var parser = new CliParser<NamedArgumentLowerBoundCountEqualsZero>(opts);
+
+            parser.Parse(arguments);
+
+            Assert.AreEqual(0, opts.Args.Count);
+        }
+
+        [TestMethod]
+        public void NamedArgument_WithLowerBoundCountEqualsZero_ParsesAllArguments()
+        {
+            var opts = new NamedArgumentLowerBoundCountEqualsZero();
+            var arguments = new[] { "-s", "first", "second" };
+            var parser = new CliParser<NamedArgumentLowerBoundCountEqualsZero>(opts);
+
+            parser.Parse(arguments);
+
+            Assert.AreEqual(2, opts.Args.Count);
         }
     }
 }

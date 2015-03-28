@@ -11,13 +11,14 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>$description$</description>
     <releaseNotes>
+      2015-03-28 1.4.6 Relax restrictions on a NumArgs value of 0.
       2013-09-04 1.4.0 Added Dictionary backend.
       2013-09-01 1.3.1 Reorganized imports and added support for Verbs (sub-commands, e.g. "svn checkout").
       2013-06-07 1.2.0 Added alternative Fluent interface for defining commands and fixed bug where varargs parameters would consume arguments that start with -.
       2013-01-16 1.1.0 Added TryParse method, renamed ParseStrict to StrictParse (for consistency's sake), reordered any public parse methods where T object came first (also to retain consistency across the public API).
       2013-01-13 1.0.0 Initial release with automated help generation.
     </releaseNotes>
-    <copyright>Copyright 2013</copyright>
+    <copyright>Copyright 2015</copyright>
     <tags>.net35 .net40 .net45 command line parse parse arguments help usage argparse</tags>
   </metadata>
 </package>

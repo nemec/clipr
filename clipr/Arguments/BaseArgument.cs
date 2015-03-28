@@ -28,9 +28,7 @@ namespace clipr.Arguments
         {
             get
             {
-                return NumArgs != 0 && 
-                    (Constraint != NumArgsConstraint.Exactly ||
-                    NumArgs > 1);
+                return Constraint != NumArgsConstraint.Exactly || NumArgs > 1;
             }
         }
 
