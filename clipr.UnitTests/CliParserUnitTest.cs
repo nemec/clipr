@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using clipr.Core;
@@ -325,6 +326,40 @@ namespace clipr.UnitTests
             var obj = CliParser.Parse<StaticEnumerationOptionsExplicit>(
                 "-e first".Split());
             Assert.AreSame(SomeEnumNonStatic.First, obj.Value);
+        }
+
+        private class TraceOptions
+        {
+            [NamedArgument('t')]
+            public TraceLevelOption TraceLevel { get; set; }
+
+            [PositionalArgument(0, Constraint = NumArgsConstraint.AtLeast, NumArgs = 0)]
+            public List<string> Files { get; set; }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ParseException))]
+        public void Parse_WithInvalidEnumValue_ThrowsException()
+        {
+            var obj = CliParser.Parse<TraceOptions>("-tX error c:\\file.txt c:\\file2.txt".Split());
+            Console.WriteLine(obj.TraceLevel);
+        }
+
+        [StaticEnumeration]
+        public class TraceLevelOption
+        {
+            public static readonly TraceLevelOption Off = new TraceLevelOption(System.Diagnostics.TraceLevel.Off);
+            public static readonly TraceLevelOption Error = new TraceLevelOption(System.Diagnostics.TraceLevel.Error);
+            public static readonly TraceLevelOption Warning = new TraceLevelOption(System.Diagnostics.TraceLevel.Warning);
+            public static readonly TraceLevelOption Info = new TraceLevelOption(System.Diagnostics.TraceLevel.Info);
+            public static readonly TraceLevelOption Verbose = new TraceLevelOption(System.Diagnostics.TraceLevel.Verbose);
+
+            private System.Diagnostics.TraceLevel value;
+
+            private TraceLevelOption(System.Diagnostics.TraceLevel value)
+            {
+                this.value = value;
+            }
         }
     }
 }

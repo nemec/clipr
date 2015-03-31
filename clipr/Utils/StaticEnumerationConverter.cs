@@ -35,7 +35,9 @@ namespace clipr.Utils
 
             if (s == null || !_fields.TryGetValue(s, out field))
             {
-                return null;
+                throw new InvalidCastException(String.Format(
+                    "'{0}' is not a valid value for enum '{1}'",
+                    s, _enumType.Name));
             }
 
             return field.GetValue(null);  // static field
