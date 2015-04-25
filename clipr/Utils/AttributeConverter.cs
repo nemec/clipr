@@ -63,19 +63,19 @@ namespace clipr.Utils
         public static INamedArgument ToNamedArgument(this PropertyInfo prop)
         {
             var attr = prop.GetCustomAttribute<NamedArgumentAttribute>();
-            SetDefaults(attr);
             attr.MutuallyExclusiveGroups = prop.GetMutuallyExclusiveGroups();
             attr.Name = prop.Name;
             attr.Store = new PropertyValueStore(prop, GetConverters(prop));
+            SetDefaults(attr);
             return attr;
         }
 
         public static IPositionalArgument ToPositionalArgument(this PropertyInfo prop)
         {
             var attr = prop.GetCustomAttribute<PositionalArgumentAttribute>();
-            SetDefaults(attr);
             attr.Name = prop.Name;
             attr.Store = new PropertyValueStore(prop, GetConverters(prop));
+            SetDefaults(attr);
             return attr;
         }
     }

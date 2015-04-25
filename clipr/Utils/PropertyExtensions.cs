@@ -21,12 +21,15 @@ namespace clipr.Utils
 
         internal static bool IsValidIEnumerable(this PropertyInfo prop)
         {
-            var enumT = typeof (IEnumerable<>);
-            var type = prop.PropertyType;
+            return IsValidEnumerable(prop.PropertyType);
+        }
 
+        internal static bool IsValidEnumerable(this Type type)
+        {
+            var enumT = typeof(IEnumerable<>);
             return type.IsGenericType && (
                 type.GetGenericTypeDefinition() == enumT ||
-                type.GetInterfaces().Any(t => t.IsGenericType && t.GetGenericTypeDefinition()  == enumT));
+                type.GetInterfaces().Any(t => t.IsGenericType && t.GetGenericTypeDefinition() == enumT));
         }
 
         internal static bool IsValid<T>(this PropertyInfo prop)

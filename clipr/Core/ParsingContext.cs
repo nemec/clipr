@@ -381,9 +381,11 @@ namespace clipr.Core
                 var stringValue = args.Pop();
 
                 // Quit if we start a new argument here.
+                // But not if the next character is a digit
                 if (stringValue != null &&
                     stringValue.StartsWith(Config.ArgumentPrefix
-                        .ToString(CultureInfo.InvariantCulture)))
+                        .ToString(CultureInfo.InvariantCulture)) &&
+                    (stringValue.Length > 1 && !Char.IsDigit(stringValue[1])))
                 {
                     args.Push(stringValue);
                     break;
