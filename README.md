@@ -61,6 +61,11 @@ but powerful example of the objects this library enables you to build:
 
 ##Changelog
 
+###2015-04-24 1.4.7
+
+Fix bug in sample where negative numbers in varargs parsing
+(like a List<>) would prematurely terminate the parser.
+
 ###2015-03-28 1.4.6
 
 * Relax restrictions preventing NumArgs=0 when it's the lower bound
