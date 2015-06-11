@@ -63,7 +63,7 @@ namespace clipr.UnitTests
             var opt = CliParser.Parse<OnePositionalArgument>("-- -hyphen".Split());
             Assert.AreEqual("-hyphen", opt.Input);
         }
-
+        
         public class TwoPositionalArguments
         {
             [PositionalArgument(0)]
@@ -224,6 +224,14 @@ namespace clipr.UnitTests
             CollectionAssert.AreEqual(expected, opt.Args);
         }
 
+        [TestMethod]
+        public void Positional_WithAtLeastTwoValuesAndGivenPositionalDelimter_AddsValues()
+        {
+            var expected = new List<string> { "value1", "--value2", "value3" };
+            var opt = CliParser.Parse<VarargAtLeastTwo>("-- value1 --value2 value3".Split());
+            CollectionAssert.AreEqual(expected, opt.Args);
+        }
+        
         #endregion
 
         #region One positional argument with multiple values and another with variable values.

@@ -49,6 +49,7 @@ namespace clipr.Core
             var positionalDelimiter = "" + Config.ArgumentPrefix + Config.ArgumentPrefix;
             var values = new Stack<string>(args.Reverse());
             var positionalArgumentStore = new List<string>();
+            var positionalDelimiterFound = false;
 
             while (values.Count > 0)
             {
@@ -65,6 +66,7 @@ namespace clipr.Core
                 // Rest of arguments are positional
                 if (arg == positionalDelimiter)
                 {
+                    positionalDelimiterFound = true;
                     positionalArgumentStore.AddRange(values);
                     break;
                 }
@@ -86,7 +88,7 @@ namespace clipr.Core
                         {
                             values.Push(partition[1]);
                         }
-                        ParseOptionalArgument(partition[0], Config.LongNameArguments, values);
+                        ParseOptionalArgument(partition[0], Config.LongNameArguments, values, positionalDelimiterFound);
                     }
                     else  // myprog.exe -a
                     {
@@ -106,7 +108,7 @@ namespace clipr.Core
                             values.Push(arg.Substring(2));
 
                             var stackSize = values.Count;
-                            ParseOptionalArgument(shortArg, Config.ShortNameArguments, values);
+                            ParseOptionalArgument(shortArg, Config.ShortNameArguments, values, positionalDelimiterFound);
 
                             // No arguments were used... the arg
                             // we just pushed must be a group of
@@ -117,13 +119,13 @@ namespace clipr.Core
                                 {
                                     // Arguments in a group cannot consume
                                     // values from the argStack
-                                    ParseOptionalArgument(shortName, Config.ShortNameArguments, values);
+                                    ParseOptionalArgument(shortName, Config.ShortNameArguments, values, positionalDelimiterFound);
                                 }
                             }
                         }
                         else  // Just a single argument
                         {
-                            ParseOptionalArgument(shortArg, Config.ShortNameArguments, values);
+                            ParseOptionalArgument(shortArg, Config.ShortNameArguments, values, positionalDelimiterFound);
                         }
                     }
                     continue;
@@ -144,7 +146,7 @@ namespace clipr.Core
 
             positionalArgumentStore.Reverse();
             var positionalArgStack = new Stack<string>(positionalArgumentStore);
-            ParsePositionalArguments(positionalArgStack);
+            ParsePositionalArguments(positionalArgStack, positionalDelimiterFound);
 
             if (positionalArgStack.Count > 0)
             {
@@ -158,25 +160,25 @@ namespace clipr.Core
 
         #region Private Parsing Methods
 
-        private void ParseOptionalArgument<TS>(TS name, Dictionary<TS, IShortNameArgument> argDict, Stack<string> iter)
+        private void ParseOptionalArgument<TS>(TS name, Dictionary<TS, IShortNameArgument> argDict, Stack<string> iter, bool positionalDelimiterFound)
         {
             var newDict = argDict.ToDictionary(
                 k => k.Key,
                 v => v.Value as INamedArgumentBase,
                 argDict.Comparer);
-            ParseOptionalArgument(name, newDict, iter);
+            ParseOptionalArgument(name, newDict, iter, positionalDelimiterFound);
         }
 
-        private void ParseOptionalArgument<TS>(TS name, Dictionary<TS, ILongNameArgument> argDict, Stack<string> iter)
+        private void ParseOptionalArgument<TS>(TS name, Dictionary<TS, ILongNameArgument> argDict, Stack<string> iter, bool positionalDelimiterFound)
         {
             var newDict = argDict.ToDictionary(
                 k => k.Key,
                 v => v.Value as INamedArgumentBase,
                 argDict.Comparer);
-            ParseOptionalArgument(name, newDict, iter);
+            ParseOptionalArgument(name, newDict, iter, positionalDelimiterFound);
         }
 
-        private void ParseOptionalArgument<TS>(TS name, IDictionary<TS, INamedArgumentBase> argDict, Stack<string> iter)
+        private void ParseOptionalArgument<TS>(TS name, IDictionary<TS, INamedArgumentBase> argDict, Stack<string> iter, bool positionalDelimiterFound)
         {
             INamedArgumentBase arg;
             if (!argDict.TryGetValue(name, out arg))
@@ -211,14 +213,14 @@ namespace clipr.Core
                 throw new ParseException(name.ToString(),
                     "Arguments that consume values cannot be grouped.");
             }
-            ParseArgument(name.ToString(), arg, iter);
+            ParseArgument(name.ToString(), arg, iter, positionalDelimiterFound);
         }
 
-        private void ParsePositionalArguments(Stack<string> args)
+        private void ParsePositionalArguments(Stack<string> args, bool positionalDelimiterFound)
         {
             foreach (var arg in Config.PositionalArguments)
             {
-                ParseArgument(arg.Name.ToLowerInvariant(), arg, args);
+                ParseArgument(arg.Name.ToLowerInvariant(), arg, args, positionalDelimiterFound);
             }
         }
 
@@ -229,8 +231,8 @@ namespace clipr.Core
         /// Name of the argument (whether short, long, or positional).
         /// </param>
         /// <param name="arg">Property associated with the argument.</param>
-        /// <param name="args">List of remaining unparsed arguments.</param>
-        private void ParseArgument(string attrName, IArgument arg, Stack<string> args)
+        /// <param name="positionalDelimiterFound">True if the positional delimiter, e.g. -- has been found.</param>
+        private void ParseArgument(string attrName, IArgument arg, Stack<string> args, bool positionalDelimiterFound)
         {
             var store = arg.Store;
             switch (arg.Action)
@@ -274,7 +276,7 @@ namespace clipr.Core
                             var existing = (IEnumerable)store.GetValue(Object);
                             var backingList = CreateGenericList(store, existing);
 
-                            ParseVarargs(attrName, backingList, arg, args);
+                            ParseVarargs(attrName, backingList, arg, args, positionalDelimiterFound);
                             store.SetValue(Object, backingList);
                         }
                         break;
@@ -328,7 +330,7 @@ namespace clipr.Core
                         }
                         else
                         {
-                            ParseVarargs(attrName, backingList, arg, args);
+                            ParseVarargs(attrName, backingList, arg, args, positionalDelimiterFound);
 
                         }
                         store.SetValue(Object, backingList);
@@ -350,7 +352,7 @@ namespace clipr.Core
         }
 
         private void ParseVarargs(string attrName, IList list,
-            IArgument arg, Stack<string> args)
+            IArgument arg, Stack<string> args, bool positionalDelimiterFound)
         {
             var argsProcessed = 0;
 
@@ -382,7 +384,8 @@ namespace clipr.Core
 
                 // Quit if we start a new argument here.
                 // But not if the next character is a digit
-                if (stringValue != null &&
+                if (!positionalDelimiterFound &&
+                    stringValue != null &&
                     stringValue.StartsWith(Config.ArgumentPrefix
                         .ToString(CultureInfo.InvariantCulture)) &&
                     (stringValue.Length > 1 && !Char.IsDigit(stringValue[1])))
