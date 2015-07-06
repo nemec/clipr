@@ -349,7 +349,7 @@ namespace clipr.Usage
             return new ArgumentDisplay
             {
                 ArgumentNames = String.Join(", ", names.ToArray()),
-                Description = attr.Description
+                Description = attr.Description ?? ""
             };
         }
 
