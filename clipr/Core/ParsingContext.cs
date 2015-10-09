@@ -213,7 +213,10 @@ namespace clipr.Core
                 throw new ParseException(name.ToString(),
                     "Arguments that consume values cannot be grouped.");
             }
-            ParseArgument(name.ToString(), arg, iter, positionalDelimiterFound);
+            if (name is char)
+                ParseArgument(Config.ArgumentPrefix.ToString() + name.ToString(), arg, iter, positionalDelimiterFound);
+            else
+                ParseArgument(Config.ArgumentPrefix.ToString() + Config.ArgumentPrefix.ToString() + name.ToString(), arg, iter, positionalDelimiterFound);
         }
 
         private void ParsePositionalArguments(Stack<string> args, bool positionalDelimiterFound)
@@ -229,6 +232,7 @@ namespace clipr.Core
         /// </summary>
         /// <param name="attrName">
         /// Name of the argument (whether short, long, or positional).
+        /// e.g. "-v", "--verbose", "VALUE"
         /// </param>
         /// <param name="arg">Property associated with the argument.</param>
         /// <param name="positionalDelimiterFound">True if the positional delimiter, e.g. -- has been found.</param>
@@ -258,17 +262,17 @@ namespace clipr.Core
                                 else
                                 {
                                     throw new ParseException(attrName, String.Format(
-                                        @"Value ""{0}"" cannot be converted to the " +
-                                        "required type {1}.",
-                                        stringValue, store.Type));
+                                        @"Argument {0} value ""{1}"" cannot be converted to the " +
+                                        "required type {2}.",
+                                        attrName, stringValue, store.Type));
                                 }
                             }
                             catch (Exception e)
                             {
                                 throw new ParseException(attrName, String.Format(
-                                    @"Value ""{0}"" cannot be converted to the " +
-                                    "required type {1}.",
-                                    stringValue, store.Type), e);
+                                    @"Argument {0} value ""{1}"" cannot be converted to the " +
+                                    "required type {2}.",
+                                     attrName, stringValue, store.Type), e);
                             }
                         }
                         else
@@ -315,17 +319,17 @@ namespace clipr.Core
                                 else
                                 {
                                     throw new ParseException(attrName, String.Format(
-                                        @"Value ""{0}"" cannot be converted to the " +
-                                        "required type {1}.",
-                                        stringValue, arg.Store.Type));
+                                        @"Argument {0} value ""{1}"" cannot be converted to the " +
+                                        "required type {2}.",
+                                        attrName, stringValue, arg.Store.Type));
                                 }
                             }
                             catch (Exception e)
                             {
                                 throw new ParseException(attrName, String.Format(
-                                    @"Value ""{0}"" cannot be converted to the " +
-                                    "required type {1}.",
-                                    stringValue, store.Type), e);
+                                    @"Argument {0} value ""{1}"" cannot be converted to the " +
+                                    "required type {2}.",
+                                    attrName, stringValue, store.Type), e);
                             }
                         }
                         else
@@ -403,17 +407,17 @@ namespace clipr.Core
                     else
                     {
                         throw new ParseException(attrName, String.Format(
-                            @"Value ""{0}"" cannot be converted to the " +
-                            "required type {1}.",
-                            stringValue, arg.Store.Type));
+                            @"Argument {0} value ""{1}"" cannot be converted to the " +
+                            "required type {2}.",
+                            attrName, stringValue, arg.Store.Type));
                     }
                 }
                 catch (Exception e)
                 {
                     throw new ParseException(attrName, String.Format(
-                        @"Value ""{0}"" cannot be converted to the " +
-                        "required type {1}.",
-                        stringValue, arg.Store.Type), e);
+                        @"Argument {0} value ""{1}"" cannot be converted to the " +
+                        "required type {2}.",
+                        attrName, stringValue, arg.Store.Type), e);
                 }
                 argsProcessed++;
             }
