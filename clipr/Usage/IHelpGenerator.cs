@@ -13,7 +13,7 @@ namespace clipr.Usage
         /// optional and required parameters.
         /// </summary>
         /// <returns></returns>
-        string GetUsage();
+        string GetUsage(IParserConfig<T> config);
 
         /// <summary>
         /// Build a complete description of valid options.

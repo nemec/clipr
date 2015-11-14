@@ -7,6 +7,7 @@ namespace clipr.Usage
 {
     /// <summary>
     /// Generate usage information from localizable resource files.
+    /// TODO implement help from localized resource files
     /// </summary>
     internal class ResourceUsageGenerator<T> : IHelpGenerator<T> where T : class, INamedArgumentBase
     {
@@ -36,7 +37,7 @@ namespace clipr.Usage
             LongName = "help";
         }
 
-        public string GetUsage()
+        public string GetUsage(IParserConfig<T> config)
         {
             throw new NotImplementedException();
         }

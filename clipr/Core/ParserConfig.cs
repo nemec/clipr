@@ -20,6 +20,15 @@ namespace clipr.Core
         /// </summary>
         char ArgumentPrefix { get; set; }
 
+        /// <summary>
+        /// The (non-whitespace) character separating a long 
+        /// argument name from its value.
+        /// </summary>
+        char LongOptionSeparator { get; }
+
+        /// <summary>
+        /// Configuration options for the parser.
+        /// </summary>
         ParserOptions Options { get; }
 
         /// <summary>
@@ -28,10 +37,9 @@ namespace clipr.Core
         IEnumerable<ITerminatingTrigger<T>> Triggers { get; set; }
 
         /// <summary>
-        /// Initialize all triggers.
+        /// The list of short name arguments.
         /// </summary>
-        /// <param name="triggers"></param>
-        void InitializeTriggers(IEnumerable<ITerminatingTrigger<T>> triggers);
+        Dictionary<char, IShortNameArgument> ShortNameArguments { get; } 
 
         /// <summary>
         /// Retrieve the short character from an argument or throw an exception.
@@ -49,6 +57,11 @@ namespace clipr.Core
         char? GetShortName(IShortNameArgument arg, string errorMessage);
 
         /// <summary>
+        /// The list of long name arguments.
+        /// </summary>
+        Dictionary<string, ILongNameArgument> LongNameArguments { get; } 
+
+        /// <summary>
         /// Retrieve the long name from an argument or throw an exception.
         /// </summary>
         /// <param name="arg"></param>
@@ -62,9 +75,34 @@ namespace clipr.Core
         /// <param name="errorMessage"></param>
         /// <returns></returns>
         string GetLongName(ILongNameArgument arg, string errorMessage);
+
+        /// <summary>
+        /// List of all positional arguments.
+        /// </summary>
+        List<IPositionalArgument> PositionalArguments { get; }
+
+        /// <summary>
+        /// List of all verbs in the parser.
+        /// </summary>
+        Dictionary<string, VerbConfig> Verbs { get; }
+
+        /// <summary>
+        /// List of methods to be executed after parsing is finished.
+        /// </summary>
+        List<MethodInfo> PostParseMethods { get; }
+
+        /// <summary>
+        /// List of mutually exclusive groups that are required.
+        /// </summary>
+        HashSet<string> RequiredMutuallyExclusiveArguments { get; }
+
+        /// <summary>
+        /// List of named arguments that are required.
+        /// </summary>
+        HashSet<string> RequiredNamedArguments { get; }
     }
 
-    internal class VerbConfig
+    public class VerbConfig
     {
         public object Object { get; set; }
 
@@ -75,25 +113,25 @@ namespace clipr.Core
 
     internal abstract class ParserConfig<T> : IParserConfig<T> where T : class
     {
-        public readonly char[] LongOptionSeparator = { '=' };
+        public char LongOptionSeparator { get { return '='; } }
 
         public char ArgumentPrefix { get; set; }
 
-        public ParserOptions Options { get; private set; } 
+        public ParserOptions Options { get; private set; }
 
-        internal readonly Dictionary<char, IShortNameArgument> ShortNameArguments;
+        public Dictionary<char, IShortNameArgument> ShortNameArguments { get; private set; }
 
-        internal readonly Dictionary<string, ILongNameArgument> LongNameArguments;
+        public Dictionary<string, ILongNameArgument> LongNameArguments { get; private set; }
 
-        internal readonly List<IPositionalArgument> PositionalArguments;
+        public List<IPositionalArgument> PositionalArguments { get; private set; }
 
-        internal readonly Dictionary<string, VerbConfig> Verbs;
+        public Dictionary<string, VerbConfig> Verbs { get; private set; }
 
-        internal readonly List<MethodInfo> PostParseMethods;
+        public List<MethodInfo> PostParseMethods { get; private set; }
 
-        internal readonly HashSet<string> RequiredMutuallyExclusiveArguments;
+        public HashSet<string> RequiredMutuallyExclusiveArguments { get; private set; }
 
-        internal readonly HashSet<string> RequiredNamedArguments; 
+        public HashSet<string> RequiredNamedArguments { get; private set; }
 
         public IEnumerable<ITerminatingTrigger<T>> Triggers { get; set; }
 

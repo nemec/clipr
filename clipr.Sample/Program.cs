@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using clipr.Usage;
 using clipr.Utils;
 using System.Globalization;
 
@@ -207,7 +208,8 @@ namespace clipr.Sample
                            Description = "Store the date.")]
             public string CurrentDate { get; set; }
 
-            [NamedArgument('c', Action = ParseAction.StoreTrue)]
+            [NamedArgument('c', Action = ParseAction.StoreTrue,
+                Description = "Do some other thing with cool results.")]
             public bool Other { get; set; }
         }
 
@@ -226,6 +228,10 @@ namespace clipr.Sample
             //DictBackendMethodConfig("-n frank".Split());
             //CustomDateTime("-d 20140730 2013-09-10".Split());
             ParseRequiredNamedArgument("-c -d 10/13/2010".Split());
+
+            var parser = new CliParser<RequiredNamedArgument>(new RequiredNamedArgument());
+            var help = new AutomaticHelpGenerator<RequiredNamedArgument>();
+            Console.WriteLine(help.GetHelp(parser.ParserConfig));
         }
     }
 }

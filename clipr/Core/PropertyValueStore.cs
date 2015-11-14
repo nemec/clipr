@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Reflection;
 using System.ComponentModel;
+using clipr.Utils;
 
 namespace clipr.Core
 {
@@ -26,6 +27,11 @@ namespace clipr.Core
         public object GetValue(object source)
         {
             return Property.GetValue(source, null);
+        }
+
+        public TAttribute GetCustomAttribute<TAttribute>() where TAttribute : Attribute
+        {
+            return Property.GetCustomAttribute<TAttribute>();
         }
 
         public Type Type

@@ -1,7 +1,7 @@
 ﻿
 namespace clipr.Arguments
 {
-    internal interface IPositionalArgument : IArgument
+    public interface IPositionalArgument : IArgument
     {
         int Index { get; }
     }

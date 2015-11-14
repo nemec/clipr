@@ -63,14 +63,20 @@ namespace clipr
             catch (ArgumentIntegrityException e)
             {
                 Console.Error.WriteLine(e.Message);
-                Console.Error.WriteLine(
-                    new AutomaticHelpGenerator<TS>().GetUsage());
+                if (parser != null && parser.ParserConfig != null)
+                {
+                    Console.Error.WriteLine(
+                        new AutomaticHelpGenerator<TS>().GetUsage(parser.ParserConfig));
+                }
                 Environment.Exit(2);
             }
             catch (AggregateException ex)
             {
-                Console.Error.WriteLine(
-                    new AutomaticHelpGenerator<TS>().GetUsage());
+                if (parser != null && parser.ParserConfig != null)
+                {
+                    Console.Error.WriteLine(
+                        new AutomaticHelpGenerator<TS>().GetUsage(parser.ParserConfig));
+                }
                 ex.Handle(e =>
                 {
                     Console.Error.WriteLine(e.Message);
@@ -168,6 +174,11 @@ namespace clipr
         #region Public Properties
 
         /// <summary>
+        /// Configuration of the parser.
+        /// </summary>
+        public IParserConfig<TConf> ParserConfig { get; private set; }
+
+        /// <summary>
         /// Punctuation character prefixed to short and long argument
         /// names. Usually a hyphen (-).
         /// </summary>
@@ -199,9 +210,7 @@ namespace clipr
 
         private IHelpGenerator<TConf> HelpGenerator { get; set; }
 
-        private IEnumerable<ITerminatingTrigger<TConf>> Triggers { get; set; }
-
-        private ParserConfig<TConf> ParserConfig { get; set; } 
+        private IEnumerable<ITerminatingTrigger<TConf>> Triggers { get; set; } 
 
         private TConf Object { get; set; }
 
@@ -316,6 +325,7 @@ namespace clipr
             var checker = new IntegrityChecker();
             checker.EnsureAttributeIntegrity<TConf>();
             checker.EnsureTriggerIntegrity(Triggers);
+            ParserConfig = new AttributeParserConfig<TConf>(Options, Triggers);
         }
 
         /// <summary>
@@ -360,17 +370,17 @@ namespace clipr
             }
             catch (ParseException e)
             {
-                Console.Error.WriteLine(HelpGenerator.GetUsage());
+                Console.Error.WriteLine(HelpGenerator.GetUsage(ParserConfig));
                 Console.Error.WriteLine(e.Message);
             }
             catch (ArgumentIntegrityException e)
             {
-                Console.Error.WriteLine(HelpGenerator.GetUsage());
+                Console.Error.WriteLine(HelpGenerator.GetUsage(ParserConfig));
                 Console.Error.WriteLine(e.Message);
             }
             catch (AggregateException ex)
             {
-                Console.Error.WriteLine(HelpGenerator.GetUsage());
+                Console.Error.WriteLine(HelpGenerator.GetUsage(ParserConfig));
                 ex.Handle(e =>
                 {
                     Console.Error.WriteLine(e.Message);
@@ -418,11 +428,8 @@ namespace clipr
         /// <param name="args">Argument list to parse.</param>
         public void Parse(string[] args)
         {
-            ParserConfig<TConf> config = ParserConfig 
-                ?? new AttributeParserConfig<TConf>(Options, Triggers);
-
-            config.ArgumentPrefix = ArgumentPrefix;
-            new ParsingContext<TConf>(Object, config).Parse(args);
+            ParserConfig.ArgumentPrefix = ArgumentPrefix;
+            new ParsingContext<TConf>(Object, ParserConfig).Parse(args);
         }
 
         #endregion

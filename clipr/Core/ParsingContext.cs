@@ -10,14 +10,15 @@ using clipr.Utils;
 
 namespace clipr.Core
 {
-    internal interface IParsingContext
+    // TODO make internal again
+    public interface IParsingContext
     {
         void Parse(string[] args);
     }
 
     internal class ParsingContext<T> : IParsingContext where T : class
     {
-        private ParserConfig<T> Config { get; set; }
+        private IParserConfig<T> Config { get; set; }
 
         private T Object { get; set; }
 
@@ -25,7 +26,7 @@ namespace clipr.Core
 
         private readonly HashSet<string> _parsedNamedArguments;
 
-        public ParsingContext(T obj, ParserConfig<T> config)
+        public ParsingContext(T obj, IParserConfig<T> config)
         {
             Object = obj;
             Config = config;
@@ -84,7 +85,8 @@ namespace clipr.Core
                     }
                     if (arg[1] == Config.ArgumentPrefix)  // myprog.exe --arg
                     {
-                        var partition = arg.Substring(2).Split(Config.LongOptionSeparator, 2);
+                        var partition = arg.Substring(2).Split(
+                            new []{Config.LongOptionSeparator}, 2);
                         if (partition.Length > 1)
                         {
                             values.Push(partition[1]);
@@ -549,6 +551,11 @@ namespace clipr.Core
             public object GetValue(object source)
             {
                 throw new NotImplementedException();
+            }
+
+            public TAttribute GetCustomAttribute<TAttribute>() where TAttribute : Attribute
+            {
+                return null;
             }
 
             public Type Type { get; set; }

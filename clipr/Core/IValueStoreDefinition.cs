@@ -37,6 +37,13 @@ namespace clipr.Core
         object GetValue(object source);
 
         /// <summary>
+        /// Get an attribute of the given type that is bound to the value.
+        /// </summary>
+        /// <typeparam name="TAttribute"></typeparam>
+        /// <returns></returns>
+        TAttribute GetCustomAttribute<TAttribute>() where TAttribute : Attribute;
+
+        /// <summary>
         /// The value's type.
         /// </summary>
         Type Type { get; }

@@ -35,6 +35,11 @@ namespace clipr.Core
             return Getter.Invoke(source, null);
         }
 
+        public TAttribute GetCustomAttribute<TAttribute>() where TAttribute : Attribute
+        {
+            return null;
+        }
+
         public Type Type
         {
             get { return Getter.ReturnType; }
