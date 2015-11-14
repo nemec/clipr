@@ -20,6 +20,8 @@ namespace clipr.Core
         /// </summary>
         char ArgumentPrefix { get; set; }
 
+        ParserOptions Options { get; }
+
         /// <summary>
         /// The list of registered triggers.
         /// </summary>
@@ -77,7 +79,7 @@ namespace clipr.Core
 
         public char ArgumentPrefix { get; set; }
 
-        protected readonly ParserOptions Options; 
+        public ParserOptions Options { get; private set; } 
 
         internal readonly Dictionary<char, IShortNameArgument> ShortNameArguments;
 

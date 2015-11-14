@@ -6,6 +6,7 @@ using System.Globalization;
 using System.Linq;
 using clipr.Arguments;
 using clipr.Triggers;
+using clipr.Utils;
 
 namespace clipr.Core
 {
@@ -178,14 +179,9 @@ namespace clipr.Core
             ParseOptionalArgument(name, newDict, iter, positionalDelimiterFound);
         }
 
-        private void ParseOptionalArgument<TS>(TS name, IDictionary<TS, INamedArgumentBase> argDict, Stack<string> iter, bool positionalDelimiterFound)
+        private void ParseOptionalArgument<TS>(TS name, Dictionary<TS, INamedArgumentBase> argDict, Stack<string> iter, bool positionalDelimiterFound)
         {
-            INamedArgumentBase arg;
-            if (!argDict.TryGetValue(name, out arg))
-            {
-                throw new ParseException(name.ToString(), String.Format(
-                    "Unknown argument name '{0}'.", name));
-            }
+            var arg = GetArgument(name, argDict, Config.Options);
 
             if (arg is ITerminatingTrigger<T>)
             {
@@ -214,6 +210,50 @@ namespace clipr.Core
                     "Arguments that consume values cannot be grouped.");
             }
             ParseArgument(name.ToString(), arg, iter, positionalDelimiterFound);
+        }
+
+        private static INamedArgumentBase GetArgument<TS>(
+            TS name,
+            Dictionary<TS, INamedArgumentBase> argDict,
+            ParserOptions options)
+        {
+            if (options.HasFlag(ParserOptions.NamedPartialMatch))
+            {
+                var nameSearch = name.ToString();
+                var nameLen = nameSearch.Length;
+                Func<string, string> trim = s => 
+                    s.Length < nameLen ? s : s.Substring(0, nameLen);
+                INamedArgumentBase foundKey = null;
+                var cmp = options.HasFlag(ParserOptions.CaseInsensitive)
+                    ? StringComparer.CurrentCultureIgnoreCase
+                    : StringComparer.CurrentCulture;
+                foreach (var key in argDict.Keys)
+                {
+                    if (!cmp.Equals(nameSearch, trim(key.ToString())))
+                    {
+                        continue;
+                    }
+                    if (foundKey != null)
+                    {
+                        throw new ParseException(name.ToString(),
+                            "");
+                    }
+                    foundKey = argDict[key];
+                }
+                if (foundKey == null)
+                {
+                    throw new ParseException(name.ToString(), String.Format(
+                        "Unknown argument name '{0}'.", name));
+                }
+                return foundKey;
+            }
+            INamedArgumentBase arg;
+            if (!argDict.TryGetValue(name, out arg))
+            {
+                throw new ParseException(name.ToString(), String.Format(
+                    "Unknown argument name '{0}'.", name));
+            }
+            return arg;
         }
 
         private void ParsePositionalArguments(Stack<string> args, bool positionalDelimiterFound)

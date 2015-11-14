@@ -49,6 +49,22 @@ namespace clipr.UnitTests
             Assert.AreEqual("timothy", opt.Name);
         }
 
+        [TestMethod]
+        public void CaseFolding_ParseLongArgPrefixWithCorrectCaseWhenCaseSensitiveAndPartialMatch_CorrectlyParsesArgs()
+        {
+            var parser = new CliParser<CaseFoldingOptions>(
+                new CaseFoldingOptions(), ParserOptions.NamedPartialMatch);
+            parser.Parse("--na timothy".Split());
+        }
+
+        [TestMethod]
+        public void CaseFolding_ParseLongArgPrefixWithWrongCaseWhenCaseInsensitiveAndPartialMatch_CorrectlyParsesArgs()
+        {
+            var parser = new CliParser<CaseFoldingOptions>(
+                new CaseFoldingOptions(), ParserOptions.CaseInsensitive | ParserOptions.NamedPartialMatch);
+            parser.Parse("--Na timothy".Split());
+        }
+
         internal class IntTypeConversion
         {
             [NamedArgument('a')]
