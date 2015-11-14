@@ -231,7 +231,7 @@ namespace clipr.Sample
 
             var parser = new CliParser<RequiredNamedArgument>(new RequiredNamedArgument());
             var help = new AutomaticHelpGenerator<RequiredNamedArgument>();
-            Console.WriteLine(help.GetHelp(parser.ParserConfig));
+            Console.WriteLine(help.GetHelp(parser.Config));
         }
     }
 }

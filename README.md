@@ -355,9 +355,9 @@ You may also programmatically generate the help and usage for a class:
 var parser = new CliParser<Options>(new Options());
 var help = new AutomaticHelpGenerator<Options>();
 // Gets the usage message, a short summary of available arguments.
-Console.WriteLine(help.GetUsage(parser.ParserConfig));
+Console.WriteLine(help.GetUsage(parser.Config));
 // Gets the full help message with argument descriptions.
-Console.WriteLine(help.GetHelp(parser.ParserConfig));
+Console.WriteLine(help.GetHelp(parser.Config));
 ```
 
 Version information is similarly auto-generated from the version string
