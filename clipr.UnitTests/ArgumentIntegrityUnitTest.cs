@@ -34,10 +34,10 @@ namespace clipr.UnitTests
         public void ParseArgument_WithArgumentsOfDifferingCaseWhenCaseInsensitive_ThrowsException()
         {
             var opt = new DuplicateArgumentWhenCaseInsensitive();
-            var parser = new CliParser<DuplicateArgumentWhenCaseInsensitive>(
-                opt, ParserOptions.CaseInsensitive);
 
-            AssertEx.Throws<DuplicateArgumentException>(() => parser.Parse("-n tim -n robert".Split()));
+            AssertEx.Throws<DuplicateArgumentException>(() => 
+                new CliParser<DuplicateArgumentWhenCaseInsensitive>(
+                    opt, ParserOptions.CaseInsensitive));
         }
 
         internal class DuplicateArguments
@@ -52,9 +52,8 @@ namespace clipr.UnitTests
         [TestMethod]
         public void ParseArgument_WithDuplicateArguments_ThrowsException()
         {
-            var parser = new CliParser<DuplicateArguments>(new DuplicateArguments());
             AssertEx.Throws<DuplicateArgumentException>(
-                () => parser.Parse("-n orange".Split()));
+                () => new CliParser<DuplicateArguments>(new DuplicateArguments()));
         }
 
         #endregion
