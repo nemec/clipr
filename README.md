@@ -453,7 +453,7 @@ configuring.
 ```csharp
 var opt = new Options();
 
-new CliParser<Options>(opt)
+new CliParserBuilder<Options>(opt)
     .HasNamedArgument(o => o.Verbosity)
         .WithShortName('v')
         .CountsInvocations()
@@ -464,7 +464,7 @@ new CliParser<Options>(opt)
     .HasPositionalArgumentList(o => o.Numbers)
         .HasDescription("These are numbers.")
         .Consumes.AtLeast(1)
-.And
+.And.Parser
     .Parse("-vvv -o out.txt 3 4 5 6".Split());
 
 Console.WriteLine(opt.Verbosity);
@@ -486,17 +486,17 @@ You may also add a Verb to the parser config with this syntax:
 
 ```csharp
 var opt = new Options();
-new CliParser<Options>(opt)
+new CliParserBuilder<Options>(opt)
     .HasVerb("add", c => c.AddVerb,
               // Note that in the Fluent Interface, you're nesting parsers
               // Theoretically this means you can nest an 
               // Attribute-configured parser inside a Fluent parser
               // (although you cannot do the opposite, due to limitations
               // with Attributes).
-              new CliParser<AddFileOptions>(new AddFileOptions())
+              new CliParserBuilder<AddFileOptions>(new AddFileOptions())
                   .HasPositionalArgument(c => c.Filename)
                   .And)  // A necessary evil if defining inline.
-.And
+.And.Parser
     .Parse("add myfile.txt");
 
 Console.WriteLine(opt.AddVerb);
