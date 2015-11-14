@@ -12,9 +12,9 @@ namespace clipr.Fluent
         /// Finish configuring the current argument and return to the
         /// parser.
         /// </summary>
-        public CliParser<TConfig> And { get; set; } 
+        public CliParserBuilder<TConfig> And { get; set; }
 
-        protected ArgumentBase(CliParser<TConfig> parser)
+        protected ArgumentBase(CliParserBuilder<TConfig> parser)
         {
             And = parser;
         } 

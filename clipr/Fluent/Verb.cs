@@ -3,7 +3,7 @@ namespace clipr.Fluent
 {
     public class Verb<TConf> where TConf : class 
     {
-        internal Verb(CliParser<TConf> parser)
+        internal Verb(CliParserBuilder<TConf> parser)
         {
             And = parser;
         }
@@ -11,6 +11,6 @@ namespace clipr.Fluent
         /// <summary>
         /// Return to the parser.
         /// </summary>
-        public CliParser<TConf> And { get; set; }
+        public CliParserBuilder<TConf> And { get; set; }
     }
 }

@@ -187,9 +187,9 @@ namespace clipr.Core
                     "Unknown argument name '{0}'.", name));
             }
 
-            if (arg is ITrigger<T>)
+            if (arg is ITerminatingTrigger<T>)
             {
-                (arg as ITrigger<T>).OnParse(Config);
+                (arg as ITerminatingTrigger<T>).OnParse(Config);
                 throw new ParserExit();
             }
 

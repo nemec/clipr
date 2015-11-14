@@ -152,7 +152,5 @@ namespace clipr.UnitTests
 
             Assert.AreEqual("myRepo", opt.Checkout.Repo);
         }
-
-        // TODO checkout / co, aliases
     }
 }

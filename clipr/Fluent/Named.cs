@@ -5,7 +5,7 @@ namespace clipr.Fluent
     public class Named<TConfig, TArg> : NamedBase<TConfig, Named<TConfig, TArg>, TArg>
         where TConfig : class
     {
-        internal Named(CliParser<TConfig> parser, IValueStoreDefinition store)
+        internal Named(CliParserBuilder<TConfig> parser, IValueStoreDefinition store)
             : base(parser, store)
         {
         }

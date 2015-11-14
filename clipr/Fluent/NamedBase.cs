@@ -16,7 +16,7 @@ namespace clipr.Fluent
 
         internal override BaseArgument BaseArgument { get { return Arg; } }
 
-        protected NamedBase(CliParser<TConfig> parser, IValueStoreDefinition store)
+        protected NamedBase(CliParserBuilder<TConfig> parser, IValueStoreDefinition store)
             : base(parser)
         {
             Arg = new NamedArgument(store);

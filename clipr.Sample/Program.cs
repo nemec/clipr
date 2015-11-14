@@ -61,7 +61,7 @@ namespace clipr.Sample
         {
             var opt = new Options();
 
-            new CliParser<Options>(opt)
+            new CliParserBuilder<Options>(opt)
                 .HasNamedArgument(o => o.Verbosity)
                     .WithShortName('v')
                     .CountsInvocations()
@@ -72,7 +72,7 @@ namespace clipr.Sample
                 .HasPositionalArgumentList(o => o.Numbers)
                     .HasDescription("These are numbers.")
                     .Consumes.AtLeast(1)
-            .And
+            .And.Parser
                 .Parse(args);
 
             Console.WriteLine(opt.Verbosity);
@@ -93,14 +93,14 @@ namespace clipr.Sample
         static void FluentWithVerb(string[] args)
         {
             var opt = new VerbTestOptions();
-            new CliParser<VerbTestOptions>(opt)
+            new CliParserBuilder<VerbTestOptions>(opt)
                 .HasNamedArgument(c => c.NumCounters)
                 .WithShortName()
             .And
                 .HasVerb("add", c => c.AddInfo,
-                         new CliParser<VerbSubOptions>(new VerbSubOptions())
+                         new CliParserBuilder<VerbSubOptions>(new VerbSubOptions())
                              .HasPositionalArgument(c => c.Filename).And)
-            .And
+            .And.Parser
                 .Parse(args);
 
             Console.WriteLine("Number of counters: {0}", opt.NumCounters);  // 3
@@ -117,32 +117,34 @@ namespace clipr.Sample
         public static void FluentConditional(string destinationFromConfig, string[] args)
         {
             var opt = new ConditionalOptions();
-            var parser = new CliParser<ConditionalOptions>(opt);
+            var builder = new CliParserBuilder<ConditionalOptions>(opt);
 
             switch (destinationFromConfig)
             {
                 case "file":
-                    parser.HasNamedArgument(c => c.Filename)
+                    builder.HasNamedArgument(c => c.Filename)
                           .WithShortName('f');
                     break;
                 //case "http":
                 default:
-                    parser.HasNamedArgument(c => c.Url)
+                    builder.HasNamedArgument(c => c.Url)
                           .WithShortName('u');
                     break;
             }
 
-            parser.Parse(args);
+            builder.Parser.Parse(args);
+            Console.WriteLine("Filename: {0}", opt.Filename);
+            Console.WriteLine("Url: {0}", opt.Url);
         }
 
         public static void DictBackedConfiguration(string[] args)
         {
             var opt = new Dictionary<string, string>();
-            var parser = new CliParser<Dictionary<string, string>>(opt);
-            parser.HasNamedArgument(c => c["name"])
+            var builder = new CliParserBuilder<Dictionary<string, string>>(opt);
+            builder.HasNamedArgument(c => c["name"])
                   .WithShortName('n');
 
-            parser.Parse(args);
+            builder.Parser.Parse(args);
 
             Console.WriteLine("Parsed Keys:");
             foreach (var kv in opt)
@@ -155,11 +157,11 @@ namespace clipr.Sample
         {
             const int key = 1;
             var opt = new Dictionary<int, object>();
-            var parser = new CliParser<Dictionary<int, object>>(opt);
-            parser.HasNamedArgument(c => c[key])
+            var builder = new CliParserBuilder<Dictionary<int, object>>(opt);
+            builder.HasNamedArgument(c => c[key])
                   .WithShortName('n');
 
-            parser.Parse(args);
+            builder.Parser.Parse(args);
 
             Console.WriteLine("Parsed Keys:");
             foreach (var kv in opt)
@@ -219,8 +221,8 @@ namespace clipr.Sample
 
         static void Main()
         {
-            //FluentWithVerb("-n3 add oranges.txt".Split());
-            //FluentConditional("http", "-u http://file".Split());
+            FluentWithVerb("-n3 add oranges.txt".Split());
+            FluentConditional("http", "-u http://file".Split());
             //DictBackendMethodConfig("-n frank".Split());
             //CustomDateTime("-d 20140730 2013-09-10".Split());
             ParseRequiredNamedArgument("-c -d 10/13/2010".Split());

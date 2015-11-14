@@ -6,7 +6,7 @@ namespace clipr.Usage
     /// <summary>
     /// Generates help documentation for a parser.
     /// </summary>
-    public interface IHelpGenerator<T> : ITrigger<T> where T : class
+    public interface IHelpGenerator<T> : ITerminatingTrigger<T> where T : class
     {
         /// <summary>
         /// Build a short string displaying the order and number of 

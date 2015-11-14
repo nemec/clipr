@@ -5,7 +5,7 @@ namespace clipr.Usage
     /// <summary>
     /// Program version information.
     /// </summary>
-    public interface IVersion<T> : ITrigger<T> where T : class
+    public interface IVersion<T> : ITerminatingTrigger<T> where T : class
     {
         /// <summary>
         /// The version string.

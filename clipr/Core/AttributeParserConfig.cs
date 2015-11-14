@@ -9,7 +9,7 @@ namespace clipr.Core
 {
     internal class AttributeParserConfig<T> : ParserConfig<T> where T : class
     {
-        public AttributeParserConfig(ParserOptions options, IEnumerable<ITrigger<T>> triggers)
+        public AttributeParserConfig(ParserOptions options, IEnumerable<ITerminatingTrigger<T>> triggers)
             : base(options, triggers)
         {
             InitializeVerbs();

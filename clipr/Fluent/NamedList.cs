@@ -5,7 +5,7 @@ namespace clipr.Fluent
     public class NamedList<TConfig, TArg> : NamedBase<TConfig, NamedList<TConfig, TArg>, TArg>
         where TConfig : class 
     {
-        internal NamedList(CliParser<TConfig> parser, IValueStoreDefinition store)
+        internal NamedList(CliParserBuilder<TConfig> parser, IValueStoreDefinition store)
             : base(parser, store)
         {
             Consumes = new Consumes<TConfig, NamedBase<TConfig, NamedList<TConfig, TArg>, TArg>, TArg>(this);

@@ -23,13 +23,13 @@ namespace clipr.Core
         /// <summary>
         /// The list of registered triggers.
         /// </summary>
-        IEnumerable<ITrigger<T>> Triggers { get; set; }
+        IEnumerable<ITerminatingTrigger<T>> Triggers { get; set; }
 
         /// <summary>
         /// Initialize all triggers.
         /// </summary>
         /// <param name="triggers"></param>
-        void InitializeTriggers(IEnumerable<ITrigger<T>> triggers);
+        void InitializeTriggers(IEnumerable<ITerminatingTrigger<T>> triggers);
 
         /// <summary>
         /// Retrieve the short character from an argument or throw an exception.
@@ -93,9 +93,9 @@ namespace clipr.Core
 
         internal readonly HashSet<string> RequiredNamedArguments; 
 
-        public IEnumerable<ITrigger<T>> Triggers { get; set; }
+        public IEnumerable<ITerminatingTrigger<T>> Triggers { get; set; }
 
-        protected ParserConfig(ParserOptions options, IEnumerable<ITrigger<T>> triggers)
+        protected ParserConfig(ParserOptions options, IEnumerable<ITerminatingTrigger<T>> triggers)
         {
             Options = options;
             ArgumentPrefix = '-';
@@ -120,7 +120,7 @@ namespace clipr.Core
             InitializeTriggers(triggers);
         }
 
-        public void InitializeTriggers(IEnumerable<ITrigger<T>> triggers)
+        public void InitializeTriggers(IEnumerable<ITerminatingTrigger<T>> triggers)
         {
             Triggers = triggers;
             if (triggers == null)

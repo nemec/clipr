@@ -7,7 +7,7 @@ namespace clipr.Fluent
 {
     internal class FluentParserConfig<TConfig> : ParserConfig<TConfig> where TConfig : class
     {
-        public FluentParserConfig(ParserOptions options, IEnumerable<ITrigger<TConfig>> triggers)
+        public FluentParserConfig(ParserOptions options, IEnumerable<ITerminatingTrigger<TConfig>> triggers)
             : base(options, triggers)
         {
             PendingNamedArguments = new List<NamedArgument>();

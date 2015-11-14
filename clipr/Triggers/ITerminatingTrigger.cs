@@ -6,8 +6,9 @@ namespace clipr.Triggers
     /// <summary>
     /// A parser hook that can be triggered by a named argument
     /// and executes a function rather than store a value.
+    /// Will terminate parsing immediately.
     /// </summary>
-    public interface ITrigger<T> : INamedArgument where T : class
+    public interface ITerminatingTrigger<T> : INamedArgument where T : class
     {
         /// <summary>
         /// Name of the plugin.

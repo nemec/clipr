@@ -68,7 +68,7 @@ namespace clipr.UnitTests
         {
             var opt = new FluentOptions();
 
-            new CliParser<FluentOptions>(opt)
+            new CliParserBuilder<FluentOptions>(opt)
                 .HasNamedArgument(o => o.Verbosity)
                     .WithShortName('v')
                     .CountsInvocations()
@@ -79,7 +79,7 @@ namespace clipr.UnitTests
                 .HasPositionalArgumentList(o => o.Numbers)
                     .HasDescription("These are numbers.")
                     .Consumes.AtLeast(1)
-            .And
+            .And.Parser
                 .Parse("-vvv -o out.txt 3 4 5 6".Split());
 
             Assert.AreEqual(3, opt.Verbosity);
@@ -90,7 +90,7 @@ namespace clipr.UnitTests
         {
             var opt = new FluentOptions();
 
-            new CliParser<FluentOptions>(opt)
+            new CliParserBuilder<FluentOptions>(opt)
                 .HasNamedArgument(o => o.Verbosity)
                     .WithShortName('v')
                     .CountsInvocations()
@@ -101,7 +101,7 @@ namespace clipr.UnitTests
                 .HasPositionalArgumentList(o => o.Numbers)
                     .HasDescription("These are numbers.")
                     .Consumes.AtLeast(1)
-            .And
+            .And.Parser
                 .Parse("-vvv -o out.txt 3 4 5 6".Split());
 
             Assert.AreEqual("out.txt", opt.OutputFile);
@@ -114,7 +114,7 @@ namespace clipr.UnitTests
 
             var opt = new FluentOptions();
 
-            new CliParser<FluentOptions>(opt)
+            new CliParserBuilder<FluentOptions>(opt)
                 .HasNamedArgument(o => o.Verbosity)
                     .WithShortName('v')
                     .CountsInvocations()
@@ -125,7 +125,7 @@ namespace clipr.UnitTests
                 .HasPositionalArgumentList(o => o.Numbers)
                     .HasDescription("These are numbers.")
                     .Consumes.AtLeast(1)
-            .And
+            .And.Parser
                 .Parse("-vvv -o out.txt 3 4 5 6".Split());
 
             CollectionAssert.AreEqual(numbers, opt.Numbers);
@@ -170,11 +170,11 @@ namespace clipr.UnitTests
         {
             var key = 1;
             var opt = new Dictionary<int, string>();
-            var parser = new CliParser<Dictionary<int, string>>(opt);
-            parser.HasNamedArgument(c => c[key])
+            var builder = new CliParserBuilder<Dictionary<int, string>>(opt);
+            builder.HasNamedArgument(c => c[key])
                     .WithShortName('n');
 
-            parser.Parse("-n frank".Split());
+            builder.Parser.Parse("-n frank".Split());
 
             Assert.AreEqual("frank", opt[key]);
         }

@@ -47,6 +47,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CliParserBuilder.cs" />
     <Compile Include="Core\ArgumentAttribute.cs" />
     <Compile Include="Core\IndexerValueStore.cs" />
     <Compile Include="Core\PropertyValueStore.cs" />
@@ -85,7 +86,7 @@
     <Compile Include="Core\ParserConfig.cs" />
     <Compile Include="Core\ParserExit.cs" />
     <Compile Include="Core\ParsingContext.cs" />
-    <Compile Include="Triggers\ITrigger.cs" />
+    <Compile Include="Triggers\ITerminatingTrigger.cs" />
     <Compile Include="Utils\StringExtensions.cs" />
     <Compile Include="Triggers\TriggerBase.cs" />
     <Compile Include="Usage\ExecutingAssemblyVersion.cs" />
@@ -109,7 +110,6 @@
     <Compile Include="Utils\StringTypeConverter.cs" />
     <Compile Include="Core\IValueStoreDefinition.cs" />
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

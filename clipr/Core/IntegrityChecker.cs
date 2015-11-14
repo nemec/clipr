@@ -69,7 +69,7 @@ namespace clipr.Core
             }
         }
 
-        internal void EnsureTriggerIntegrity<TConf>(IEnumerable<ITrigger<TConf>> triggers)
+        internal void EnsureTriggerIntegrity<TConf>(IEnumerable<ITerminatingTrigger<TConf>> triggers)
             where TConf : class 
         {
             var integrityExceptions = new List<Exception>();
