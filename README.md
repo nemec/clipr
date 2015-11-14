@@ -59,7 +59,7 @@ static void Main()
     Console.WriteLine(sum);
     // >>> 9
 }
-```csharp
+```
 
 ##Changelog
 
