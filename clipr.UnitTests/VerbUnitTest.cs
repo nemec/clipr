@@ -152,5 +152,51 @@ namespace clipr.UnitTests
 
             Assert.AreEqual("myRepo", opt.Checkout.Repo);
         }
+
+
+        public class OptionsWithDuplicateVerb
+        {
+            [Verb("add")]
+            public AddVerb AddInfo { get; set; }
+
+
+            [Verb("add")]
+            public AddVerb AddInfo2 { get; set; }
+        }
+
+
+
+        [TestMethod]
+        public void Parse_WithDuplicateVerbNames_ThrowsDuplicateVerbException()
+        {
+            AssertEx.ThrowsAggregateContaining<DuplicateVerbException>(() => 
+                CliParser.Parse<OptionsWithDuplicateVerb>("add myfile.txt".Split()));
+        }
+
+
+        public class OptionsWithNoDefaultConstructor
+        {
+            [Verb("add")]
+            public VerbWithNoDefaultConstructor AddInfo { get; set; }
+        }
+
+        public class VerbWithNoDefaultConstructor
+        {
+            public VerbWithNoDefaultConstructor(string fname)
+            {
+                Filename = fname;
+            }
+
+            [PositionalArgument(0)]
+            public string Filename { get; set; }
+        }
+
+        [TestMethod]
+        public void Parse_WithVerbHavingNoDefaultConstructor_ThrowsException()
+        {
+            AssertEx.ThrowsAggregateContaining<ArgumentIntegrityException>(() =>
+                CliParser.Parse<OptionsWithNoDefaultConstructor>("add myfile.txt".Split()),
+                "parameterless or default constructor");
+        }
     }
 }

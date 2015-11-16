@@ -52,6 +52,7 @@
     <Compile Include="Core\IndexerValueStore.cs" />
     <Compile Include="Core\PropertyValueStore.cs" />
     <Compile Include="Core\VerbParserConfig.cs" />
+    <Compile Include="DuplicateVerbException.cs" />
     <Compile Include="Fluent\Verb.cs" />
     <Compile Include="Attributes\StaticEnumerationAttribute.cs" />
     <Compile Include="Usage\EnumerationDescriptionAttribute.cs" />

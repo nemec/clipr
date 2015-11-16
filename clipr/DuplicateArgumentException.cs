@@ -10,7 +10,7 @@
         /// </summary>
         /// <param name="argumentName">Name of the duplicate argument.</param>
         internal DuplicateArgumentException(string argumentName)
-            : base("Duplicate argument: " + argumentName)
+            : base("Duplicate argument was defined: " + argumentName)
         {
         }
     }

@@ -127,7 +127,6 @@ namespace clipr
             string verbName, Expression<Func<TConf, TArg>> expr, CliParserBuilder<TArg> subBuilder)
             where TArg : class
         {
-            // TODO verb parser config?
             ParserConfig<TArg> subConfig;
             if (subBuilder.FluentConfig != null)
             {

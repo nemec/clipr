@@ -152,12 +152,12 @@ namespace clipr.Usage
                     AddStaticEnumFormat(builder, store);
                 }
 
-                // TODO property/field marked as static enum
-                /*var staticEnum = prop.GetCustomAttribute<StaticEnumerationAttribute>();
+                var staticEnum = (store.GetCustomAttribute<StaticEnumerationAttribute>() ??
+                                  store.Type.GetCustomAttribute<StaticEnumerationAttribute>()) != null;
                 if (staticEnum)
                 {
-                    AddStaticEnumFormat(builder, prop);
-                }*/
+                    AddStaticEnumFormat(builder, store);
+                }
 
                 if (arg.Constraint == NumArgsConstraint.AtLeast)
                 {

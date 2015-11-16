@@ -72,6 +72,27 @@ namespace clipr.Core
             }
         }
 
+        internal void EnsureVerbIntegrity<T>()
+        {
+            var integrityExceptions = new List<Exception>();
+
+            var properties = typeof(T).GetProperties().Where(
+                p => p.GetCustomAttributes<VerbAttribute>().Any());
+            foreach (var prop in properties)
+            {
+                integrityExceptions.Add(VerbMustHaveParameterlessConstructor(prop));
+            }
+
+            integrityExceptions.Add(CannotDefineDuplicateVerbs<T>());
+
+            integrityExceptions = integrityExceptions
+                .Where(e => e != null).ToList();
+            if (integrityExceptions.Any())
+            {
+                throw new AggregateException(integrityExceptions);
+            }
+        }
+
         internal void EnsureTriggerIntegrity(IEnumerable<ITerminatingTrigger> triggers)
         {
             var integrityExceptions = new List<Exception>();
@@ -364,6 +385,32 @@ namespace clipr.Core
                 return new ArgumentIntegrityException(
                     "Configuration object may not contain both " +
                     "Positional arguments and Verbs.");
+            }
+            return null;
+        }
+
+        private static Exception VerbMustHaveParameterlessConstructor(PropertyInfo verbProp)
+        {
+            if (verbProp.PropertyType.GetConstructor(Type.EmptyTypes) == null)
+            {
+                return new ArgumentIntegrityException(
+                    "Verbs must have a parameterless or default constructor.");
+            }
+            return null;
+        }
+
+        private static Exception CannotDefineDuplicateVerbs<T>()
+        {
+            var verbs = typeof(T)
+                .GetProperties()
+                .SelectMany(p => p.GetCustomAttributes<VerbAttribute>());
+            var checkedVerbNames = new HashSet<string>();
+            foreach (var verb in verbs)
+            {
+                if (!checkedVerbNames.Add(verb.Name))
+                {
+                    return new DuplicateVerbException(verb.Name);
+                }
             }
             return null;
         }
