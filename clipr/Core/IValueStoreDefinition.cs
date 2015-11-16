@@ -22,19 +22,19 @@ namespace clipr.Core
         TypeConverter[] Converters { get; }
 
         /// <summary>
-        /// Set this value of object <paramref name="source"/>
+        /// Set this value of object <paramref name="parent"/>
         /// to <paramref name="value"/>.
         /// </summary>
-        /// <param name="source">Configuration instance</param>
+        /// <param name="parent">Configuration instance</param>
         /// <param name="value">Value to store</param>
-        void SetValue(object source, object value);
+        void SetValue(object parent, object value);
 
         /// <summary>
-        /// Gets this value of object <paramref name="source"/>.
+        /// Gets this value of object <paramref name="parent"/>.
         /// </summary>
-        /// <param name="source">Configuration instance</param>
+        /// <param name="parent">Configuration instance</param>
         /// <returns></returns>
-        object GetValue(object source);
+        object GetValue(object parent);
 
         /// <summary>
         /// Get an attribute of the given type that is bound to the value.

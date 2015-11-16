@@ -16,8 +16,7 @@ namespace clipr.Usage
     /// Builds usage information automatically from the associated
     /// type.
     /// </summary>
-    /// <typeparam name="T">Type to inspect.</typeparam>
-    public class AutomaticHelpGenerator<T> : TriggerBase, IHelpGenerator<T> where T : class
+    public class AutomaticHelpGenerator<T> : TriggerBase, IHelpGenerator
     {
         /// <inheritdoc/>
         public override string Name { get { return "HelpGenerator"; } }
@@ -82,7 +81,7 @@ namespace clipr.Usage
         }
 
         /// <inheritdoc/>
-        public string GetUsage(IParserConfig<T> config)
+        public string GetUsage(IParserConfig config)
         {
             var assembly = Assembly.GetEntryAssembly();
             var builder = new StringBuilder();
@@ -203,7 +202,7 @@ namespace clipr.Usage
         }
 
         /// <inheritdoc/>
-        public string GetHelp(IParserConfig<T> config)
+        public string GetHelp(IParserConfig config)
         {
             var positionalArgs = config.PositionalArguments.ToList();
 
@@ -363,7 +362,7 @@ namespace clipr.Usage
         /// Action to perform when this trigger is parsed.
         /// </summary>
         /// <param name="config"></param>
-        public void OnParse(IParserConfig<T> config)
+        public void OnParse(IParserConfig config)
         {
             Console.Error.WriteLine(GetHelp(config));
         }

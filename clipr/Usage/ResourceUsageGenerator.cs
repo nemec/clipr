@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using clipr.Arguments;
 using clipr.Core;
 
 namespace clipr.Usage
@@ -9,9 +8,9 @@ namespace clipr.Usage
     /// Generate usage information from localizable resource files.
     /// TODO implement help from localized resource files
     /// </summary>
-    internal class ResourceUsageGenerator<T> : IHelpGenerator<T> where T : class, INamedArgumentBase
+    internal class ResourceUsageGenerator : IHelpGenerator
     {
-        public ParserConfig<T> Config { get; set; }
+        public IParserConfig Config { get; set; }
 
         public string Name { get { return "ResourceUsageGenerator"; } }
 
@@ -37,13 +36,13 @@ namespace clipr.Usage
             LongName = "help";
         }
 
-        public string GetUsage(IParserConfig<T> config)
+        public string GetUsage(IParserConfig config)
         {
             throw new NotImplementedException();
         }
 
 
-        public string GetHelp(IParserConfig<T> config)
+        public string GetHelp(IParserConfig config)
         {
             throw new NotImplementedException();
         }
@@ -53,7 +52,7 @@ namespace clipr.Usage
             get { return "ResourceUsageGenerator"; }
         }
 
-        public void OnParse(IParserConfig<T> config)
+        public void OnParse(IParserConfig config)
         {
             throw new NotImplementedException();
         }

@@ -176,7 +176,7 @@ namespace clipr
         /// <summary>
         /// Configuration of the parser.
         /// </summary>
-        public IParserConfig<TConf> Config { get; private set; }
+        public IParserConfig Config { get; private set; }
 
         /// <summary>
         /// Punctuation character prefixed to short and long argument
@@ -208,9 +208,9 @@ namespace clipr
 
         private ParserOptions Options { get; set; }
 
-        private IHelpGenerator<TConf> HelpGenerator { get; set; }
+        private IHelpGenerator HelpGenerator { get; set; }
 
-        private IEnumerable<ITerminatingTrigger<TConf>> Triggers { get; set; } 
+        private IEnumerable<ITerminatingTrigger> Triggers { get; set; } 
 
         private TConf Object { get; set; }
 
@@ -281,7 +281,7 @@ namespace clipr
         /// <param name="usageGenerator">
         /// Generates help documentation for this parser.
         /// </param>
-        public CliParser(TConf obj, IHelpGenerator<TConf> usageGenerator)
+        public CliParser(TConf obj, IHelpGenerator usageGenerator)
             : this(obj, ParserOptions.None, usageGenerator)
         {
         }
@@ -307,7 +307,7 @@ namespace clipr
         /// <param name="usageGenerator">
         /// Generates help documentation for this parser.
         /// </param>
-        public CliParser(TConf obj, ParserOptions options, IHelpGenerator<TConf> usageGenerator)
+        public CliParser(TConf obj, ParserOptions options, IHelpGenerator usageGenerator)
         {
             if (obj == null)
             {
@@ -317,10 +317,10 @@ namespace clipr
             Options = options;
             HelpGenerator = usageGenerator;
 
-            Triggers = new ITerminatingTrigger<TConf>[]
+            Triggers = new ITerminatingTrigger[]
             {
                 usageGenerator,
-                new ExecutingAssemblyVersion<TConf>()
+                new ExecutingAssemblyVersion()
             };
             var checker = new IntegrityChecker();
             checker.EnsureAttributeIntegrity<TConf>();

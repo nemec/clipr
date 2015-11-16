@@ -10,15 +10,27 @@ using clipr.Utils;
 
 namespace clipr.Core
 {
-    // TODO make internal again
-    public interface IParsingContext
+    internal interface IParsingContext
     {
         void Parse(string[] args);
     }
 
+    internal static class ParsingContextFactory
+    {
+        public static IParsingContext Create(object options, Type optionType, object parserConfig)
+        {
+            var contextType = typeof(ParsingContext<>)
+                        .MakeGenericType(new[] { optionType });
+            return (IParsingContext)Activator.CreateInstance(
+                contextType,
+                new[] { options, parserConfig },
+                null);
+        }
+    }
+
     internal class ParsingContext<T> : IParsingContext where T : class
     {
-        private IParserConfig<T> Config { get; set; }
+        private IParserConfig Config { get; set; }
 
         private T Object { get; set; }
 
@@ -26,7 +38,7 @@ namespace clipr.Core
 
         private readonly HashSet<string> _parsedNamedArguments;
 
-        public ParsingContext(T obj, IParserConfig<T> config)
+        public ParsingContext(T obj, IParserConfig config)
         {
             Object = obj;
             Config = config;
@@ -139,8 +151,12 @@ namespace clipr.Core
                     Config.Verbs.ContainsKey(arg))
                 {
                     var verbConfig = Config.Verbs[arg];
-                    verbConfig.Context.Parse(values.ToArray());
-                    verbConfig.Store.SetValue(Object, verbConfig.Object);
+                    // TODO ensure verb has parameterless constructor.
+                    var verbObj = Activator.CreateInstance(verbConfig.Store.Type);
+                    var context = ParsingContextFactory.Create(
+                        verbObj, verbConfig.Store.Type, verbConfig);
+                    context.Parse(values.ToArray());
+                    verbConfig.Store.SetValue(Object, verbObj);
                     break;
                 }
 
@@ -185,9 +201,9 @@ namespace clipr.Core
         {
             var arg = GetArgument(name, argDict, Config.Options);
 
-            if (arg is ITerminatingTrigger<T>)
+            if (arg is ITerminatingTrigger)
             {
-                (arg as ITerminatingTrigger<T>).OnParse(Config);
+                (arg as ITerminatingTrigger).OnParse(Config);
                 throw new ParserExit();
             }
 
@@ -211,10 +227,11 @@ namespace clipr.Core
                 throw new ParseException(name.ToString(),
                     "Arguments that consume values cannot be grouped.");
             }
+            var prefix = Config.ArgumentPrefix.ToString(CultureInfo.CurrentCulture);
             if (name is char)
-                ParseArgument(Config.ArgumentPrefix.ToString() + name.ToString(), arg, iter, positionalDelimiterFound);
+                ParseArgument(prefix + name, arg, iter, positionalDelimiterFound);
             else
-                ParseArgument(Config.ArgumentPrefix.ToString() + Config.ArgumentPrefix.ToString() + name.ToString(), arg, iter, positionalDelimiterFound);
+                ParseArgument(prefix + prefix + name, arg, iter, positionalDelimiterFound);
         }
 
         private static INamedArgumentBase GetArgument<TS>(
@@ -277,8 +294,9 @@ namespace clipr.Core
         /// e.g. "-v", "--verbose", "VALUE"
         /// </param>
         /// <param name="arg">Property associated with the argument.</param>
+        /// <param name="remainingArgs">Remaining unparsed arguments.</param>
         /// <param name="positionalDelimiterFound">True if the positional delimiter, e.g. -- has been found.</param>
-        private void ParseArgument(string attrName, IArgument arg, Stack<string> args, bool positionalDelimiterFound)
+        private void ParseArgument(string attrName, IArgument arg, Stack<string> remainingArgs, bool positionalDelimiterFound)
         {
             var store = arg.Store;
             switch (arg.Action)
@@ -287,13 +305,13 @@ namespace clipr.Core
                     {
                         if (!arg.ConsumesMultipleArgs)
                         {
-                            if (args.Count == 0)
+                            if (remainingArgs.Count == 0)
                             {
                                 throw new ParseException(attrName, String.Format(
                                     @"Argument ""{0}"" requires a value but " +
                                     "none was provided.", attrName));
                             }
-                            var stringValue = args.Pop();
+                            var stringValue = remainingArgs.Pop();
                             try
                             {
                                 object converted;
@@ -322,7 +340,7 @@ namespace clipr.Core
                             var existing = (IEnumerable)store.GetValue(Object);
                             var backingList = CreateGenericList(store, existing);
 
-                            ParseVarargs(attrName, backingList, arg, args, positionalDelimiterFound);
+                            ParseVarargs(attrName, backingList, arg, remainingArgs, positionalDelimiterFound);
                             store.SetValue(Object, backingList);
                         }
                         break;
@@ -346,11 +364,11 @@ namespace clipr.Core
 
                         if (!arg.ConsumesMultipleArgs)
                         {
-                            if (args.Count == 0)
+                            if (remainingArgs.Count == 0)
                             {
                                 throw new ParseException(attrName);
                             }
-                            var stringValue = args.Pop();
+                            var stringValue = remainingArgs.Pop();
                             try
                             {
                                 object converted;
@@ -376,7 +394,7 @@ namespace clipr.Core
                         }
                         else
                         {
-                            ParseVarargs(attrName, backingList, arg, args, positionalDelimiterFound);
+                            ParseVarargs(attrName, backingList, arg, remainingArgs, positionalDelimiterFound);
 
                         }
                         store.SetValue(Object, backingList);

@@ -11,8 +11,7 @@ namespace clipr.Core
     /// <summary>
     /// Configuration for the parser.
     /// </summary>
-    /// <typeparam name="T">Option class.</typeparam>
-    public interface IParserConfig<T> where T : class
+    public interface IParserConfig
     {
         /// <summary>
         /// The character prefix to use for designating arguments
@@ -34,7 +33,7 @@ namespace clipr.Core
         /// <summary>
         /// The list of registered triggers.
         /// </summary>
-        IEnumerable<ITerminatingTrigger<T>> Triggers { get; set; }
+        IEnumerable<ITerminatingTrigger> Triggers { get; set; }
 
         /// <summary>
         /// The list of short name arguments.
@@ -84,7 +83,7 @@ namespace clipr.Core
         /// <summary>
         /// List of all verbs in the parser.
         /// </summary>
-        Dictionary<string, VerbConfig> Verbs { get; }
+        Dictionary<string, IVerbParserConfig> Verbs { get; }
 
         /// <summary>
         /// List of methods to be executed after parsing is finished.
@@ -102,16 +101,7 @@ namespace clipr.Core
         HashSet<string> RequiredNamedArguments { get; }
     }
 
-    public class VerbConfig
-    {
-        public object Object { get; set; }
-
-        public IParsingContext Context { get; set; }
-
-        public IValueStoreDefinition Store { get; set; }
-    }
-
-    internal abstract class ParserConfig<T> : IParserConfig<T> where T : class
+    internal abstract class ParserConfig<T> : IParserConfig where T : class
     {
         public char LongOptionSeparator { get { return '='; } }
 
@@ -119,23 +109,23 @@ namespace clipr.Core
 
         public ParserOptions Options { get; private set; }
 
-        public Dictionary<char, IShortNameArgument> ShortNameArguments { get; private set; }
+        public Dictionary<char, IShortNameArgument> ShortNameArguments { get; protected set; }
 
-        public Dictionary<string, ILongNameArgument> LongNameArguments { get; private set; }
+        public Dictionary<string, ILongNameArgument> LongNameArguments { get; protected set; }
 
-        public List<IPositionalArgument> PositionalArguments { get; private set; }
+        public List<IPositionalArgument> PositionalArguments { get; protected set; }
 
-        public Dictionary<string, VerbConfig> Verbs { get; private set; }
+        public Dictionary<string, IVerbParserConfig> Verbs { get; protected set; }
 
-        public List<MethodInfo> PostParseMethods { get; private set; }
+        public List<MethodInfo> PostParseMethods { get; protected set; }
 
-        public HashSet<string> RequiredMutuallyExclusiveArguments { get; private set; }
+        public HashSet<string> RequiredMutuallyExclusiveArguments { get; protected set; }
 
-        public HashSet<string> RequiredNamedArguments { get; private set; }
+        public HashSet<string> RequiredNamedArguments { get; protected set; }
 
-        public IEnumerable<ITerminatingTrigger<T>> Triggers { get; set; }
+        public IEnumerable<ITerminatingTrigger> Triggers { get; set; }
 
-        protected ParserConfig(ParserOptions options, IEnumerable<ITerminatingTrigger<T>> triggers)
+        protected ParserConfig(ParserOptions options, IEnumerable<ITerminatingTrigger> triggers)
         {
             Options = options;
             ArgumentPrefix = '-';
@@ -152,7 +142,7 @@ namespace clipr.Core
             }
 
             PositionalArguments = new List<IPositionalArgument>();
-            Verbs = new Dictionary<string, VerbConfig>();
+            Verbs = new Dictionary<string, IVerbParserConfig>();
             PostParseMethods = new List<MethodInfo>();
             RequiredMutuallyExclusiveArguments = new HashSet<string>();
             RequiredNamedArguments = new HashSet<string>();
@@ -160,7 +150,7 @@ namespace clipr.Core
             InitializeTriggers(triggers);
         }
 
-        public void InitializeTriggers(IEnumerable<ITerminatingTrigger<T>> triggers)
+        public void InitializeTriggers(IEnumerable<ITerminatingTrigger> triggers)
         {
             Triggers = triggers;
             if (triggers == null)

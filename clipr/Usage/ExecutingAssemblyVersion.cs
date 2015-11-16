@@ -8,7 +8,7 @@ namespace clipr.Usage
     /// <summary>
     /// Version information pulled from the currently executing assembly.
     /// </summary>
-    public class ExecutingAssemblyVersion<T> : TriggerBase, IVersion<T> where T : class
+    public class ExecutingAssemblyVersion : TriggerBase, IVersion
     {
         /// <inheritdoc/>
         public override string Name { get { return "Version"; } }
@@ -48,7 +48,7 @@ namespace clipr.Usage
         /// Action to perform when trigger is parsed.
         /// </summary>
         /// <param name="config"></param>
-        public void OnParse(IParserConfig<T> config)
+        public void OnParse(IParserConfig config)
         {
             Console.Error.WriteLine(GetVersion());
         }

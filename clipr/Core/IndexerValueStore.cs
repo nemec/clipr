@@ -25,14 +25,14 @@ namespace clipr.Core
 
         public TypeConverter[] Converters { get; private set; }
 
-        public void SetValue(object source, object value)
+        public void SetValue(object parent, object value)
         {
-            Setter.Invoke(source, new[] {Key, value});
+            Setter.Invoke(parent, new[] {Key, value});
         }
 
-        public object GetValue(object source)
+        public object GetValue(object parent)
         {
-            return Getter.Invoke(source, null);
+            return Getter.Invoke(parent, null);
         }
 
         public TAttribute GetCustomAttribute<TAttribute>() where TAttribute : Attribute

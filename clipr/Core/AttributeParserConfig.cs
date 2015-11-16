@@ -9,7 +9,7 @@ namespace clipr.Core
 {
     internal class AttributeParserConfig<T> : ParserConfig<T> where T : class
     {
-        public AttributeParserConfig(ParserOptions options, IEnumerable<ITerminatingTrigger<T>> triggers)
+        public AttributeParserConfig(ParserOptions options, IEnumerable<ITerminatingTrigger> triggers)
             : base(options, triggers)
         {
             InitializeVerbs();
@@ -99,32 +99,20 @@ namespace clipr.Core
                         throw new DuplicateArgumentException(verbName);
                     }
 
+                    // TODO allow verb to use other configuration types?
                     var parserConfigType = typeof (AttributeParserConfig<>)
                         .MakeGenericType(new[] {prop.PropertyType});
-                    var parserConfig = Activator.CreateInstance(
+                    var verbParserConfig = Activator.CreateInstance(
                         parserConfigType, 
                         new object[] {Options, null /* TODO add triggers inside verb configs */}, 
                         null);
 
-                    // Verb's settings object
-                    // Object must have default constructor
-                    var obj = Activator.CreateInstance(prop.PropertyType);
-
-                    var contextType = typeof (ParsingContext<>)
+                    var verbConfigWrapperType = typeof (VerbParserConfig<>)
                         .MakeGenericType(new[] {prop.PropertyType});
-                    var context = (IParsingContext)Activator.CreateInstance(
-                        contextType, 
-                        new [] {obj, parserConfig},
-                        null);
+                    var config = (IVerbParserConfig)Activator.CreateInstance(verbConfigWrapperType,
+                        new[] {verbParserConfig, new PropertyValueStore(prop), Options});
 
-                    var verbConfig = new VerbConfig
-                        {
-                            Context = context,
-                            Object = obj,
-                            Store = new PropertyValueStore(prop)
-                        };
-
-                    Verbs.Add(verbName, verbConfig);
+                    Verbs.Add(verbName, config);
                 }
             }
         }

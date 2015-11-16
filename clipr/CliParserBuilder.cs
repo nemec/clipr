@@ -23,11 +23,11 @@ namespace clipr
         public CliParserBuilder(TConf obj)
         {
             FluentConfig = new FluentParserConfig<TConf>(ParserOptions.None, 
-                Enumerable.Empty<ITerminatingTrigger<TConf>>());
+                Enumerable.Empty<ITerminatingTrigger>());
             Object = obj;
         } 
 
-        public CliParserBuilder(ParserOptions options, IEnumerable<ITerminatingTrigger<TConf>> triggers)
+        public CliParserBuilder(ParserOptions options, IEnumerable<ITerminatingTrigger> triggers)
         {
             FluentConfig = new FluentParserConfig<TConf>(options, triggers);
             Options = options;
@@ -127,6 +127,7 @@ namespace clipr
             string verbName, Expression<Func<TConf, TArg>> expr, CliParserBuilder<TArg> subBuilder)
             where TArg : class
         {
+            // TODO verb parser config?
             ParserConfig<TArg> subConfig;
             if (subBuilder.FluentConfig != null)
             {
@@ -139,14 +140,7 @@ namespace clipr
             }
 
             FluentConfig.Verbs.Add(verbName,
-                new VerbConfig
-                {
-                    Store = GetDefinitionFromExpression(expr),
-                    Object = subBuilder.Object,
-                    Context = new ParsingContext<TArg>(
-                        subBuilder.Object,
-                        subConfig)
-                });
+                new VerbParserConfig<TArg>(subConfig, GetDefinitionFromExpression(expr), Options));
 
             return new Verb<TConf>(this);
         }

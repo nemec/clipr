@@ -19,14 +19,14 @@ namespace clipr.Core
 
         public string Name { get { return Property.Name; } }
 
-        public void SetValue(object source, object value)
+        public void SetValue(object parent, object value)
         {
-            Property.SetValue(source, value, null);
+            Property.SetValue(parent, value, null);
         }
 
-        public object GetValue(object source)
+        public object GetValue(object parent)
         {
-            return Property.GetValue(source, null);
+            return Property.GetValue(parent, null);
         }
 
         public TAttribute GetCustomAttribute<TAttribute>() where TAttribute : Attribute

@@ -8,7 +8,7 @@ namespace clipr.Triggers
     /// and executes a function rather than store a value.
     /// Will terminate parsing immediately.
     /// </summary>
-    public interface ITerminatingTrigger<T> : INamedArgument where T : class
+    public interface ITerminatingTrigger : INamedArgument
     {
         /// <summary>
         /// Name of the plugin.
@@ -18,6 +18,6 @@ namespace clipr.Triggers
         /// <summary>
         /// Method executed when the short or long name is parsed.
         /// </summary>
-        void OnParse(IParserConfig<T> config);
+        void OnParse(IParserConfig config);
     }
 }
