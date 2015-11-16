@@ -7,7 +7,7 @@ namespace clipr.Core
     /// <summary>
     /// Base class for various argument types.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Property)]
+    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
     public abstract class ArgumentAttribute : Attribute, IArgument
     {
         /// <inheritdoc/>

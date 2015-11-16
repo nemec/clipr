@@ -1,5 +1,6 @@
 ﻿
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 
 namespace clipr.Core
@@ -42,6 +43,13 @@ namespace clipr.Core
         /// <typeparam name="TAttribute"></typeparam>
         /// <returns></returns>
         TAttribute GetCustomAttribute<TAttribute>() where TAttribute : Attribute;
+
+        /// <summary>
+        /// Get all attributes of the given type that are bound to the value.
+        /// </summary>
+        /// <typeparam name="TAttribute"></typeparam>
+        /// <returns></returns>
+        IEnumerable<TAttribute> GetCustomAttributes<TAttribute>() where TAttribute : Attribute;
 
         /// <summary>
         /// The value's type.

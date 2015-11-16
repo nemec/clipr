@@ -8,20 +8,14 @@ namespace clipr.Utils
 {
     internal static class PropertyExtensions
     {
-        public static object GetDefaultValue(this PropertyInfo prop)
+        public static object GetDefaultValue(this Type t)
         {
             // From http://stackoverflow.com/a/2688165/564755
-            var t = prop.PropertyType;
             if (t.IsValueType && Nullable.GetUnderlyingType(t) == null)
             {
                 return Activator.CreateInstance(t);
             }
             return null;
-        }
-
-        internal static bool IsValidIEnumerable(this PropertyInfo prop)
-        {
-            return IsValidEnumerable(prop.PropertyType);
         }
 
         internal static bool IsValidEnumerable(this Type type)
@@ -32,25 +26,25 @@ namespace clipr.Utils
                 type.GetInterfaces().Any(t => t.IsGenericType && t.GetGenericTypeDefinition() == enumT));
         }
 
-        internal static bool IsValid<T>(this PropertyInfo prop)
+        internal static bool IsValid<T>(this Type t)
         {
-            return prop.PropertyType == typeof(T) ||
-                TypeDescriptor.GetConverter(prop.PropertyType)
+            return t == typeof(T) ||
+                TypeDescriptor.GetConverter(t)
                 .CanConvertTo(typeof(T));
         }
 
-        internal static bool ValueIsConvertible(this PropertyInfo prop, object obj)
+        internal static bool ValueIsConvertible(this Type t, object obj)
         {
-            return obj == null || prop.PropertyType == obj.GetType() ||
-                TypeDescriptor.GetConverter(prop.PropertyType)
+            return obj == null || t == obj.GetType() ||
+                TypeDescriptor.GetConverter(t)
                           .IsValid(obj);
         }
 
-        internal static bool ValueIsConvertibleGeneric(this PropertyInfo prop, object obj)
+        internal static bool ValueIsConvertibleGeneric(this Type t, object obj)
         {
             return obj == null ||
-                prop.PropertyType.GetGenericArguments().First() == obj.GetType() ||
-                TypeDescriptor.GetConverter(prop.PropertyType).IsValid(obj);
+                t.GetGenericArguments().First() == obj.GetType() ||
+                TypeDescriptor.GetConverter(t).IsValid(obj);
         }
 
         internal static List<string> GetMutuallyExclusiveGroups(this PropertyInfo prop)

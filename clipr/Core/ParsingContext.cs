@@ -580,6 +580,11 @@ namespace clipr.Core
                 return null;
             }
 
+            public IEnumerable<TAttribute> GetCustomAttributes<TAttribute>() where TAttribute : Attribute
+            {
+                return Enumerable.Empty<TAttribute>();
+            }
+
             public Type Type { get; set; }
         }
 

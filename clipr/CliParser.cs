@@ -325,6 +325,7 @@ namespace clipr
             var checker = new IntegrityChecker();
             checker.EnsureAttributeIntegrity<TConf>();
             checker.EnsureTriggerIntegrity(Triggers);
+
             Config = new AttributeParserConfig<TConf>(Options, Triggers);
         }
 

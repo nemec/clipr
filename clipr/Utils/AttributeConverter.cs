@@ -15,8 +15,9 @@ namespace clipr.Utils
             var staticEnumConverter = GetStaticEnumerationConverter(prop);
 
             var types = prop.GetCustomAttributes<TypeConverterAttribute>()
-                .Select(a =>
-                    Activator.CreateInstance(Type.GetType(a.ConverterTypeName)))
+                .Select(attr => Type.GetType(attr.ConverterTypeName))
+                .Where(t => t != null)
+                .Select(Activator.CreateInstance)
                 .ToList();
             return staticEnumConverter
                 .Concat(types.OfType<TypeConverter>())

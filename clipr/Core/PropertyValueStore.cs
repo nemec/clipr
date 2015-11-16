@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Reflection;
 using System.ComponentModel;
 using clipr.Utils;
@@ -32,6 +33,11 @@ namespace clipr.Core
         public TAttribute GetCustomAttribute<TAttribute>() where TAttribute : Attribute
         {
             return Property.GetCustomAttribute<TAttribute>();
+        }
+
+        public IEnumerable<TAttribute> GetCustomAttributes<TAttribute>() where TAttribute : Attribute
+        {
+            return Property.GetCustomAttributes<TAttribute>();
         }
 
         public Type Type
