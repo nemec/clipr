@@ -32,6 +32,6 @@ namespace clipr.Core
 
         public IValueStoreDefinition Store { get; set; }
 
-        public IParserConfig InternalParserConfig { get; set; }
+        private IParserConfig InternalParserConfig { get; set; }
     }
 }
