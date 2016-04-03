@@ -147,10 +147,6 @@ namespace clipr.Usage
                 {
                     AddEnumFormat(builder, store);
                 }
-                if (store.Type.GetCustomAttribute<StaticEnumerationAttribute>() != null)
-                {
-                    AddStaticEnumFormat(builder, store);
-                }
 
                 var staticEnum = (store.GetCustomAttribute<StaticEnumerationAttribute>() ??
                                   store.Type.GetCustomAttribute<StaticEnumerationAttribute>()) != null;
