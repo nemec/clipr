@@ -5,6 +5,7 @@ using System.Reflection;
 using clipr.Arguments;
 using clipr.Triggers;
 using clipr.Utils;
+using clipr.IOC;
 
 namespace clipr.Core
 {
@@ -13,6 +14,12 @@ namespace clipr.Core
     /// </summary>
     public interface IParserConfig
     {
+        /// <summary>
+        /// IOC factory responsible for generating necessary Verb
+        /// objects during parsing.
+        /// </summary>
+        IVerbFactory VerbFactory { get; }
+
         /// <summary>
         /// The character prefix to use for designating arguments
         /// (typically a hyphen).
@@ -103,6 +110,8 @@ namespace clipr.Core
 
     internal abstract class ParserConfig<T> : IParserConfig where T : class
     {
+        public IVerbFactory VerbFactory { get; set; }
+
         public char LongOptionSeparator { get { return '='; } }
 
         public char ArgumentPrefix { get; set; }
@@ -125,7 +134,7 @@ namespace clipr.Core
 
         public IEnumerable<ITerminatingTrigger> Triggers { get; set; }
 
-        protected ParserConfig(ParserOptions options, IEnumerable<ITerminatingTrigger> triggers)
+        protected ParserConfig(ParserOptions options, IEnumerable<ITerminatingTrigger> triggers, IVerbFactory factory)
         {
             Options = options;
             ArgumentPrefix = '-';
@@ -148,6 +157,8 @@ namespace clipr.Core
             RequiredNamedArguments = new HashSet<string>();
 
             InitializeTriggers(triggers);
+
+            VerbFactory = factory;
         }
 
         public void InitializeTriggers(IEnumerable<ITerminatingTrigger> triggers)

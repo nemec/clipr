@@ -2,13 +2,14 @@
 using clipr.Arguments;
 using clipr.Core;
 using clipr.Triggers;
+using clipr.IOC;
 
 namespace clipr.Fluent
 {
     internal class FluentParserConfig<TConfig> : ParserConfig<TConfig> where TConfig : class
     {
-        public FluentParserConfig(ParserOptions options, IEnumerable<ITerminatingTrigger> triggers)
-            : base(options, triggers)
+        public FluentParserConfig(ParserOptions options, IEnumerable<ITerminatingTrigger> triggers, IVerbFactory factory)
+            : base(options, triggers, factory)
         {
             PendingNamedArguments = new List<NamedArgument>();
             /*

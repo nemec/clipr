@@ -4,13 +4,14 @@ using System.Globalization;
 using System.Linq;
 using clipr.Triggers;
 using clipr.Utils;
+using clipr.IOC;
 
 namespace clipr.Core
 {
     internal class AttributeParserConfig<T> : ParserConfig<T> where T : class
     {
-        public AttributeParserConfig(ParserOptions options, IEnumerable<ITerminatingTrigger> triggers)
-            : base(options, triggers)
+        public AttributeParserConfig(ParserOptions options, IEnumerable<ITerminatingTrigger> triggers, IVerbFactory factory)
+            : base(options, triggers, factory)
         {
             InitializeVerbs();
             InitializeNamedArguments();
@@ -104,13 +105,13 @@ namespace clipr.Core
                         .MakeGenericType(new[] {prop.PropertyType});
                     var verbParserConfig = Activator.CreateInstance(
                         parserConfigType, 
-                        new object[] {Options, null /* TODO add triggers inside verb configs */}, 
+                        new object[] {Options, null /* TODO add triggers inside verb configs */, VerbFactory}, 
                         null);
 
                     var verbConfigWrapperType = typeof (VerbParserConfig<>)
                         .MakeGenericType(new[] {prop.PropertyType});
                     var config = (IVerbParserConfig)Activator.CreateInstance(verbConfigWrapperType,
-                        new[] {verbParserConfig, new PropertyValueStore(prop), Options});
+                        new[] {verbParserConfig, new PropertyValueStore(prop), Options, VerbFactory});
 
                     Verbs.Add(verbName, config);
                 }

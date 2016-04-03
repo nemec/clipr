@@ -1,4 +1,6 @@
 ﻿
+using clipr.IOC;
+
 namespace clipr.Core
 {
     /// <summary>
@@ -15,8 +17,8 @@ namespace clipr.Core
 
     internal class VerbParserConfig<TVerb> : ParserConfig<TVerb>, IVerbParserConfig where TVerb : class 
     {
-        public VerbParserConfig(IParserConfig internalParserConfig, IValueStoreDefinition store, ParserOptions options) 
-            : base(options, null)
+        public VerbParserConfig(IParserConfig internalParserConfig, IValueStoreDefinition store, ParserOptions options, IVerbFactory factory) 
+            : base(options, null, factory)
         {
             InternalParserConfig = internalParserConfig;
             Store = store;

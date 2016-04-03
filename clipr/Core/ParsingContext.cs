@@ -151,8 +151,7 @@ namespace clipr.Core
                     Config.Verbs.ContainsKey(arg))
                 {
                     var verbConfig = Config.Verbs[arg];
-                    // TODO ensure verb has parameterless constructor.
-                    var verbObj = Activator.CreateInstance(verbConfig.Store.Type);
+                    var verbObj = Config.VerbFactory.GetVerb(verbConfig.Store.Type);
                     var context = ParsingContextFactory.Create(
                         verbObj, verbConfig.Store.Type, verbConfig);
                     context.Parse(values.ToArray());

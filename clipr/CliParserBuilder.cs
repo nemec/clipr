@@ -9,6 +9,7 @@ using clipr.Core;
 using clipr.Fluent;
 using clipr.Triggers;
 using clipr.Utils;
+using clipr.IOC;
 
 namespace clipr
 {
@@ -23,13 +24,13 @@ namespace clipr
         public CliParserBuilder(TConf obj)
         {
             FluentConfig = new FluentParserConfig<TConf>(ParserOptions.None, 
-                Enumerable.Empty<ITerminatingTrigger>());
+                Enumerable.Empty<ITerminatingTrigger>(), new ParameterlessVerbFactory());
             Object = obj;
         } 
 
         public CliParserBuilder(ParserOptions options, IEnumerable<ITerminatingTrigger> triggers)
         {
-            FluentConfig = new FluentParserConfig<TConf>(options, triggers);
+            FluentConfig = new FluentParserConfig<TConf>(options, triggers, new ParameterlessVerbFactory());
             Options = options;
             // Verb's settings object
             // Object must have default constructor
@@ -45,6 +46,17 @@ namespace clipr
                 FluentConfig.ProcessArguments();
                 return new CliParser<TConf>(FluentConfig, Object, Options);
             }
+        }
+
+        /// <summary>
+        /// Configure a custom IOC container for resolving verbs.
+        /// </summary>
+        /// <param name="factory"></param>
+        /// <returns></returns>
+        public CliParserBuilder<TConf> HasVerbFactory(IVerbFactory factory)
+        {
+            FluentConfig.VerbFactory = factory;
+            return this;
         }
 
         /// <summary>
@@ -135,11 +147,12 @@ namespace clipr
             }
             else
             {
-                subConfig = new AttributeParserConfig<TArg>(Options, null /* TODO process triggers in verb */);
+                subConfig = new AttributeParserConfig<TArg>(Options, null /* TODO process triggers in verb */, FluentConfig.VerbFactory);
             }
 
+            // TODO do away with subBuilder and multiple VerbFactories?
             FluentConfig.Verbs.Add(verbName,
-                new VerbParserConfig<TArg>(subConfig, GetDefinitionFromExpression(expr), Options));
+                new VerbParserConfig<TArg>(subConfig, GetDefinitionFromExpression(expr), Options, subConfig.VerbFactory ?? FluentConfig.VerbFactory));
 
             return new Verb<TConf>(this);
         }

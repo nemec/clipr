@@ -4,6 +4,7 @@ using clipr.Core;
 using clipr.Triggers;
 using clipr.Usage;
 using clipr.Utils;
+using clipr.IOC;
 
 namespace clipr
 {
@@ -308,6 +309,33 @@ namespace clipr
         /// Generates help documentation for this parser.
         /// </param>
         public CliParser(TConf obj, ParserOptions options, IHelpGenerator usageGenerator)
+            : this(obj, options, usageGenerator, new ParameterlessVerbFactory())
+        {
+        }
+
+        /// <summary>
+        /// Create a new parser with a set of options and a custom
+        /// usage generator.
+        /// </summary>
+        /// <exception cref="ArgumentNullException">
+        /// The object used to store parsed argument values
+        /// is null.
+        /// </exception>
+        /// <exception cref="ArgumentIntegrityException">
+        /// Some argument is invalid.
+        /// </exception>
+        /// <exception cref="AggregateException">
+        /// Contains multiple <see cref="ArgumentIntegrityException"/>s
+        /// found while checking <see cref="ArgumentAttribute"/>
+        /// integrity.
+        /// </exception>
+        /// <param name="obj">Store parsed values in this object.</param>
+        /// <param name="options">Extra options for the parser.</param>
+        /// <param name="usageGenerator">
+        /// Generates help documentation for this parser.
+        /// </param>
+        /// <param name="factory">The IOC factory used to generate necessary Verb objects.</param>
+        public CliParser(TConf obj, ParserOptions options, IHelpGenerator usageGenerator, IVerbFactory factory)
         {
             if (obj == null)
             {
@@ -327,7 +355,7 @@ namespace clipr
             checker.EnsureVerbIntegrity<TConf>();
             checker.EnsureTriggerIntegrity(Triggers);
 
-            Config = new AttributeParserConfig<TConf>(Options, Triggers);
+            Config = new AttributeParserConfig<TConf>(Options, Triggers, factory);
         }
 
         /// <summary>
