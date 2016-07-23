@@ -219,10 +219,10 @@ arguments.
 ##Multiple Action Types
 
 Storing argument values isn't enough. There are a number of actions that
-can be performed when the user specifies an argument.
+can be performed when the user specifies a named argument.
 
 * Store: Exactly what you'd expect, this action stores the value(s) given
-  after the argument in a property.
+  after the argument in a property and is the default action.
 * StoreConst: Instead of letting the user choose which value is stored, a value
   stored in the Attribute's Const property will be used. Intended to avoid
   `if(opts.FlagWasSet){ opts.SomeOtherProperty = MyConstantValue; }` --
