@@ -5,6 +5,7 @@ using System.Reflection;
 using clipr.Arguments;
 using clipr.Triggers;
 using clipr.Utils;
+using clipr.IOC;
 
 namespace clipr.Core
 {
@@ -72,7 +73,7 @@ namespace clipr.Core
             }
         }
 
-        internal void EnsureVerbIntegrity<T>()
+        internal void EnsureVerbIntegrity<T>(IVerbFactory factory)
         {
             var integrityExceptions = new List<Exception>();
 
@@ -80,7 +81,7 @@ namespace clipr.Core
                 p => p.GetCustomAttributes<VerbAttribute>().Any());
             foreach (var prop in properties)
             {
-                integrityExceptions.Add(VerbMustHaveParameterlessConstructor(prop));
+                integrityExceptions.Add(VerbMustHaveFactoryDefined(prop, factory));
             }
 
             integrityExceptions.Add(CannotDefineDuplicateVerbs<T>());
@@ -389,12 +390,13 @@ namespace clipr.Core
             return null;
         }
 
-        private static Exception VerbMustHaveParameterlessConstructor(PropertyInfo verbProp)
+        private static Exception VerbMustHaveFactoryDefined(PropertyInfo verbProp, IVerbFactory factory)
         {
-            if (verbProp.PropertyType.GetConstructor(Type.EmptyTypes) == null)
+            if (!factory.CanCreateVerb(verbProp.PropertyType))
             {
-                return new ArgumentIntegrityException(
-                    "Verbs must have a parameterless or default constructor.");
+                return new ArgumentIntegrityException(String.Format(
+                        "Verb '{0}' has no default constructor or factory defined for its type. Use a custom IVerbFactory for this parser.",
+                        verbProp.Name));
             }
             return null;
         }
@@ -403,13 +405,20 @@ namespace clipr.Core
         {
             var verbs = typeof(T)
                 .GetProperties()
-                .SelectMany(p => p.GetCustomAttributes<VerbAttribute>());
+                .SelectMany(p => 
+                    p.GetCustomAttributes<VerbAttribute>().Select(a => new
+                    {
+                        Prop = p,
+                        Attr = a
+                    }));
             var checkedVerbNames = new HashSet<string>();
             foreach (var verb in verbs)
             {
-                if (!checkedVerbNames.Add(verb.Name))
+                // TODO de-duplicate this Verb Name generation logic
+                var name = verb.Attr.Name ?? verb.Prop.Name.ToLowerInvariant();
+                if (!checkedVerbNames.Add(name))
                 {
-                    return new DuplicateVerbException(verb.Name);
+                    return new DuplicateVerbException(name);
                 }
             }
             return null;

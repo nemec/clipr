@@ -10,6 +10,12 @@ namespace clipr.IOC
     {
         private readonly Dictionary<Type, ObjectActivator> _cache = new Dictionary<Type, ObjectActivator>();
 
+        public bool CanCreateVerb(Type objectType)
+        {
+            return _cache.ContainsKey(objectType) || 
+                objectType.GetConstructor(Type.EmptyTypes) != null;
+        }
+
         public object GetVerb(Type objectType)
         {
             ObjectActivator compiled;
@@ -18,8 +24,9 @@ namespace clipr.IOC
                 var ctor = objectType.GetConstructor(Type.EmptyTypes);
                 if(ctor == null)
                 {
-                    throw new ArgumentException("Option or verb type '" + objectType + "' has no " +
-                        "parameterless constructor. Use a custom IObjectFactory for IOC.");
+                    throw new ArgumentException(String.Format(
+                        "Option or verb type '{0}' has no parameterless constructor. Use a custom IVerbFactory for IOC.",
+                        objectType));
                 }
 
                 var newExp = Expression.New(ctor);

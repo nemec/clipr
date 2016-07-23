@@ -57,6 +57,7 @@
     <Compile Include="Attributes\StaticEnumerationAttribute.cs" />
     <Compile Include="IOC\ParameterlessVerbFactory.cs" />
     <Compile Include="IOC\IVerbFactory.cs" />
+    <Compile Include="IOC\SimpleVerbfactory.cs" />
     <Compile Include="Usage\EnumerationDescriptionAttribute.cs" />
     <Compile Include="Utils\AttributeConverter.cs" />
     <Compile Include="ArgumentIntegrityException.cs" />

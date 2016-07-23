@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
 namespace clipr.IOC
 {
     public interface IVerbFactory
     {
+        bool CanCreateVerb(Type objectType);
+
         object GetVerb(Type objectType);
     }
 }

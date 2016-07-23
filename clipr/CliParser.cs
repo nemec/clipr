@@ -352,7 +352,7 @@ namespace clipr
             };
             var checker = new IntegrityChecker();
             checker.EnsureAttributeIntegrity<TConf>();
-            checker.EnsureVerbIntegrity<TConf>();
+            checker.EnsureVerbIntegrity<TConf>(factory);
             checker.EnsureTriggerIntegrity(Triggers);
 
             Config = new AttributeParserConfig<TConf>(Options, Triggers, factory);

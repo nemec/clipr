@@ -87,7 +87,8 @@ namespace clipr.Core
             {
                 foreach (var attr in prop.GetCustomAttributes<VerbAttribute>())
                 {
-                    var verbName = attr.Name ?? prop.Name;
+                    // TODO deduplicate this Verb Name generation logic
+                    var verbName = attr.Name ?? prop.Name.ToLowerInvariant();
                     if (verbName.StartsWith(
                         ArgumentPrefix.ToString(CultureInfo.InvariantCulture)))
                     {
