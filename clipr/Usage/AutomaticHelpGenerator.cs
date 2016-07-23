@@ -142,17 +142,16 @@ namespace clipr.Usage
                 }
 
                 var store = arg.Store;
-                
-                if (store.Type.IsSubclassOf(typeof (Enum)))
-                {
-                    AddEnumFormat(builder, store);
-                }
 
-                var staticEnum = (store.GetCustomAttribute<StaticEnumerationAttribute>() ??
-                                  store.Type.GetCustomAttribute<StaticEnumerationAttribute>()) != null;
-                if (staticEnum)
+                if (EnumUtils.IsEnum(store))
                 {
-                    AddStaticEnumFormat(builder, store);
+                    var names = EnumUtils.GetEnumValues(store);
+                    if (names.Length > 0)
+                    {
+                        builder.Append("{");
+                        builder.Append(String.Join("|", names));
+                        builder.Append("}");
+                    }
                 }
 
                 if (arg.Constraint == NumArgsConstraint.AtLeast)
@@ -167,34 +166,6 @@ namespace clipr.Usage
             }
 
             return builder.ToString();
-        }
-
-        private static void AddEnumFormat(StringBuilder builder, IValueStoreDefinition store)
-        {
-            builder.Append("{");
-            var names = Enum.GetNames(store.Type);
-            for (var i = 0; i < names.Length; i++)
-            {
-                builder.Append(names[i]);
-                if (i < names.Length - 1)
-                {
-                    builder.Append("|");
-                }
-            }
-            builder.Append("}");
-        }
-
-        private static void AddStaticEnumFormat(StringBuilder builder, IValueStoreDefinition store)
-        {
-            builder.Append("{");
-            var names = store.Type.GetFields(
-                BindingFlags.Public | BindingFlags.Static)
-                .Where(f => f.IsInitOnly &&
-                            store.Type.IsAssignableFrom(f.FieldType))
-                .Select(f => f.Name)
-                .ToArray();
-            builder.Append(String.Join("|", names));
-            builder.Append("}");
         }
 
         /// <inheritdoc/>
