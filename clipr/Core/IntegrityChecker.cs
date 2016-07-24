@@ -114,6 +114,7 @@ namespace clipr.Core
 
         private IEnumerable<Exception> GetIntegrityExceptionsForArgument(IArgument attr)
         {
+            // TODO check variable type (IEnumerable, IList) with definition of Constraint=Exact & NumArgs=1
             return new[]
                 {
                     NumArgsGreaterThanZeroCheck(attr),
