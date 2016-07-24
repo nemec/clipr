@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using clipr.Usage;
 using clipr.Utils;
 using System.Globalization;
+using System.Threading;
 
 namespace clipr.Sample
 {
@@ -220,18 +221,66 @@ namespace clipr.Sample
             // >>> 
         }
 
+        public class LocalizationOptions
+        {
+            [NamedArgument("turnonthepower", Description = "Set power level to 9001", Action = ParseAction.StoreTrue)]
+            public bool TurnOnThePower { get; set; }
+
+            [PositionalArgument(0, Description = "Files to add to the thing", Constraint = NumArgsConstraint.AtLeast, NumArgs = 1)]
+            public IList<string> FilesToAdd { get; set; }
+
+            [NamedArgument('s', Description = "Start date")]
+            public DateTime StartDate { get; set; }
+
+            [NamedArgument('c', Description = "A cool counter")]
+            public double MyCounter { get; set; }
+        }
+
+        static void PrintLocalizedHelp()
+        {
+            var culture = Thread.CurrentThread.CurrentUICulture;
+
+            var opt = new LocalizationOptions();
+            var parser = new CliParser<LocalizationOptions>(opt);
+            var help = new AutomaticHelpGenerator<LocalizationOptions>();
+
+            parser.Parse("--turnonthepower -s 3/12/2016 -c 2.3 file1.txt".Split());
+            Console.WriteLine(opt.StartDate.Month); // 3
+            Console.WriteLine(opt.MyCounter);  // 2.3
+
+            Thread.CurrentThread.CurrentUICulture = new CultureInfo("es-MX");
+
+            var optMx = new LocalizationOptions();
+            var parserMx = new CliParser<LocalizationOptions>(optMx);
+
+            parserMx.Parse("--turnonthepower -s 12/3/2016 -c 2.3 file1.txt".Split());
+            Console.WriteLine(optMx.StartDate.Month);  // 3
+            Console.WriteLine(optMx.MyCounter);  // 2.3
+
+            Thread.CurrentThread.CurrentUICulture = new CultureInfo("es-ES");
+
+            var optEs = new LocalizationOptions();
+            var parserEs = new CliParser<LocalizationOptions>(optEs);
+
+            parserEs.Parse("--turnonthepower -s 12/3/2016 -c 2,3 file1.txt".Split());
+            Console.WriteLine(optEs.StartDate.Month);  // 3
+            Console.WriteLine(optEs.MyCounter);  // 2.3
+
+            Console.WriteLine(help.GetHelp(parserMx.Config));
+
+            Thread.CurrentThread.CurrentUICulture = culture;
+        }
+
 
         static void Main()
         {
-            FluentWithVerb("-n3 add oranges.txt".Split());
-            FluentConditional("http", "-u http://file".Split());
+            //FluentWithVerb("-n3 add oranges.txt".Split());
+            //FluentConditional("http", "-u http://file".Split());
             //DictBackendMethodConfig("-n frank".Split());
             //CustomDateTime("-d 20140730 2013-09-10".Split());
-            ParseRequiredNamedArgument("-c -d 10/13/2010".Split());
+            //ParseRequiredNamedArgument("-c -d 10/13/2010".Split());
 
-            var parser = new CliParser<RequiredNamedArgument>(new RequiredNamedArgument());
-            var help = new AutomaticHelpGenerator<RequiredNamedArgument>();
-            Console.WriteLine(help.GetHelp(parser.Config));
+            PrintLocalizedHelp();
         }
     }
 }

@@ -58,6 +58,16 @@
     <Compile Include="IOC\ParameterlessVerbFactory.cs" />
     <Compile Include="IOC\IVerbFactory.cs" />
     <Compile Include="IOC\SimpleVerbfactory.cs" />
+    <Compile Include="Properties\Resources.es-MX1.Designer.cs">
+      <DependentUpon>Resources.es-MX.resx</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="Usage\EnumerationDescriptionAttribute.cs" />
     <Compile Include="Utils\AttributeConverter.cs" />
     <Compile Include="ArgumentIntegrityException.cs" />
@@ -93,6 +103,7 @@
     <Compile Include="Core\ParsingContext.cs" />
     <Compile Include="Triggers\ITerminatingTrigger.cs" />
     <Compile Include="Utils\EnumUtils.cs" />
+    <Compile Include="Utils\I18N.cs" />
     <Compile Include="Utils\StringExtensions.cs" />
     <Compile Include="Triggers\TriggerBase.cs" />
     <Compile Include="Usage\ExecutingAssemblyVersion.cs" />
@@ -115,6 +126,16 @@
     <Compile Include="Usage\ResourceUsageGenerator.cs" />
     <Compile Include="Utils\StringTypeConverter.cs" />
     <Compile Include="Core\IValueStoreDefinition.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.es-MX.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.es-MX1.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

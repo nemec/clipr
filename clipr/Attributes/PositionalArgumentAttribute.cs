@@ -1,5 +1,6 @@
 ﻿using clipr.Arguments;
 using clipr.Core;
+using System;
 
 namespace clipr
 {
@@ -26,6 +27,32 @@ namespace clipr
         public PositionalArgumentAttribute(int index)
         {
             Index = index;
+        }
+
+        /// <summary>
+        /// An argument name suitable for displaying on a help page.
+        /// 
+        /// Defaults to either the short or long name.
+        /// </summary>
+        public override string MetaVar
+        {
+            get
+            {
+                if (!String.IsNullOrEmpty(base.MetaVar))
+                {
+                    return base.MetaVar;
+                }
+                if (!String.IsNullOrEmpty(Name))
+                {
+                    return Name;
+                }
+
+                return null;
+            }
+            set
+            {
+                base.MetaVar = value;
+            }
         }
     }
 }

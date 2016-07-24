@@ -2,6 +2,7 @@
 using System.Reflection;
 using clipr.Core;
 using clipr.Triggers;
+using clipr.Utils;
 
 namespace clipr.Usage
 {
@@ -56,7 +57,7 @@ namespace clipr.Usage
         /// <inheritdoc/>
         public override string Description
         {
-            get { return "Displays the version of the current executable."; }
+            get { return I18N._("ExecutingAssemblyVersion_Description"); }
         }
     }
 }

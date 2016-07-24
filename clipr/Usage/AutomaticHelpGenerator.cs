@@ -24,7 +24,7 @@ namespace clipr.Usage
         /// <inheritdoc/>
         public override string Description
         {
-            get { return "Display this help document."; }
+            get { return I18N._("AutomaticHelpGenerator_Description"); }  // TODO localize
         }
 
         private const string Indent = " ";
@@ -34,19 +34,11 @@ namespace clipr.Usage
         private const int Spacing = 2;
 
         /// <summary>
-        /// Description for the version help.
-        /// </summary>
-        protected virtual string VersionDescription
-        {
-            get { return "Display version information."; }
-        }
-
-        /// <summary>
         /// Title of the usage section.
         /// </summary>
         protected virtual string UsageTitle
         {
-            get { return "usage"; }
+            get { return I18N._("AutomaticHelpGenerator_Usage"); }
         }
 
         /// <summary>
@@ -54,7 +46,7 @@ namespace clipr.Usage
         /// </summary>
         protected virtual string PositionalArgumentsTitle
         {
-            get { return "positional arguments"; }
+            get { return I18N._("AutomaticHelpGenerator_PositionalArgumentsTitle"); }
         }
 
         /// <summary>
@@ -62,7 +54,7 @@ namespace clipr.Usage
         /// </summary>
         protected virtual string OptionalArgumentsTitle
         {
-            get { return "optional arguments"; }
+            get { return I18N._("AutomaticHelpGenerator_NamedArgumentsTitle"); }  //TODO localize
         }
 
         private readonly Func<IPositionalArgument, int> _argumentIndex =
@@ -101,15 +93,16 @@ namespace clipr.Usage
 
                 if (arg.Action.ConsumesArgumentValues())
                 {
-                    if (arg.Constraint == NumArgsConstraint.AtMost)
+                    if (arg.Constraint == NumArgsConstraint.AtMost || 
+                        (arg.Constraint == NumArgsConstraint.AtLeast && arg.NumArgs == 0))
                     {
                         builder.Append("[ ");
                     }
 
-                    for (var i = 0; i < arg.NumArgs; i++)
+                    for (var i = 0; i < Math.Max(1, arg.NumArgs); i++)
                     {
                         if(arg.MetaVar == null) continue;
-                        builder.Append(arg.MetaVar.ToUpper(CultureInfo.CurrentCulture));
+                        builder.Append(arg.MetaVar.ToUpperInvariant());
                         builder.Append(" ");
                     }
 
@@ -118,7 +111,8 @@ namespace clipr.Usage
                         builder.Append("... ");
                     }
 
-                    if (arg.Constraint == NumArgsConstraint.AtMost)
+                    if (arg.Constraint == NumArgsConstraint.AtMost ||
+                        (arg.Constraint == NumArgsConstraint.AtLeast && arg.NumArgs == 0))
                     {
                         builder.Append("] ");
                     }
@@ -129,7 +123,8 @@ namespace clipr.Usage
 
             foreach (var arg in config.PositionalArguments.OrderBy(p => p.Index))
             {
-                if (arg.Constraint == NumArgsConstraint.AtMost)
+                if (arg.Constraint == NumArgsConstraint.AtMost ||
+                        (arg.Constraint == NumArgsConstraint.AtLeast && arg.NumArgs == 0))
                 {
                     builder.Append("[ ");
                 }
@@ -159,7 +154,8 @@ namespace clipr.Usage
                     builder.Append("... ");
                 }
 
-                if (arg.Constraint == NumArgsConstraint.AtMost)
+                if (arg.Constraint == NumArgsConstraint.AtMost ||
+                        (arg.Constraint == NumArgsConstraint.AtLeast && arg.NumArgs == 0))
                 {
                     builder.Append("] ");
                 }

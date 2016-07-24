@@ -7,6 +7,7 @@ using System.Linq;
 using clipr.Arguments;
 using clipr.Triggers;
 using clipr.Utils;
+using System.Threading;
 
 namespace clipr.Core
 {
@@ -526,20 +527,22 @@ namespace clipr.Core
 
         private static bool TryConvertFrom(IValueStoreDefinition store, string value, out object obj)
         {
+            var culture = Thread.CurrentThread.CurrentUICulture;
+
             var customConverter = store.Converters != null
                 ? store.Converters
                     .FirstOrDefault(c => c.CanConvertFrom(typeof(string)))
                 : null;
             if (customConverter != null)
             {
-                obj = customConverter.ConvertFromInvariantString(value);
+                obj = customConverter.ConvertFromString(null, culture, value);
                 return true;
             }
 
             var converter = TypeDescriptor.GetConverter(store.Type);
             if (converter.CanConvertFrom(typeof(string)))
             {
-                obj = converter.ConvertFromInvariantString(value);
+                obj = converter.ConvertFromString(null, culture, value);
                 return true;
             }
             obj = null;
