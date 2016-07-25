@@ -28,8 +28,6 @@ namespace clipr.Usage
 
         private const string Indent = " ";
 
-        private const int LineWidth = 80;
-
         private const int Spacing = 2;
 
         /// <summary>
@@ -63,10 +61,43 @@ namespace clipr.Usage
             p => p.MetaVar ?? p.Name;
 
         /// <summary>
+        /// Set the minimum allowed display width. Defaults to 20 characters.
+        /// </summary>
+        public DisplayWidth MinDisplayWidth { get; set; }
+
+        private DisplayWidth _displayWidth;
+        /// <summary>
+        /// Set the display width of the help information.
+        /// DisplayWidth.Automatic will automatically set the width based on
+        /// the current console width.
+        /// </summary>
+        private DisplayWidth DisplayWidth
+        {
+            get
+            {
+                return _displayWidth;
+            }
+            set
+            {
+                if(ReferenceEquals(value, DisplayWidth.Automatic) ||
+                    value != null && value.CompareTo(MinDisplayWidth) > 0)
+                {
+                    _displayWidth = DisplayWidth;
+                }
+                else
+                {
+                    _displayWidth = MinDisplayWidth;
+                }
+            }
+        }
+
+        /// <summary>
         /// Create a new generator.
         /// </summary>
         public AutomaticHelpGenerator()
         {
+            MinDisplayWidth = new DisplayWidth(20);
+            _displayWidth = DisplayWidth.Automatic;
             ShortName = 'h';
             LongName = "help";
         }
@@ -166,6 +197,7 @@ namespace clipr.Usage
         /// <inheritdoc/>
         public string GetHelp(IParserConfig config)
         {
+            var lineWidth = (DisplayWidth ?? DisplayWidth.Default).Width;
             var positionalArgs = config.PositionalArguments.ToList();
 
             var namedArgs = config.LongNameArguments.Values.Cast<INamedArgument>()
@@ -194,7 +226,7 @@ namespace clipr.Usage
             if (metadata != null && metadata.Description != null)
             {
                 helpDataBuilder.AppendLine();
-                foreach (var line in metadata.Description.ReflowWords(LineWidth))
+                foreach (var line in metadata.Description.ReflowWords(lineWidth))
                 {
                     helpDataBuilder.Append(Indent);
                     helpDataBuilder.AppendLine(line);
@@ -211,14 +243,14 @@ namespace clipr.Usage
                 helpDataBuilder.Append(Indent);
                 helpDataBuilder.Append(arg.ArgumentNames.PadRight(
                     tabstop - Indent.Length));
-                if (tabstop + arg.Description.Length < LineWidth)
+                if (tabstop + arg.Description.Length < lineWidth)
                 {
                     helpDataBuilder.AppendLine(arg.Description);
                 }
                 else
                 {
                     var iter = arg.Description.ReflowWords(
-                        LineWidth - tabstop).GetEnumerator();
+                        lineWidth - tabstop).GetEnumerator();
                     iter.MoveNext();
                     helpDataBuilder.AppendLine(iter.Current);
                     while (iter.MoveNext())
@@ -226,7 +258,7 @@ namespace clipr.Usage
                         if(iter.Current == null) continue;
 
                         helpDataBuilder.AppendLine(
-                            iter.Current.PadLeft(LineWidth));
+                            iter.Current.PadLeft(lineWidth));
                     }
                 }
             }
@@ -244,14 +276,14 @@ namespace clipr.Usage
                 helpDataBuilder.Append(Indent);
                 helpDataBuilder.Append(arg.ArgumentNames.PadRight(
                     tabstop - Indent.Length));
-                if (tabstop + arg.Description.Length < LineWidth)
+                if (tabstop + arg.Description.Length < lineWidth)
                 {
                     helpDataBuilder.AppendLine(arg.Description);
                 }
                 else
                 {
                     var iter = arg.Description.ReflowWords(
-                        LineWidth - tabstop).GetEnumerator();
+                        lineWidth - tabstop).GetEnumerator();
                     iter.MoveNext();
                     helpDataBuilder.AppendLine(iter.Current);
                     while (iter.MoveNext())

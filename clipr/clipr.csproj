@@ -70,6 +70,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="Usage\DisplayWidth.cs" />
     <Compile Include="Usage\EnumerationDescriptionAttribute.cs" />
     <Compile Include="Utils\AttributeConverter.cs" />
     <Compile Include="ArgumentIntegrityException.cs" />

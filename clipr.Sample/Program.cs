@@ -248,6 +248,8 @@ namespace clipr.Sample
             Console.WriteLine(opt.StartDate.Month); // 3
             Console.WriteLine(opt.MyCounter);  // 2.3
 
+            Console.WriteLine(help.GetHelp(parser.Config));
+
             Thread.CurrentThread.CurrentUICulture = new CultureInfo("es-MX");
 
             var optMx = new LocalizationOptions();
@@ -256,6 +258,8 @@ namespace clipr.Sample
             parserMx.Parse("--turnonthepower -s 12/3/2016 -c 2.3 file1.txt".Split());
             Console.WriteLine(optMx.StartDate.Month);  // 3
             Console.WriteLine(optMx.MyCounter);  // 2.3
+
+            Console.WriteLine(help.GetHelp(parserMx.Config));
 
             Thread.CurrentThread.CurrentUICulture = new CultureInfo("es-ES");
 
@@ -266,7 +270,7 @@ namespace clipr.Sample
             Console.WriteLine(optEs.StartDate.Month);  // 3
             Console.WriteLine(optEs.MyCounter);  // 2.3
 
-            Console.WriteLine(help.GetHelp(parserMx.Config));
+            Console.WriteLine(help.GetHelp(parserEs.Config));
 
             Thread.CurrentThread.CurrentUICulture = culture;
         }
@@ -279,7 +283,7 @@ namespace clipr.Sample
             //DictBackendMethodConfig("-n frank".Split());
             //CustomDateTime("-d 20140730 2013-09-10".Split());
             //ParseRequiredNamedArgument("-c -d 10/13/2010".Split());
-
+            Console.ReadLine();
             PrintLocalizedHelp();
         }
     }
