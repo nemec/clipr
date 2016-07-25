@@ -421,7 +421,7 @@ applied to a class or 'ClassName_PropertyName' if applied to a property.
 [Localize(ResourceType = typeof(Properties.Resources))]
 public class LocalizationOptions
 {
-    [Localize]
+    [Localize]  // Resource Name defaults to LocalizationOptions_TurnOnThePower
     [NamedArgument("turnonthepower", Action = ParseAction.StoreTrue)]
     public bool TurnOnThePower { get; set; }
 
