@@ -5,6 +5,7 @@ using clipr.Core;
 using System.ComponentModel;
 using System.Linq;
 using System;
+using clipr.Attributes;
 
 namespace clipr.Utils
 {
@@ -59,6 +60,8 @@ namespace clipr.Utils
             {
                 attr.Constraint = NumArgsConstraint.AtLeast;
             }
+
+            // TODO evaluate setting "StoreTrue" as the default for boolean arguments
         }
 
         public static INamedArgument ToNamedArgument(this PropertyInfo prop)
@@ -66,6 +69,7 @@ namespace clipr.Utils
             var attr = prop.GetCustomAttribute<NamedArgumentAttribute>();
             attr.MutuallyExclusiveGroups = prop.GetMutuallyExclusiveGroups();
             attr.Name = prop.Name;
+            attr.LocalizationInfo = GetLocalizationInfo(prop);
             attr.Store = new PropertyValueStore(prop, GetConverters(prop));
             SetDefaults(attr);
             return attr;
@@ -75,9 +79,59 @@ namespace clipr.Utils
         {
             var attr = prop.GetCustomAttribute<PositionalArgumentAttribute>();
             attr.Name = prop.Name;
+            attr.LocalizationInfo = GetLocalizationInfo(prop);
             attr.Store = new PropertyValueStore(prop, GetConverters(prop));
             SetDefaults(attr);
             return attr;
+        }
+
+        private static LocalizationInfo GetLocalizationInfo(PropertyInfo prop)
+        {
+            var attr = prop.GetCustomAttribute<LocalizeAttribute>();
+            if(attr == null)
+            {
+                return null;
+            }
+            var info = new LocalizationInfo
+            {
+                ResourceName = attr.ResourceName ?? (prop.DeclaringType.Name + "_" + prop.Name)
+            };
+
+            if(info.ResourceType != null)
+            {
+                info.ResourceType = attr.ResourceType;
+            }
+            else
+            {
+                var parent = prop.DeclaringType.GetCustomAttribute<LocalizeAttribute>();
+                if(parent == null || parent.ResourceType == null)
+                {
+                    throw new ArgumentException(String.Format(
+                        "The property '{0}' or its parent class '{1}' must define a ResourceType in order to be localized.",
+                        prop.Name, prop.DeclaringType.Name));
+                }
+                info.ResourceType = parent.ResourceType;
+            }
+
+            return info;
+        }
+
+        private static LocalizationInfo GetLocalizationInfo(Type type)
+        {
+            var attr = type.GetCustomAttribute<LocalizeAttribute>();
+            if (attr == null || attr.ResourceType == null)
+            {
+                throw new ArgumentException(String.Format(
+                    "The class '{0}' must define a ResourceType in order to be localized.",
+                    type.Name));
+            }
+            var info = new LocalizationInfo
+            {
+                ResourceType = attr.ResourceType,
+                ResourceName = attr.ResourceName ?? type.Name
+            };
+
+            return info;
         }
     }
 }

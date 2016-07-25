@@ -67,6 +67,9 @@ namespace clipr.Arguments
         /// </summary>
         List<string> MutuallyExclusiveGroups { get; }
 
+
+        LocalizationInfo LocalizationInfo { get; }
+
         /// <summary>
         /// Backing store for the argument. Parsed values are set on
         /// this property.

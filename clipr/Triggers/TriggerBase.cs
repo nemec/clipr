@@ -32,6 +32,9 @@ namespace clipr.Triggers
         public string MetaVar { get; set; }
 
         /// <inheritdoc/>
+        public LocalizationInfo LocalizationInfo { get; set; }
+
+        /// <inheritdoc/>
         public IValueStoreDefinition Store { get { return null; } }
 
         /// <inheritdoc/>

@@ -47,9 +47,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Attributes\LocalizeAttribute.cs" />
     <Compile Include="CliParserBuilder.cs" />
     <Compile Include="Core\ArgumentAttribute.cs" />
     <Compile Include="Core\IndexerValueStore.cs" />
+    <Compile Include="Core\LocalizationInfo.cs" />
     <Compile Include="Core\PropertyValueStore.cs" />
     <Compile Include="Core\VerbParserConfig.cs" />
     <Compile Include="DuplicateVerbException.cs" />
@@ -58,8 +60,8 @@
     <Compile Include="IOC\ParameterlessVerbFactory.cs" />
     <Compile Include="IOC\IVerbFactory.cs" />
     <Compile Include="IOC\SimpleVerbfactory.cs" />
-    <Compile Include="Properties\Resources.es-MX1.Designer.cs">
-      <DependentUpon>Resources.es-MX.resx</DependentUpon>
+    <Compile Include="Properties\Resources.es.Designer.cs">
+      <DependentUpon>Resources.es.resx</DependentUpon>
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
     </Compile>
@@ -122,15 +124,13 @@
     <Compile Include="Attributes\PositionalArgumentAttribute.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utils\PropertyExtensions.cs" />
-    <Compile Include="Usage\ResourceKeyAttribute.cs" />
-    <Compile Include="Usage\ResourceUsageGenerator.cs" />
     <Compile Include="Utils\StringTypeConverter.cs" />
     <Compile Include="Core\IValueStoreDefinition.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Properties\Resources.es-MX.resx">
+    <EmbeddedResource Include="Properties\Resources.es.resx">
       <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.es-MX1.Designer.cs</LastGenOutput>
+      <LastGenOutput>Resources.es.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>

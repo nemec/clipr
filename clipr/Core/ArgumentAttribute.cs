@@ -104,6 +104,9 @@ namespace clipr.Core
         }
 
         /// <inheritdoc/>
+        public LocalizationInfo LocalizationInfo { get; set; }
+
+        /// <inheritdoc/>
         public IValueStoreDefinition Store { get; set; }
     }
 }

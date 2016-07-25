@@ -563,5 +563,7 @@ namespace clipr.UnitTests
 
             Assert.AreEqual(2, opts.Args.Count);
         }
+
+        // TODO check for case when property is localized but no ResourceType is provided by prop or its class
     }
 }

@@ -32,6 +32,9 @@ namespace clipr.Arguments
             }
         }
 
+
+        public LocalizationInfo LocalizationInfo { get; set; }
+
         public IValueStoreDefinition Store { get; set; }
 
         /// <summary>

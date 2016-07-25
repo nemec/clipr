@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Text;
@@ -24,7 +23,7 @@ namespace clipr.Usage
         /// <inheritdoc/>
         public override string Description
         {
-            get { return I18N._("AutomaticHelpGenerator_Description"); }  // TODO localize
+            get { return I18N._("AutomaticHelpGenerator_Description"); }
         }
 
         private const string Indent = " ";
@@ -54,7 +53,7 @@ namespace clipr.Usage
         /// </summary>
         protected virtual string OptionalArgumentsTitle
         {
-            get { return I18N._("AutomaticHelpGenerator_NamedArgumentsTitle"); }  //TODO localize
+            get { return I18N._("AutomaticHelpGenerator_NamedArgumentsTitle"); }
         }
 
         private readonly Func<IPositionalArgument, int> _argumentIndex =
@@ -285,10 +284,16 @@ namespace clipr.Usage
             {
                 names.Add(attr.Name);
             }
+            string localized = null;
+            var info = attr.LocalizationInfo;
+            if(info != null)
+            {
+                localized = I18N._(info.ResourceType, info.ResourceName);
+            }
             return new ArgumentDisplay
             {
                 ArgumentNames = String.Join(", ", names.ToArray()),
-                Description = attr.Description ?? ""
+                Description =  localized ?? attr.Description ?? ""
             };
         }
 

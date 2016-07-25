@@ -4,25 +4,30 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Globalization;
 using clipr.Usage;
+using clipr.Attributes;
 
 namespace clipr.UnitTests
 {
     [TestClass]
     public class LocalizationUnitTest
     {
-
+        [Localize(ResourceType = typeof(Properties.Resources))]
         public class LocalizationOptions
         {
-            [NamedArgument("turnonthepower", Description = "Set power level to 9001", Action = ParseAction.StoreTrue)]
+            [Localize]
+            [NamedArgument("turnonthepower", Action = ParseAction.StoreTrue)]
             public bool TurnOnThePower { get; set; }
 
-            [PositionalArgument(0, Description = "File to add to the thing")]
+            [Localize("FileToAdd", typeof(Properties.Resources))]
+            [PositionalArgument(0)]
             public string FileToAdd { get; set; }
 
-            [NamedArgument('s', Description = "Start date")]
+            [Localize("StartDate")]
+            [NamedArgument('s')]
             public DateTime StartDate { get; set; }
 
-            [NamedArgument('c', Description = "A cool counter")]
+            [Localize("MyCounter")]
+            [NamedArgument('c')]
             public double MyCounter { get; set; }
         }
 
@@ -158,13 +163,13 @@ namespace clipr.UnitTests
             // Arrange
             var expected = @"Usage: clipr [ -h|--help ] [ --version ] [ --turnonthepower ] [ -s S ] [ -c C ] FILETOADD 
 Positional Arguments:
- FileToAdd         File to add to the thing
+ FileToAdd         File to add to the thing.
 
 Optional Arguments:
- --turnonthepower  Set power level to 9001
- -c                A cool counter
+ --turnonthepower  Set power level to 9001.
+ -c                A cool counter.
  -h, --help        Display this help document.
- -s                Start date
+ -s                Start date.
  --version         Displays the version of the current executable.";
             var oldCulture = Thread.CurrentThread.CurrentUICulture;
             Thread.CurrentThread.CurrentUICulture = new CultureInfo("en-US");
@@ -188,13 +193,13 @@ Optional Arguments:
             // Arrange
             var expected = @"Uso: clipr [ -h|--help ] [ --version ] [ --turnonthepower ] [ -s S ] [ -c C ] FILETOADD 
 Los Argumentos Posicionales:
- FileToAdd         File to add to the thing
+ FileToAdd         Archivo para añadir a la cosa.
 
 Los Argumentos Opcionales:
- --turnonthepower  Set power level to 9001
- -c                A cool counter
+ --turnonthepower  Establecer el nivel de potencia de 9001.
+ -c                Un contador fresco.
  -h, --help        Mostrar este documento de ayuda.
- -s                Start date
+ -s                Fecha de inicio.
  --version         Muestra la versión del ejecutable actual.";
             var oldCulture = Thread.CurrentThread.CurrentUICulture;
             Thread.CurrentThread.CurrentUICulture = new CultureInfo("es-MX");
@@ -211,5 +216,11 @@ Los Argumentos Opcionales:
 
             Thread.CurrentThread.CurrentUICulture = oldCulture;
         }
+
+        // TODO localize verb description
+
+        // TODO localize applicationinfo description
+
+        // TODO test use of Description property when localization does not exist (even in default resource)
     }
 }

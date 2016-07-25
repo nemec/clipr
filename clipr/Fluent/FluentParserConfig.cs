@@ -66,5 +66,7 @@ namespace clipr.Fluent
         {
             PositionalArguments.Add(positional.Arg);
         }
+
+        // TODO localization of fluent config
     }
 }

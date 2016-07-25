@@ -1,4 +1,4 @@
-﻿using System.IO;
+﻿using System;
 using System.Reflection;
 using System.Resources;
 
@@ -13,6 +13,12 @@ namespace clipr.Utils
         public static string _(string resourceName)
         {
             return _mgr.GetString(resourceName);
+        }
+
+        public static string _(Type resourceType, string resourceName)
+        {
+            var mgr = new ResourceManager(resourceType);
+            return mgr.GetString(resourceName);
         }
     }
 }
