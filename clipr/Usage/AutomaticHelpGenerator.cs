@@ -110,7 +110,7 @@ namespace clipr.Usage
             builder.Append(UsageTitle);
             builder.Append(": ");
             builder.Append(Path.GetFileNameWithoutExtension(assembly != null ?
-                assembly.Location : Assembly.GetExecutingAssembly().CodeBase));
+                assembly.Location : typeof(AutomaticHelpGenerator<T>).GetTypeInfo().Assembly.CodeBase));
             builder.Append(" ");
 
             foreach (var arg in config.LongNameArguments.Values.Cast<INamedArgument>()
@@ -221,8 +221,7 @@ namespace clipr.Usage
             var helpDataBuilder = new StringBuilder();
 
             helpDataBuilder.AppendLine(GetUsage(config));
-
-            var metadata = typeof (T).GetCustomAttribute<ApplicationInfoAttribute>();
+            var metadata = typeof (T).GetTypeInfo().GetCustomAttribute<ApplicationInfoAttribute>();
             if (metadata != null && metadata.Description != null)
             {
                 helpDataBuilder.AppendLine();

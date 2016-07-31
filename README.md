@@ -78,6 +78,9 @@ static void Main()
   conflicting argument name (such as "checkin").
 * Simplified AutomatedHelpGenerator, exposing the parser's configuration
   object so that you can generate help messages on-demand.
+* Ported code to .NET Core. I saw a bunch of weird bugs where the code would
+  compile but fail at runtime with a `MissingMethodException`, so there may
+  still be issues in there.
 
 ###2015-04-24 1.4.7
 

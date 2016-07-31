@@ -4,6 +4,7 @@ using System.Linq;
 
 namespace clipr.Utils
 {
+#if NET35
     /// <summary>
     /// An exception that aggregates multiple other exceptions together.
     /// </summary>
@@ -56,4 +57,5 @@ namespace clipr.Utils
             return (en & cmp) != 0;
         }
     }
+#endif
 }

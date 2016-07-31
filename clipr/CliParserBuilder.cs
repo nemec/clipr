@@ -190,7 +190,7 @@ namespace clipr
                         getter.Name));
                 }
 
-                var setter = declaringType.GetMethod(setMethodName);
+                var setter = declaringType.GetTypeInfo().GetMethod(setMethodName);
 
                 object name;
                 var arg = methodBody.Arguments[0];
@@ -211,7 +211,7 @@ namespace clipr
                         .DynamicInvoke();
                 }
 
-                var converters = getter.ReturnType.GetCustomAttributes<TypeConverterAttribute>()
+                var converters = getter.ReturnType.GetTypeInfo().GetCustomAttributes<TypeConverterAttribute>()
                     .Select(a => Activator.CreateInstance(Type.GetType(a.ConverterTypeName)))
                         .OfType<TypeConverter>().ToArray();
 

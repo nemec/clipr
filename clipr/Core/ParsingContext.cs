@@ -8,6 +8,11 @@ using clipr.Arguments;
 using clipr.Triggers;
 using clipr.Utils;
 using System.Threading;
+using System.Reflection;
+using System.Linq.Expressions;
+#if NETCORE
+using System.Reflection;
+#endif
 
 namespace clipr.Core
 {
@@ -18,14 +23,14 @@ namespace clipr.Core
 
     internal static class ParsingContextFactory
     {
-        public static IParsingContext Create(object options, Type optionType, object parserConfig)
+        public static IParsingContext Create(object options, Type optionType, IVerbParserConfig parserConfig)
         {
             var contextType = typeof(ParsingContext<>)
+                        .GetTypeInfo()
                         .MakeGenericType(new[] { optionType });
             return (IParsingContext)Activator.CreateInstance(
-                contextType,
-                new[] { options, parserConfig },
-                null);
+                type:contextType,
+                args:new[] { options, parserConfig });
         }
     }
 
@@ -177,7 +182,7 @@ namespace clipr.Core
             ParsingCleanup();
         }
 
-        #region Private Parsing Methods
+#region Private Parsing Methods
 
         private void ParseOptionalArgument<TS>(TS name, Dictionary<TS, IShortNameArgument> argDict, Stack<string> iter, bool positionalDelimiterFound)
         {
@@ -227,7 +232,12 @@ namespace clipr.Core
                 throw new ParseException(name.ToString(),
                     "Arguments that consume values cannot be grouped.");
             }
-            var prefix = Config.ArgumentPrefix.ToString(CultureInfo.CurrentCulture);
+            var prefix = Config.ArgumentPrefix
+#if NET35
+                .ToString(CultureInfo.CurrentCulture);
+#else
+                .ToString();
+#endif
             if (name is char)
                 ParseArgument(prefix + name, arg, iter, positionalDelimiterFound);
             else
@@ -420,7 +430,7 @@ namespace clipr.Core
         {
             var argsProcessed = 0;
 
-            #region Set minimum and maximum argument count.
+#region Set minimum and maximum argument count.
 
             uint minArgs = 0;
             uint maxArgs = 0;
@@ -440,7 +450,7 @@ namespace clipr.Core
                     break;
             }
 
-            #endregion
+#endregion
 
             while (args.Count > 0 && argsProcessed < maxArgs)
             {
@@ -451,7 +461,11 @@ namespace clipr.Core
                 if (!positionalDelimiterFound &&
                     stringValue != null &&
                     stringValue.StartsWith(Config.ArgumentPrefix
+#if NET35
                         .ToString(CultureInfo.InvariantCulture)) &&
+#else
+                        .ToString()) &&
+#endif
                     (stringValue.Length > 1 && !Char.IsDigit(stringValue[1])))
                 {
                     args.Push(stringValue);
@@ -493,7 +507,7 @@ namespace clipr.Core
             }
         }
 
-        #endregion
+#endregion
 
         private void ParsingCleanup()
         {
@@ -527,7 +541,7 @@ namespace clipr.Core
 
         private static bool TryConvertFrom(IValueStoreDefinition store, string value, out object obj)
         {
-            var culture = Thread.CurrentThread.CurrentUICulture;
+            var culture = CultureInfo.CurrentUICulture;
 
             var customConverter = store.Converters != null
                 ? store.Converters
@@ -555,7 +569,11 @@ namespace clipr.Core
             {
                 Name = store.Name,
                 Converters = store.Converters,
+#if NET35
                 Type = store.Type.GetGenericArguments().First()
+#else
+                Type = store.Type.GetTypeInfo().GetGenericArguments().First()           
+#endif
             };
 
             return TryConvertFrom(tempStore, value, out obj);
@@ -592,7 +610,11 @@ namespace clipr.Core
 
         private static IList CreateGenericList(IValueStoreDefinition store, IEnumerable initial)
         {
+#if NET35
             var type = store.Type.GetGenericArguments();
+#else
+            var type = store.Type.GetTypeInfo().GetGenericArguments();
+#endif
             if (!type.Any())
             {
                 return null;

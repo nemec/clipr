@@ -10,7 +10,7 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Dan Nemec")]
 [assembly: AssemblyProduct("clipr")]
-[assembly: AssemblyCopyright("Copyright © Dan Nemec 2015")]
+[assembly: AssemblyCopyright("Copyright © Dan Nemec 2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

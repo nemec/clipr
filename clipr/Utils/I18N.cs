@@ -6,7 +6,11 @@ namespace clipr.Utils
 {
     internal static class I18N
     {
+#if NET35
         private static Assembly _asm = Assembly.GetAssembly(typeof(I18N));
+#else
+        private static Assembly _asm = typeof(I18N).GetTypeInfo().Assembly;
+#endif
 
         private static ResourceManager _mgr = new ResourceManager("clipr.Properties.Resources", _asm);
 

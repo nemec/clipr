@@ -11,7 +11,7 @@ namespace clipr.Utils
         public static object GetDefaultValue(this Type t)
         {
             // From http://stackoverflow.com/a/2688165/564755
-            if (t.IsValueType && Nullable.GetUnderlyingType(t) == null)
+            if (t.GetTypeInfo().IsValueType && Nullable.GetUnderlyingType(t) == null)
             {
                 return Activator.CreateInstance(t);
             }
@@ -21,9 +21,12 @@ namespace clipr.Utils
         internal static bool IsValidEnumerable(this Type type)
         {
             var enumT = typeof(IEnumerable<>);
-            return type.IsGenericType && (
-                type.GetGenericTypeDefinition() == enumT ||
-                type.GetInterfaces().Any(t => t.IsGenericType && t.GetGenericTypeDefinition() == enumT));
+            var typeInfo = type.GetTypeInfo();
+            return typeInfo.IsGenericType && (
+                typeInfo.GetGenericTypeDefinition() == enumT ||
+                typeInfo.GetInterfaces().Any(t => 
+                    t.GetTypeInfo().IsGenericType && 
+                    t.GetTypeInfo().GetGenericTypeDefinition() == enumT));
         }
 
         internal static bool IsValid<T>(this Type t)
@@ -43,7 +46,7 @@ namespace clipr.Utils
         internal static bool ValueIsConvertibleGeneric(this Type t, object obj)
         {
             return obj == null ||
-                t.GetGenericArguments().First() == obj.GetType() ||
+                t.GetTypeInfo().GetGenericArguments().First() == obj.GetType() ||
                 TypeDescriptor.GetConverter(t).IsValid(obj);
         }
 

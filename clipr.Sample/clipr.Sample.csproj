@@ -59,10 +59,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\clipr.Powershell\clipr.Powershell.csproj">
-      <Project>{dac5ccd9-b266-40b8-a38e-f438bbc5c8e2}</Project>
-      <Name>clipr.Powershell</Name>
-    </ProjectReference>
     <ProjectReference Include="..\clipr\clipr.csproj">
       <Project>{63FEC7E8-FAB5-47D7-8BB6-490725659889}</Project>
       <Name>clipr</Name>

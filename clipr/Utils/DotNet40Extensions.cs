@@ -5,6 +5,7 @@ using System.Reflection;
 
 namespace clipr.Utils
 {
+#if NET35
     /// <summary>
     /// Extensions to convert .Net4.0-compatible code to the .Net4.5 syntax.
     /// </summary>
@@ -43,4 +44,5 @@ namespace clipr.Utils
             return member.GetCustomAttributes(typeof(T), false).Cast<T>();
         }
     }
+#endif
 }

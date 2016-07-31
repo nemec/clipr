@@ -5,6 +5,10 @@ using System.Linq;
 using clipr.Triggers;
 using clipr.Utils;
 using clipr.IOC;
+using System.Reflection;
+#if NETCORE
+using System.Reflection;
+#endif
 
 namespace clipr.Core
 {
@@ -24,7 +28,7 @@ namespace clipr.Core
         private void InitializeRequiredMutuallyExclusiveArguments()
         {
             RequiredMutuallyExclusiveArguments.UnionWith(
-                typeof(T).GetProperties()
+                typeof(T).GetTypeInfo().GetProperties()
                     .SelectMany(p => p.GetCustomAttributes<MutuallyExclusiveGroupAttribute>()
                     .Where(a => a.Required)
                     .Select(a => a.Name)));
@@ -44,7 +48,7 @@ namespace clipr.Core
 
         private void InitializePositionalArguments()
         {
-            PositionalArguments.AddRange(typeof(T).GetProperties()
+            PositionalArguments.AddRange(typeof(T).GetTypeInfo().GetProperties()
                 .Where(p => p.GetCustomAttribute<PositionalArgumentAttribute>() != null)
                 .OrderBy(p => p.GetCustomAttribute<PositionalArgumentAttribute>().Index)
                 .Select(p => p.ToPositionalArgument()));
@@ -52,7 +56,7 @@ namespace clipr.Core
 
         private void InitializeNamedArguments()
         {
-            var props = typeof (T).GetProperties().Where(p =>
+            var props = typeof (T).GetTypeInfo().GetProperties().Where(p =>
                 p.GetCustomAttribute<NamedArgumentAttribute>() != null);
             foreach (var prop in props)
             {
@@ -82,7 +86,7 @@ namespace clipr.Core
 
         private void InitializeVerbs()
         {
-            foreach (var prop in typeof(T).GetProperties()
+            foreach (var prop in typeof(T).GetTypeInfo().GetProperties()
                 .Where(p => p.GetCustomAttributes<VerbAttribute>().Any()))
             {
                 foreach (var attr in prop.GetCustomAttributes<VerbAttribute>())
@@ -90,7 +94,7 @@ namespace clipr.Core
                     // TODO deduplicate this Verb Name generation logic
                     var verbName = attr.Name ?? prop.Name.ToLowerInvariant();
                     if (verbName.StartsWith(
-                        ArgumentPrefix.ToString(CultureInfo.InvariantCulture)))
+                        ArgumentPrefix.ToString()))
                     {
                         throw new ArgumentIntegrityException(String.Format(
                             "Verb {0} cannot begin with {1}",
@@ -103,16 +107,18 @@ namespace clipr.Core
 
                     // TODO allow verb to use other configuration types?
                     var parserConfigType = typeof (AttributeParserConfig<>)
+                        .GetTypeInfo()
                         .MakeGenericType(new[] {prop.PropertyType});
                     var verbParserConfig = Activator.CreateInstance(
-                        parserConfigType, 
-                        new object[] {Options, null /* TODO add triggers inside verb configs */, VerbFactory}, 
-                        null);
+                        type:parserConfigType,
+                        args:new object[] {Options, null /* TODO add triggers inside verb configs */, VerbFactory});
 
                     var verbConfigWrapperType = typeof (VerbParserConfig<>)
+                        .GetTypeInfo()
                         .MakeGenericType(new[] {prop.PropertyType});
-                    var config = (IVerbParserConfig)Activator.CreateInstance(verbConfigWrapperType,
-                        new[] {verbParserConfig, new PropertyValueStore(prop), Options, VerbFactory});
+                    var config = (IVerbParserConfig)Activator.CreateInstance(
+                        type:verbConfigWrapperType,
+                        args:new[] {verbParserConfig, new PropertyValueStore(prop), Options, VerbFactory});
 
                     Verbs.Add(verbName, config);
                 }
@@ -121,7 +127,7 @@ namespace clipr.Core
 
         private void InitializePostParseMethods()
         {
-            PostParseMethods.AddRange(typeof(T).GetMethods()
+            PostParseMethods.AddRange(typeof(T).GetTypeInfo().GetMethods()
                 .Where(p => p.GetCustomAttribute<PostParseAttribute>() != null));
         }
     }

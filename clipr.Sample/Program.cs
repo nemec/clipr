@@ -275,6 +275,23 @@ namespace clipr.Sample
             Thread.CurrentThread.CurrentUICulture = culture;
         }
 
+        public class OptsWithVerb
+        {
+            [Verb]
+            public OptVerb Download { get; set; }
+        }
+
+        public class OptVerb
+        {
+            [NamedArgument("delete", Action = ParseAction.StoreTrue)]
+            public bool Delete { get; set; }
+        }
+
+        public static void DoVerb()
+        {
+            var opt = CliParser.Parse<OptsWithVerb>("download --delete".Split());
+            Console.WriteLine(opt.Download.Delete);
+        }
 
         static void Main()
         {
@@ -283,8 +300,7 @@ namespace clipr.Sample
             //DictBackendMethodConfig("-n frank".Split());
             //CustomDateTime("-d 20140730 2013-09-10".Split());
             //ParseRequiredNamedArgument("-c -d 10/13/2010".Split());
-            Console.ReadLine();
-            PrintLocalizedHelp();
+            DoVerb();
         }
     }
 }

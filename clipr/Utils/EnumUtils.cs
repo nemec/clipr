@@ -1,9 +1,7 @@
 ﻿using clipr.Core;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 
 namespace clipr.Utils
 {
@@ -16,27 +14,28 @@ namespace clipr.Utils
 
         private static bool IsClrEnum(IValueStoreDefinition store)
         {
-            return store.Type.IsSubclassOf(typeof(Enum));
+            return store.Type.GetTypeInfo().IsSubclassOf(typeof(Enum));
         }
 
         private static bool IsStaticEnum(IValueStoreDefinition store)
         {
             return (store.GetCustomAttribute<StaticEnumerationAttribute>() ??
-                    store.Type.GetCustomAttribute<StaticEnumerationAttribute>()) != null;
+                    store.Type.GetTypeInfo().GetCustomAttribute<StaticEnumerationAttribute>()) != null;
         }
 
         public static string[] GetEnumValues(IValueStoreDefinition store)
         {
+            var typeInfo = store.Type.GetTypeInfo();
             if (IsClrEnum(store))
             {
                 return Enum.GetNames(store.Type);
             }
             else if (IsStaticEnum(store))
             {
-                return store.Type.GetFields(
+                return typeInfo.GetFields(
                     BindingFlags.Public | BindingFlags.Static)
                 .Where(f => f.IsInitOnly &&
-                            store.Type.IsAssignableFrom(f.FieldType))
+                            typeInfo.IsAssignableFrom(f.FieldType))
                 .Select(f => f.Name)
                 .ToArray();
             }

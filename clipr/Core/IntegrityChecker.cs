@@ -32,7 +32,7 @@ namespace clipr.Core
         {
             var integrityExceptions = new List<Exception>();
 
-            var properties = typeof(T).GetProperties().Where(
+            var properties = typeof(T).GetTypeInfo().GetProperties().Where(
                 p => p.GetCustomAttributes<ArgumentAttribute>().Any());
             foreach (var prop in properties)
             {
@@ -77,7 +77,7 @@ namespace clipr.Core
         {
             var integrityExceptions = new List<Exception>();
 
-            var properties = typeof(T).GetProperties().Where(
+            var properties = typeof(T).GetTypeInfo().GetProperties().Where(
                 p => p.GetCustomAttributes<VerbAttribute>().Any());
             foreach (var prop in properties)
             {
@@ -350,7 +350,7 @@ namespace clipr.Core
         /// <returns></returns>
         private static Exception LastPositionalArgumentCanTakeMultipleValuesCheck<T>()
         {
-            var props = typeof(T).GetProperties()
+            var props = typeof(T).GetTypeInfo().GetProperties()
                 .Where(p => p.GetCustomAttribute<PositionalArgumentAttribute>() != null)
                 .OrderBy(p => p.GetCustomAttribute<PositionalArgumentAttribute>().Index)
                 .ToList();
@@ -377,9 +377,11 @@ namespace clipr.Core
         private static Exception ConfigMayNotContainBothPositionalArgumentsAndVerbs<T>()
         {
             var positionalCount = typeof(T)
+                .GetTypeInfo()
                 .GetProperties()
                 .Count(p => p.GetCustomAttribute<PositionalArgumentAttribute>() != null);
             var verbCount = typeof(T)
+                .GetTypeInfo()
                 .GetProperties()
                 .Count(p => p.GetCustomAttributes<VerbAttribute>().Any());
             if (positionalCount > 0 && verbCount > 0)
@@ -405,6 +407,7 @@ namespace clipr.Core
         private static Exception CannotDefineDuplicateVerbs<T>()
         {
             var verbs = typeof(T)
+                .GetTypeInfo()
                 .GetProperties()
                 .SelectMany(p => 
                     p.GetCustomAttributes<VerbAttribute>().Select(a => new
@@ -432,7 +435,7 @@ namespace clipr.Core
         /// <returns></returns>
         private static Exception PostParseZeroParametersCheck<T>()
         {
-            var invalidPostParseMethods = typeof(T).GetMethods()
+            var invalidPostParseMethods = typeof(T).GetTypeInfo().GetMethods()
                 .Where(m => m.GetCustomAttribute<PostParseAttribute>() != null)
                 .Where(m => m.GetParameters().Length != 0);
             foreach (var method in invalidPostParseMethods)

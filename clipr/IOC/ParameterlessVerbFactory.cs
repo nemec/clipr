@@ -1,6 +1,10 @@
-﻿using System;
+﻿using clipr.Utils;
+using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+#if NETCORE
+using System.Reflection;
+#endif
 
 namespace clipr.IOC
 {
@@ -13,7 +17,7 @@ namespace clipr.IOC
         public bool CanCreateVerb(Type objectType)
         {
             return _cache.ContainsKey(objectType) || 
-                objectType.GetConstructor(Type.EmptyTypes) != null;
+                objectType.GetTypeInfo().GetConstructor(Type.EmptyTypes) != null;
         }
 
         public object GetVerb(Type objectType)
@@ -21,7 +25,7 @@ namespace clipr.IOC
             ObjectActivator compiled;
             if (!_cache.TryGetValue(objectType, out compiled))
             {
-                var ctor = objectType.GetConstructor(Type.EmptyTypes);
+                var ctor = objectType.GetTypeInfo().GetConstructor(Type.EmptyTypes);
                 if(ctor == null)
                 {
                     throw new ArgumentException(String.Format(

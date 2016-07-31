@@ -27,19 +27,26 @@ namespace clipr.Utils
 
         private static IEnumerable<TypeConverter> GetStaticEnumerationConverter(PropertyInfo prop)
         {
+            var type = prop.PropertyType;
+            var typeInfo = type.GetTypeInfo();
+
             var attr = prop.GetCustomAttribute<StaticEnumerationAttribute>()
-                ?? prop.PropertyType.GetCustomAttribute<StaticEnumerationAttribute>();
+                ?? typeInfo.GetCustomAttribute<StaticEnumerationAttribute>();
             if (attr == null)
             {
                 return Enumerable.Empty<TypeConverter>();
             }
 
-            var type = prop.PropertyType;
-            var fields = type.GetFields(
+            var fields = typeInfo.GetFields(
                 BindingFlags.Public | BindingFlags.Static)
                 .Where(f => f.IsInitOnly &&  // readonly
-                            type.IsAssignableFrom(f.FieldType))  // same type as class, or subclass
-                .ToDictionary(k => k.Name, StringComparer.InvariantCultureIgnoreCase);
+                            typeInfo.IsAssignableFrom(f.FieldType))  // same type as class, or subclass
+                .ToDictionary(k => k.Name,
+#if NET35
+                    StringComparer.InvariantCultureIgnoreCase);
+#else
+                    StringComparer.OrdinalIgnoreCase);
+#endif
             if (!fields.Any())
             {
                 return Enumerable.Empty<TypeConverter>();
@@ -103,7 +110,7 @@ namespace clipr.Utils
             }
             else
             {
-                var parent = prop.DeclaringType.GetCustomAttribute<LocalizeAttribute>();
+                var parent = prop.DeclaringType.GetTypeInfo().GetCustomAttribute<LocalizeAttribute>();
                 if(parent == null || parent.ResourceType == null)
                 {
                     throw new ArgumentException(String.Format(
@@ -118,7 +125,7 @@ namespace clipr.Utils
 
         private static LocalizationInfo GetLocalizationInfo(Type type)
         {
-            var attr = type.GetCustomAttribute<LocalizeAttribute>();
+            var attr = type.GetTypeInfo().GetCustomAttribute<LocalizeAttribute>();
             if (attr == null || attr.ResourceType == null)
             {
                 throw new ArgumentException(String.Format(

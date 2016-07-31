@@ -18,7 +18,7 @@ namespace clipr
         /// </summary>
         /// <param name="token"></param>
         internal ParseException(char token)
-            : this(token.ToString(CultureInfo.InvariantCulture))
+            : this(token.ToString())
         {
         }
 
@@ -28,7 +28,7 @@ namespace clipr
         /// <param name="token"></param>
         /// <param name="message"></param>
         internal ParseException(char token, string message)
-            : this(token.ToString(CultureInfo.InvariantCulture), message)
+            : this(token.ToString(), message)
         {
         }
 
@@ -40,7 +40,7 @@ namespace clipr
         /// <param name="message"></param>
         /// <param name="innerException"></param>
         internal ParseException(char token, string message, Exception innerException)
-            : this(token.ToString(CultureInfo.InvariantCulture), message, innerException)
+            : this(token.ToString(), message, innerException)
         {
         }
 

@@ -1,16 +1,17 @@
 <?xml version="1.0"?>
 <package>
   <metadata>
-    <id>$id$</id>
-    <version>$version$</version>
-    <title>$title$</title>
-    <authors>$author$</authors>
-    <owners>$author$</owners>
+    <id>clipr</id>
+    <version>1.5.0.2</version>
+    <title>clipr Command Line Interface ParseR</title>
+    <authors>Dan Nemec</authors>
+    <owners>Dan Nemec</owners>
     <licenseUrl>https://github.com/nemec/clipr/blob/master/LICENSE.txt</licenseUrl>
     <projectUrl>https://github.com/nemec/clipr</projectUrl>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <description>$description$</description>
+    <description>Simple command line argument parser inspired by Python's argparse.</description>
     <releaseNotes>
+      2016-07-31 1.5.0 Support .Net Core, localization, and other fixes.
       2015-03-28 1.4.6 Relax restrictions on a NumArgs value of 0.
       2013-09-04 1.4.0 Added Dictionary backend.
       2013-09-01 1.3.1 Reorganized imports and added support for Verbs (sub-commands, e.g. "svn checkout").
@@ -18,7 +19,22 @@
       2013-01-16 1.1.0 Added TryParse method, renamed ParseStrict to StrictParse (for consistency's sake), reordered any public parse methods where T object came first (also to retain consistency across the public API).
       2013-01-13 1.0.0 Initial release with automated help generation.
     </releaseNotes>
-    <copyright>Copyright 2015</copyright>
-    <tags>.net35 .net40 .net45 command line parse parse arguments help usage argparse</tags>
+    <copyright>Copyright 2016</copyright>
+    <tags>command line parse parse arguments help usage argparse</tags>
+    <dependencies>
+      <group targetFramework="netstandard1.6">
+        <dependency id="System.ComponentModel.TypeConverter" version="4.1.0" />
+        <dependency id="System.Reflection" version="4.1.0" />
+      </group>
+      <group targetFramework="net35" />
+    </dependencies>
   </metadata>
+  <files>
+    <file src="C:\Users\dan\prg\clipr\clipr\bin\Release\clipr.dll"
+          target="lib\net35\clipr.dll" />
+    <file src="C:\Users\dan\prg\clipr\clipr\bin\Release\es\clipr.resources.dll"
+          target="lib\net35\es\clipr.resources.dll" />
+    <file src="C:\Users\dan\prg\clipr\clipr.NetCore\bin\Release\netstandard1.6\clipr.NetCore.dll"
+          target="lib\netstandard1.6\clipr.NetCore.dll" />
+  </files>
 </package>
