@@ -82,7 +82,7 @@ namespace clipr.Usage
                 if(ReferenceEquals(value, DisplayWidth.Automatic) ||
                     value != null && value.CompareTo(MinDisplayWidth) > 0)
                 {
-                    _displayWidth = DisplayWidth;
+                    _displayWidth = value;
                 }
                 else
                 {
