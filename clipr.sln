@@ -11,7 +11,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "clipr.UnitTests", "clipr.Un
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{441776CA-10A6-468F-A91A-BAC8C33F8B30}"
 	ProjectSection(SolutionItems) = preProject
-		clipr\clipr.nuspec = clipr\clipr.nuspec
+		clipr.nuspec = clipr.nuspec
 		Notes.md = Notes.md
 		README.md = README.md
 	EndProjectSection

@@ -7,9 +7,6 @@ using System.Linq;
 using clipr.Arguments;
 using clipr.Triggers;
 using clipr.Utils;
-using System.Threading;
-using System.Reflection;
-using System.Linq.Expressions;
 #if NETCORE
 using System.Reflection;
 #endif

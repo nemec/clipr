@@ -65,6 +65,8 @@ static void Main()
 
 ###Master
 
+###2016-08-28 1.5.1
+
 * Rework fluent parser into separate ParserBuilder class.
   Now all "configuration" happens there and a parser is built
   from the resulting config.
@@ -81,6 +83,8 @@ static void Main()
 * Ported code to .NET Core. I saw a bunch of weird bugs where the code would
   compile but fail at runtime with a `MissingMethodException`, so there may
   still be issues in there.
+* Add the ability to translate help information from Resource files (#26).
+* Scale width of help screen to the terminal size (#29)
 
 ###2015-04-24 1.4.7
 

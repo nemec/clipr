@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>clipr</id>
-    <version>1.5.0.2</version>
+    <version>1.5.1.0</version>
     <title>clipr Command Line Interface ParseR</title>
     <authors>Dan Nemec</authors>
     <owners>Dan Nemec</owners>
@@ -11,7 +11,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Simple command line argument parser inspired by Python's argparse.</description>
     <releaseNotes>
-      2016-07-31 1.5.0 Support .Net Core, localization, and other fixes.
+      2016-07-31 1.5.1 Support .Net Core, localization, and other fixes.
       2015-03-28 1.4.6 Relax restrictions on a NumArgs value of 0.
       2013-09-04 1.4.0 Added Dictionary backend.
       2013-09-01 1.3.1 Reorganized imports and added support for Verbs (sub-commands, e.g. "svn checkout").
@@ -30,11 +30,13 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="C:\Users\dan\prg\clipr\clipr\bin\Release\clipr.dll"
+    <file src="clipr\bin\Release\clipr.dll"
           target="lib\net35\clipr.dll" />
-    <file src="C:\Users\dan\prg\clipr\clipr\bin\Release\es\clipr.resources.dll"
+    <file src="clipr\bin\Release\es\clipr.resources.dll"
           target="lib\net35\es\clipr.resources.dll" />
-    <file src="C:\Users\dan\prg\clipr\clipr.NetCore\bin\Release\netstandard1.6\clipr.NetCore.dll"
+    <file src="clipr.NetCore\bin\Release\netstandard1.6\clipr.NetCore.dll"
           target="lib\netstandard1.6\clipr.NetCore.dll" />
+    <file src="clipr.NetCore\bin\Release\netstandard1.6\es\clipr.NetCore.resources.dll"
+          target="lib\netstandard1.6\es\clipr.NetCore.resources.dll" />
   </files>
 </package>
