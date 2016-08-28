@@ -83,8 +83,8 @@ namespace clipr.Utils
 
             // Remove newlines
             text = text
-                .Replace(@"\r\n", " ")
-                .Replace(@"\n", " ");
+                .Replace("\r\n", " ")
+                .Replace("\n", " ");
 
             var start = FindNextNonSeparator(text, 0, separators);
             for (var end = start; end < text.Length; end++)

@@ -16,7 +16,7 @@ namespace clipr.Usage
 
         public DisplayWidth(int width)
         {
-
+            Width = width;
         }
 
         public int CompareTo(DisplayWidth other)
@@ -26,6 +26,16 @@ namespace clipr.Usage
                 return 1;
             }
             return Width - other.Width;
+        }
+
+        public static implicit operator DisplayWidth(int width)
+        {
+            return new DisplayWidth(width);
+        }
+
+        public override string ToString()
+        {
+            return "<DisplayWidth " + Width + ">";
         }
 
         private class AutomaticDisplayWidth : DisplayWidth

@@ -71,7 +71,7 @@ namespace clipr.Usage
         /// DisplayWidth.Automatic will automatically set the width based on
         /// the current console width.
         /// </summary>
-        private DisplayWidth DisplayWidth
+        public DisplayWidth DisplayWidth
         {
             get
             {
