@@ -52,6 +52,8 @@ namespace clipr
             }
         }
 
+        public PromptIfValueMissing PromptIfValueMissing { get; set; }
+
         /// <summary>
         /// Create a new named argument with only a short name.
         /// </summary>

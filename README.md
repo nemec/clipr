@@ -60,6 +60,8 @@ static void Main()
 
 ###Master
 
+* Add ability to mask password.
+
 ###2016-08-28 1.5.1
 
 * Rework fluent parser into separate ParserBuilder class.
@@ -290,6 +292,39 @@ in cases where you want a positional argument that begins with a `-`
 (`./prog.exe -- --sometext--`) or when a named argument would otherwise
 consume your positional arguments as one of its own
 (`./prog.exe --consumes-optional-value -- positional`).
+
+##Password Masking
+
+In some cases, it's useful to offer the ability for a user to "mask" their
+password, or provide it separately from the command line in order to
+prevent the password from appearing in console history or screenshots.
+This feature can be enabled on `NamedArgument`s by annotating the property
+with a `PromptValueIfMissingAttribute`. You may also, optionally, choose to
+mask the password (so nothing shows on the screen when you type) or not.
+If the password is provided in the command line arguments, the value will
+used without prompting. If missing, the console will prompt for the missing
+input.
+
+```csharp
+public class Options
+{
+    [PromptIfValueMissing(MaskInput = true)]
+    [NamedArgument('s', "secret")]
+    public string SecretValue { get; set; }
+}
+```
+
+```csharp
+var opt = CliParser.Parse<Options>(new[] {"-s"});
+```
+
+Prints:
+
+    Input a value for -s:
+
+This feature only applies in a specific set of circumstances:
+* Can only annotate a `NamedArgument` (not a `PositionalArgument`).
+* The `ParseAction` must be `ParseAction.Store` (the default).
 
 ##Mutually Exclusive Arguments
 

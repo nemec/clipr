@@ -71,6 +71,11 @@ namespace clipr.Arguments
         LocalizationInfo LocalizationInfo { get; }
 
         /// <summary>
+        /// Prompt if the argument is provided without a value.
+        /// </summary>
+        PromptIfValueMissing PromptIfValueMissing { get; }
+
+        /// <summary>
         /// Backing store for the argument. Parsed values are set on
         /// this property.
         /// </summary>

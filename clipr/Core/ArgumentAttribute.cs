@@ -107,6 +107,9 @@ namespace clipr.Core
         public LocalizationInfo LocalizationInfo { get; set; }
 
         /// <inheritdoc/>
+        public PromptIfValueMissing PromptIfValueMissing { get; set; }
+
+        /// <inheritdoc/>
         public IValueStoreDefinition Store { get; set; }
     }
 }

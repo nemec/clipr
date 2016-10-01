@@ -48,6 +48,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Attributes\LocalizeAttribute.cs" />
+    <Compile Include="Attributes\PromptIfValueMissingAttribute.cs" />
     <Compile Include="CliParserBuilder.cs" />
     <Compile Include="Core\ArgumentAttribute.cs" />
     <Compile Include="Core\IndexerValueStore.cs" />
@@ -60,6 +61,7 @@
     <Compile Include="IOC\ParameterlessVerbFactory.cs" />
     <Compile Include="IOC\IVerbFactory.cs" />
     <Compile Include="IOC\SimpleVerbfactory.cs" />
+    <Compile Include="PromptIfValueMissing.cs" />
     <Compile Include="Properties\Resources.es.Designer.cs">
       <DependentUpon>Resources.es.resx</DependentUpon>
       <AutoGen>True</AutoGen>

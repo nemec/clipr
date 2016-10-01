@@ -77,6 +77,15 @@ namespace clipr.Utils
             attr.MutuallyExclusiveGroups = prop.GetMutuallyExclusiveGroups();
             attr.Name = prop.Name;
             attr.LocalizationInfo = GetLocalizationInfo(prop);
+
+            var prompt = prop.GetCustomAttribute<PromptIfValueMissingAttribute>();
+            attr.PromptIfValueMissing = new PromptIfValueMissing();
+            if(prompt != null)
+            {
+                attr.PromptIfValueMissing.Enabled = true;
+                attr.PromptIfValueMissing.MaskInput = prompt.MaskInput;
+            }
+
             attr.Store = new PropertyValueStore(prop, GetConverters(prop));
             SetDefaults(attr);
             return attr;
@@ -87,6 +96,7 @@ namespace clipr.Utils
             var attr = prop.GetCustomAttribute<PositionalArgumentAttribute>();
             attr.Name = prop.Name;
             attr.LocalizationInfo = GetLocalizationInfo(prop);
+            attr.PromptIfValueMissing = new PromptIfValueMissing();
             attr.Store = new PropertyValueStore(prop, GetConverters(prop));
             SetDefaults(attr);
             return attr;

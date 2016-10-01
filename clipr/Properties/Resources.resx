@@ -132,4 +132,7 @@
   <data name="ExecutingAssemblyVersion_Description" xml:space="preserve">
     <value>Displays the version of the current executable.</value>
   </data>
+  <data name="PromptIfValueMissing_Prompt" xml:space="preserve">
+    <value>Input a value for {0}:</value>
+  </data>
 </root>

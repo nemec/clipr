@@ -65,5 +65,7 @@ namespace clipr.Triggers
             get { return NumArgsConstraint.Exactly; }
             set { throw new NotImplementedException(); }
         }
+
+        public PromptIfValueMissing PromptIfValueMissing { get; set; }
     }
 }

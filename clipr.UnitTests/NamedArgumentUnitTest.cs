@@ -229,5 +229,40 @@ namespace clipr.UnitTests
 
             Assert.AreEqual(2, opts.Args.Count);
         }
+
+        internal class NamedArgumentWithPromptNoMasking
+        {
+            [PromptIfValueMissing]
+            [NamedArgument('p', "password")]
+            public string Password { get; set; }
+        }
+
+        internal class NamedArgumentWithPromptWithMasking
+        {
+            [PromptIfValueMissing(MaskInput = true)]
+            [NamedArgument('p', "password")]
+            public string Password { get; set; }
+        }
+
+        [Ignore]
+        [TestMethod]
+        public void Argument_WithLongOptionAndPromptNoMasking_GetsValueFromStdin()
+        {
+            // TODO inject pw into stdin
+            const string password = "Changeme123";
+            var opt = CliParser.Parse<NamedArgumentWithOption>("--password".Split());
+            Assert.AreEqual("tim", opt.Name);
+        }
+
+        [Ignore]
+        [TestMethod]
+        public void Argument_WithLongOptionAndPromptWithMasking_GetsValueFromStdin()
+        {
+            // TODO inject pw into stdin
+            // TODO verify stdout doesn't contain password?
+            const string password = "Changeme123";
+            var opt = CliParser.Parse<NamedArgumentWithOption>("--name=tim".Split());
+            Assert.AreEqual("tim", opt.Name);
+        }
     }
 }

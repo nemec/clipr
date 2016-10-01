@@ -10,12 +10,8 @@
 
 namespace clipr.Properties {
     using System;
-    using Utils;
-#if NETCORE
-    using System.Reflection;
-#endif
-
-
+    
+    
     /// <summary>
     ///   A strongly-typed resource class, for looking up localized strings, etc.
     /// </summary>
@@ -43,7 +39,7 @@ namespace clipr.Properties {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("clipr.Properties.Resources", typeof(Resources).GetTypeInfo().Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("clipr.Properties.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -106,6 +102,15 @@ namespace clipr.Properties {
         internal static string ExecutingAssemblyVersion_Description {
             get {
                 return ResourceManager.GetString("ExecutingAssemblyVersion_Description", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Input a value for {0}:.
+        /// </summary>
+        internal static string PromptIfValueMissing_Prompt {
+            get {
+                return ResourceManager.GetString("PromptIfValueMissing_Prompt", resourceCulture);
             }
         }
     }

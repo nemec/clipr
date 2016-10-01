@@ -314,9 +314,39 @@ namespace clipr.Core
                         {
                             if (remainingArgs.Count == 0)
                             {
-                                throw new ParseException(attrName, String.Format(
-                                    @"Argument ""{0}"" requires a value but " +
-                                    "none was provided.", attrName));
+                                if (!arg.PromptIfValueMissing.Enabled)
+                                {
+                                    throw new ParseException(attrName, String.Format(
+                                        @"Argument ""{0}"" requires a value but " +
+                                        "none was provided.", attrName));
+                                }
+                                else
+                                {
+                                    var value = arg.PromptIfValueMissing.Prompt(attrName);
+                                    try
+                                    {
+                                        object converted;
+                                        if (TryConvertFrom(store, value, out converted))
+                                        {
+                                            store.SetValue(Object, converted);
+                                        }
+                                        else
+                                        {
+                                            throw new ParseException(attrName, String.Format(
+                                                @"Argument {0} value ""{1}"" cannot be converted to the " +
+                                                "required type {2}.",
+                                                attrName, value, store.Type));
+                                        }
+                                    }
+                                    catch (Exception e)
+                                    {
+                                        throw new ParseException(attrName, String.Format(
+                                            @"Argument {0} value ""{1}"" cannot be converted to the " +
+                                            "required type {2}.",
+                                             attrName, value, store.Type), e);
+                                    }
+                                    break;
+                                }
                             }
                             var stringValue = remainingArgs.Pop();
                             try

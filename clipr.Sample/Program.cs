@@ -293,6 +293,19 @@ namespace clipr.Sample
             Console.WriteLine(opt.Download.Delete);
         }
 
+        public class OptsWithPwMasking
+        {
+            [PromptIfValueMissing(MaskInput = true)]
+            [NamedArgument('p', "password")]
+            public string Password { get; set; }
+        }
+
+        public static void DoPwMasking()
+        {
+            var opt = CliParser.Parse<OptsWithPwMasking>("-p".Split());
+            Console.WriteLine(opt.Password);
+        }
+
         static void Main()
         {
             //FluentWithVerb("-n3 add oranges.txt".Split());
@@ -300,7 +313,7 @@ namespace clipr.Sample
             //DictBackendMethodConfig("-n frank".Split());
             //CustomDateTime("-d 20140730 2013-09-10".Split());
             //ParseRequiredNamedArgument("-c -d 10/13/2010".Split());
-            DoVerb();
+            DoPwMasking();
         }
     }
 }
