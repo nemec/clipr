@@ -113,6 +113,7 @@ namespace clipr.Usage
                 assembly.Location : typeof(AutomaticHelpGenerator<T>).GetTypeInfo().Assembly.CodeBase));
             builder.Append(" ");
 
+            // TODO list PromptIfValueMissing help message on each argument that can be prompted.
             foreach (var arg in config.LongNameArguments.Values.Cast<INamedArgument>()
                 .Concat(config.ShortNameArguments.Values.Cast<INamedArgument>())
                 .Distinct())

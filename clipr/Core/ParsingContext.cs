@@ -349,6 +349,34 @@ namespace clipr.Core
                                 }
                             }
                             var stringValue = remainingArgs.Pop();
+                            if(arg.PromptIfValueMissing.Enabled && stringValue == arg.PromptIfValueMissing.SignalString)
+                            {
+                                var value = arg.PromptIfValueMissing.Prompt(attrName);
+                                try
+                                {
+                                    object converted;
+                                    if (TryConvertFrom(store, value, out converted))
+                                    {
+                                        store.SetValue(Object, converted);
+                                    }
+                                    else
+                                    {
+                                        throw new ParseException(attrName, String.Format(
+                                            @"Argument {0} value ""{1}"" cannot be converted to the " +
+                                            "required type {2}.",
+                                            attrName, value, store.Type));
+                                    }
+                                }
+                                catch (Exception e)
+                                {
+                                    throw new ParseException(attrName, String.Format(
+                                        @"Argument {0} value ""{1}"" cannot be converted to the " +
+                                        "required type {2}.",
+                                         attrName, value, store.Type), e);
+                                }
+                                break;
+                            }
+
                             try
                             {
                                 object converted;

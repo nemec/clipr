@@ -5,26 +5,48 @@ using System.Text;
 
 namespace clipr
 {
+    /// <summary>
+    /// When a value is missing for this argument, prompt for it in the console.
+    /// </summary>
     public class PromptIfValueMissing
     {
+        /// <summary>
+        /// Indicate whether the console should prompt for input if the argument value is missing.
+        /// </summary>
         public bool Enabled { get; set; }
 
+        /// <summary>
+        /// Prevent the input from showing up in the console while it's being typed.
+        /// </summary>
         public bool MaskInput { get; set; }
 
-        public string Prompt(string forArgument)
+        /// <summary>
+        /// String to signal the parser that the parameter value should be entered at the console.
+        /// </summary>
+        public string SignalString { get; set; }
+
+        /// <summary>
+        /// When a value is missing for this argument, prompt for it in the console.
+        /// </summary>
+        public PromptIfValueMissing()
+        {
+            SignalString = "-";
+        }
+
+        internal string Prompt(string forArgument)
         {
             return MaskInput
                 ? InsecureMaskedPrompt(forArgument)
                 : PromptNoMask(forArgument);
         }
         
-        public string PromptNoMask(string forArgument)
+        internal string PromptNoMask(string forArgument)
         {
             Console.Write(String.Format(I18N._("PromptIfValueMissing_Prompt") + " ", forArgument));
             return Console.ReadLine();
         }
 
-        public string InsecureMaskedPrompt(string forArgument)
+        internal string InsecureMaskedPrompt(string forArgument)
         {
             Console.Write(String.Format(I18N._("PromptIfValueMissing_Prompt") + " ", forArgument));
             const int ENTER = 13, BACKSP = 8, CTRLBACKSP = 127;
