@@ -154,10 +154,10 @@ namespace clipr.UnitTests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ParseException))]
         public void Argument_WithRequiredNamedArgumentMissing_ThrowsException()
         {
-            CliParser.Parse<NamedArgumentWithRequired>(new string[0]);
+            AssertEx.Throws<ParseException>(() =>
+            CliParser.Parse<NamedArgumentWithRequired>(new string[0]));
         }
 
         internal class MutuallyExclusive
@@ -182,17 +182,17 @@ namespace clipr.UnitTests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ParseException))]
         public void MutuallyExclusive_ArgumentsViolateExclusivity_ThrowsParseException()
         {
-            CliParser.Parse<MutuallyExclusive>("-a one -b two -c other".Split());
+            AssertEx.Throws<ParseException>(() =>
+            CliParser.Parse<MutuallyExclusive>("-a one -b two -c other".Split()));
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ParseException))]
         public void MutuallyExclusive_ArgumentsDoNotIncludeRequiredGroup_ThrowsParseException()
         {
-            CliParser.Parse<MutuallyExclusive>("-c three".Split());
+            AssertEx.Throws<ParseException>(() =>
+            CliParser.Parse<MutuallyExclusive>("-c three".Split()));
         }
 
         internal class NamedArgumentLowerBoundCountEqualsZero

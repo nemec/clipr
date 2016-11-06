@@ -3,7 +3,13 @@
     "description": "clipr.UnitTests",
 
     "buildOptions": {
-        "define": [ "NETCORE" ]
+        "define": [ "NETCORE" ],
+        "embed": {
+            "include": [
+                "..\\clipr\\**\\*.resx",
+                "**\\*.resx"
+            ]
+        }
     },
 
     "dependencies": {
@@ -33,6 +39,7 @@
                     "type": "platform"
                 }
             }
-        }
+        },
+        "net451": {}
     }
 }

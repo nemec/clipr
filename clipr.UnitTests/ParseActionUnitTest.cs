@@ -116,10 +116,10 @@ namespace clipr.UnitTests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ParseException))]
         public void Argument_WithStoreActionAndInconvertibleValue_ThrowsException()
         {
-            CliParser.Parse<StoreValue>("-s bbb".Split());
+            AssertEx.Throws<ParseException>(() =>
+            CliParser.Parse<StoreValue>("-s bbb".Split()));
         }
 
         internal class StoreBoolActionNullable
@@ -176,10 +176,10 @@ namespace clipr.UnitTests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(AggregateException))]
         public void Argument_WithStoreConstValueAndInconvertibleConst_ThrowsException()
         {
-            CliParser.Parse<StoreConstWrongConstValue>("-s bbb".Split());
+            AssertEx.ThrowsAggregateContaining<ArgumentIntegrityException>(
+                () => CliParser.Parse<StoreConstWrongConstValue>("-s bbb".Split()));
         }
 
 #endregion
@@ -201,12 +201,10 @@ namespace clipr.UnitTests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ParseException))]
         public void Append_WithOneValueInconvertible_ThrowsException()
         {
             var expected = new List<int> { 1, 2, 3 };
-            var opt = CliParser.Parse<Append>("-i1 -i oops -i 3".Split());
-            CollectionAssert.AreEqual(expected, opt.Values);
+            AssertEx.Throws<ParseException>(() => CliParser.Parse<Append>("-i1 -i oops -i 3".Split()));
         }
 
 #endregion

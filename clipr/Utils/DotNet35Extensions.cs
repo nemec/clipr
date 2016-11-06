@@ -4,7 +4,6 @@ using System.Linq;
 
 namespace clipr.Utils
 {
-#if NET35
     /// <summary>
     /// An exception that aggregates multiple other exceptions together.
     /// </summary>
@@ -41,6 +40,7 @@ namespace clipr.Utils
         }
     }
 
+#if NET35
     /// <summary>
     /// Extensions to convert .Net3.5-compatible code to the .Net4.5 syntax.
     /// </summary>

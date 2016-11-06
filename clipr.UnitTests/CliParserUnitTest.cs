@@ -26,11 +26,10 @@ namespace clipr.UnitTests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ParseException))]
         public void CaseFolding_ParseLongArgWithWrongCaseWhenCaseSensitive_ThrowsParseException()
         {
-            var opt = CliParser.Parse<CaseFoldingOptions>("--Name timothy".Split());
-            Assert.AreEqual("timothy", opt.Name);
+            AssertEx.Throws<ParseException>(() =>
+                CliParser.Parse<CaseFoldingOptions>("--Name timothy".Split()));
         }
 
         [TestMethod]
@@ -42,11 +41,10 @@ namespace clipr.UnitTests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ParseException))]
         public void CaseFolding_ParseShortArgWithWrongCaseWhenCaseSensitive_ThrowsParseException()
         {
-            var opt = CliParser.Parse<CaseFoldingOptions>("-N timothy".Split());
-            Assert.AreEqual("timothy", opt.Name);
+            AssertEx.Throws<ParseException>(() =>
+            CliParser.Parse<CaseFoldingOptions>("-N timothy".Split()));
         }
 
         [TestMethod]
@@ -139,11 +137,11 @@ namespace clipr.UnitTests
         }
 
         [TestMethod]
-        [ExpectedException(typeof (ParserExit))]
         public void ParseArguments_WithVersionArgument_PrintsVersionAndExits()
         {
             var opt = new object();
-            new CliParser<object>(opt).Parse("--version".Split());
+            AssertEx.Throws<ParserExit>(() =>
+            new CliParser<object>(opt).Parse("--version".Split()));
         }
 
         [TestMethod]
@@ -354,11 +352,10 @@ namespace clipr.UnitTests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ParseException))]
         public void Parse_WithInvalidEnumValue_ThrowsException()
         {
-            var obj = CliParser.Parse<TraceOptions>("-tX error c:\\file.txt c:\\file2.txt".Split());
-            Console.WriteLine(obj.TraceLevel);
+            AssertEx.Throws<ParseException>(() =>
+            CliParser.Parse<TraceOptions>("-tX error c:\\file.txt c:\\file2.txt".Split()));
         }
 
         [StaticEnumeration]

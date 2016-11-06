@@ -153,10 +153,10 @@ namespace clipr.UnitTests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ParseException))]
         public void Positional_WithAtMostTwoValuesAndGivenThreeValues_ThrowsException()
         {
-            CliParser.Parse<VarargMaxTwo>("value1 value2 value3".Split());
+            AssertEx.Throws<ParseException>(() =>
+            CliParser.Parse<VarargMaxTwo>("value1 value2 value3".Split()));
         }
 
         #endregion
@@ -178,17 +178,17 @@ namespace clipr.UnitTests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ParseException))]
         public void Positional_WithExactlyTwoValuesAndGivenOneValue_ThrowsException()
         {
-            CliParser.Parse<VarargExactlyTwo>("value1".Split());
+            AssertEx.Throws<ParseException>(() =>
+            CliParser.Parse<VarargExactlyTwo>("value1".Split()));
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ParseException))]
         public void Positional_WithExactlyTwoValuesAndGivenThreeValues_ThrowsException()
         {
-            CliParser.Parse<VarargExactlyTwo>("value1 value2 value3".Split());
+            AssertEx.Throws<ParseException>(() =>
+            CliParser.Parse<VarargExactlyTwo>("value1 value2 value3".Split()));
         }
 
         #endregion
@@ -202,10 +202,10 @@ namespace clipr.UnitTests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(ParseException))]
         public void Positional_WithAtLeastTwoValuesAndGivenOneValue_ThrowsException()
         {
-            CliParser.Parse<VarargAtLeastTwo>("value1".Split());
+            AssertEx.Throws<ParseException>(() =>
+            CliParser.Parse<VarargAtLeastTwo>("value1".Split()));
         }
 
         [TestMethod]

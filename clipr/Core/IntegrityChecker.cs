@@ -69,7 +69,7 @@ namespace clipr.Core
                 .Where(e => e != null).ToList();
             if (integrityExceptions.Any())
             {
-                throw new AggregateException(integrityExceptions);
+                throw new Utils.AggregateException(integrityExceptions);
             }
         }
 
@@ -90,7 +90,7 @@ namespace clipr.Core
                 .Where(e => e != null).ToList();
             if (integrityExceptions.Any())
             {
-                throw new AggregateException(integrityExceptions);
+                throw new Utils.AggregateException(integrityExceptions);
             }
         }
 
@@ -108,7 +108,7 @@ namespace clipr.Core
                 .Where(e => e != null).ToList();
             if (integrityExceptions.Any())
             {
-                throw new AggregateException(integrityExceptions);
+                throw new Utils.AggregateException(integrityExceptions);
             }
         }
 
@@ -119,6 +119,8 @@ namespace clipr.Core
                 {
                     NumArgsGreaterThanZeroCheck(attr),
                     VarArgsConvertibleToIEnumerableCheck(attr),
+                    OptionalConstraintMustIncludeConstIfNonNullable(attr),
+                    OptionalConstraintMustBePlacedOnNullableOrReferenceType(attr),
                     ShortNameArgumentMustBeValidCharacter(attr),
                     LongNameArgumentMustBeValidCharacter(attr),
                     PositionalArgumentsCannotStoreConstValues(attr),
@@ -163,6 +165,32 @@ namespace clipr.Core
                     "Arguments with a variable number of values or " +
                     "more than one required value must be attached " +
                     "to a parameter assignable to IEnumerable.");
+            }
+            return null;
+        }
+
+        private static Exception OptionalConstraintMustIncludeConstIfNonNullable(IArgument attr)
+        {
+            if (attr.Constraint != NumArgsConstraint.Optional) return null;
+            var typ = attr.Store.Type.GetTypeInfo();
+            var isNullable = typ.IsValueType && typ.IsGenericType && typ.GetGenericTypeDefinition() == typeof(Nullable<>);
+            if(attr.Constraint == NumArgsConstraint.Optional && !isNullable && attr.Const == null)
+            {
+                return new ArgumentIntegrityException(
+                    "Non-nullable arguments with an Optional constraint must include" +
+                    "a const value in case value is not provided at runtime.");
+            }
+            return null;
+        }
+
+        private static Exception OptionalConstraintMustBePlacedOnNullableOrReferenceType(IArgument attr)
+        {
+            if (attr.Constraint != NumArgsConstraint.Optional) return null;
+            var typ = attr.Store.Type.GetTypeInfo();
+            if(typ.IsValueType && typ.IsGenericType && typ.GetGenericTypeDefinition() != typeof(Nullable<>))
+            {
+                return new ArgumentIntegrityException(
+                    "Optional constraint must be placed on a nullable or reference type.");
             }
             return null;
         }

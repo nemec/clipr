@@ -216,7 +216,7 @@ Optional Arguments:
         [TestMethod]
         public void ShowHelp_WithMexicanLocale_ShowsSpanishHelpText()
         {
-            using (LocalizationExtensions.WithUiCulture(new CultureInfo("en-MX")))
+            using (LocalizationExtensions.WithUiCulture(new CultureInfo("es-MX")))
             {
                 // Arrange
                 var expected = @"Uso: clipr [ -h|--help ] [ --version ] [ --turnonthepower ] [ -s S ] [ -c C ] FILETOADD 

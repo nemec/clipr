@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-#if NET35
 using AggregateException = clipr.Utils.AggregateException;
-#endif
 
 // ReSharper disable ObjectCreationAsStatement
 // ReSharper disable UseObjectOrCollectionInitializer
@@ -72,11 +70,11 @@ namespace clipr.UnitTests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(AggregateException))]
         public void ParseArguments_WithMultipleArgumentAttributes_ThrowsIntegrityException()
         {
+            AssertEx.Throws<AggregateException>(() =>
             new CliParser<MutuallyExclusiveArgumentAttributes>(
-                new MutuallyExclusiveArgumentAttributes());
+                new MutuallyExclusiveArgumentAttributes()));
         }
 
 #endregion
@@ -90,11 +88,11 @@ namespace clipr.UnitTests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(AggregateException))]
         public void NamedArgument_WithExactCountLessThanOneThrows_ExceptionOnInitialize()
         {
+            AssertEx.Throws<AggregateException>(() =>
             new CliParser<NamedArgumentExactCountLessThanOne>(
-                new NamedArgumentExactCountLessThanOne());
+                new NamedArgumentExactCountLessThanOne()));
         }
 
         internal class NamedArgumentUpperBoundCountLessThanOne
@@ -104,11 +102,11 @@ namespace clipr.UnitTests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(AggregateException))]
         public void NamedArgument_WithUpperBoundCountLessThanOneThrows_ExceptionOnInitialize()
         {
+            AssertEx.Throws<AggregateException>(() =>
             new CliParser<NamedArgumentUpperBoundCountLessThanOne>(
-                new NamedArgumentUpperBoundCountLessThanOne());
+                new NamedArgumentUpperBoundCountLessThanOne()));
         }
 
         internal class PositionalArgumentExactCountLessThanOne
@@ -118,11 +116,11 @@ namespace clipr.UnitTests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(AggregateException))]
         public void PositionalArgument_WithExactCountLessThanOneThrows_ExceptionOnInitialize()
         {
+            AssertEx.Throws<AggregateException>(() =>
             new CliParser<PositionalArgumentExactCountLessThanOne>(
-                new PositionalArgumentExactCountLessThanOne());
+                new PositionalArgumentExactCountLessThanOne()));
         }
 
         internal class PositionalArgumentUpperBoundCountLessThanOne
@@ -132,11 +130,11 @@ namespace clipr.UnitTests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(AggregateException))]
         public void PositionalArgument_WithUpperBoundCountLessThanOneThrows_ExceptionOnInitialize()
         {
+            AssertEx.Throws<AggregateException>(() =>
             new CliParser<PositionalArgumentUpperBoundCountLessThanOne>(
-                new PositionalArgumentUpperBoundCountLessThanOne());
+                new PositionalArgumentUpperBoundCountLessThanOne()));
         }
 
 #endregion
@@ -153,11 +151,11 @@ namespace clipr.UnitTests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(AggregateException))]
         public void PositionalArgument_WithMultiplePositionalArgumentsAndFirstHasVarArgs_FailsValidation()
         {
+            AssertEx.Throws<AggregateException>(() =>
             new CliParser<MultiplePositionalArgsWithMultipleValues>(
-                new MultiplePositionalArgsWithMultipleValues());
+                new MultiplePositionalArgsWithMultipleValues()));
         }
 
 #endregion
@@ -171,10 +169,10 @@ namespace clipr.UnitTests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(AggregateException))]
         public void Argument_WithParseActionAppendAndDoesNotImplementIEnumerable_FailsValidation()
         {
-            new CliParser<ParseActionAppend>(new ParseActionAppend());
+            AssertEx.Throws<AggregateException>(() =>
+            new CliParser<ParseActionAppend>(new ParseActionAppend()));
         }
 
         internal class ParseActionAppendConst
@@ -184,10 +182,10 @@ namespace clipr.UnitTests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(AggregateException))]
         public void Argument_WithParseActionAppendConstAndDoesNotImplementIEnumerable_FailsValidation()
         {
-            new CliParser<ParseActionAppendConst>(new ParseActionAppendConst());
+            AssertEx.Throws<AggregateException>(() =>
+            new CliParser<ParseActionAppendConst>(new ParseActionAppendConst()));
         }
 
 #endregion
@@ -201,10 +199,10 @@ namespace clipr.UnitTests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(AggregateException))]
         public void Argument_WithParseActionCountAndDoesNotImplementInt_FailsValidation()
         {
-            new CliParser<ParseActionCount>(new ParseActionCount());
+            AssertEx.Throws<AggregateException>(() =>
+               new CliParser<ParseActionCount>(new ParseActionCount()));
         }
 
 #endregion
@@ -218,10 +216,10 @@ namespace clipr.UnitTests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(AggregateException))]
         public void Argument_WithInvalidCharacterAsShortName_FailsValidation()
         {
-            new CliParser<InvalidShortName>(new InvalidShortName());
+            AssertEx.Throws<AggregateException>(() =>
+            new CliParser<InvalidShortName>(new InvalidShortName()));
         }
 
 #endregion
@@ -235,10 +233,10 @@ namespace clipr.UnitTests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(AggregateException))]
         public void Argument_WithInvalidCharacterAsLongName_FailsValidation()
         {
-            new CliParser<InvalidLongName>(new InvalidLongName());
+            AssertEx.Throws<AggregateException>(() =>
+            new CliParser<InvalidLongName>(new InvalidLongName()));
         }
 
 #endregion
@@ -252,10 +250,10 @@ namespace clipr.UnitTests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(AggregateException))]
         public void Argument_WithConstValueAsWrongType_FailsValidation()
         {
-            new CliParser<ConstWithWrongType>(new ConstWithWrongType());
+            AssertEx.Throws<AggregateException>(() =>
+            new CliParser<ConstWithWrongType>(new ConstWithWrongType()));
         }
 
 #endregion
@@ -269,10 +267,10 @@ namespace clipr.UnitTests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(AggregateException))]
         public void PositionalArgument_WithConstValue_FailsValidation()
         {
-            new CliParser<PositionalArgumentWithConst>(new PositionalArgumentWithConst());
+            AssertEx.Throws<AggregateException>(() =>
+            new CliParser<PositionalArgumentWithConst>(new PositionalArgumentWithConst()));
         }
 
 #endregion
@@ -286,10 +284,10 @@ namespace clipr.UnitTests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(AggregateException))]
         public void Argument_WithConstTrueWithWrongType_FailsValidation()
         {
-            new CliParser<ConstTrueWithWrongType>(new ConstTrueWithWrongType());
+            AssertEx.Throws<AggregateException>(() =>
+            new CliParser<ConstTrueWithWrongType>(new ConstTrueWithWrongType()));
         }
 
         internal class ConstFalseWithWrongType
@@ -299,10 +297,10 @@ namespace clipr.UnitTests
         }
 
         [TestMethod]
-        [ExpectedException(typeof(AggregateException))]
         public void Argument_WithConstFalseWithWrongType_FailsValidation()
         {
-            new CliParser<ConstFalseWithWrongType>(new ConstFalseWithWrongType());
+            AssertEx.Throws<AggregateException>(() =>
+            new CliParser<ConstFalseWithWrongType>(new ConstFalseWithWrongType()));
         }
 
 #endregion
@@ -381,7 +379,6 @@ namespace clipr.UnitTests
 
         [TestMethod]
         [Ignore]
-        [ExpectedException(typeof(ArgumentIntegrityException))]
         public void Version_WithInvalidShortName_ThrowsException()
         {
             var help = new Usage.AutomaticHelpGenerator<object>();
@@ -393,7 +390,6 @@ namespace clipr.UnitTests
 
         [TestMethod]
         [Ignore]
-        [ExpectedException(typeof(ArgumentIntegrityException))]
         public void Version_WithInvalidShortNameAsDigit_ThrowsException()
         {
             var help = new Usage.AutomaticHelpGenerator<object>();
@@ -411,46 +407,44 @@ namespace clipr.UnitTests
 
         [TestMethod]
         [Ignore]
-        [ExpectedException(typeof(ArgumentIntegrityException))]
         public void Version_WithInvalidLongName_ThrowsException()
         {
             var help = new Usage.AutomaticHelpGenerator<object>();
             //help.Version.LongName = "no.thing";
-
-            new CliParser<object>(new object(), help);
+            AssertEx.ThrowsAggregateContaining<ArgumentIntegrityException>(() =>
+            new CliParser<object>(new object(), help));
         }
 
         [TestMethod]
         [Ignore]
-        [ExpectedException(typeof(ArgumentIntegrityException))]
         public void Version_WithInvalidLongNameLength_ThrowsException()
         {
             var help = new Usage.AutomaticHelpGenerator<object>();
             //help.Version.LongName = "n";
-
-            new CliParser<object>(new object(), help);
+            AssertEx.ThrowsAggregateContaining<ArgumentIntegrityException>(() =>
+            new CliParser<object>(new object(), help));
         }
 
         [TestMethod]
         [Ignore]
-        [ExpectedException(typeof(ArgumentIntegrityException))]
         public void Version_WithInvalidLongNameEndingWithDash_ThrowsException()
         {
             var help = new Usage.AutomaticHelpGenerator<object>();
             //help.Version.LongName = "none-";
 
-            new CliParser<object>(new object(), help);
+            AssertEx.ThrowsAggregateContaining<ArgumentIntegrityException>(() =>
+            new CliParser<object>(new object(), help));
         }
 
         [TestMethod]
         [Ignore]
-        [ExpectedException(typeof(ArgumentIntegrityException))]
         public void Version_WithInvalidLongNameBeginningWithDigit_ThrowsException()
         {
             var help = new Usage.AutomaticHelpGenerator<object>();
             //help.Version.LongName = "1none";
 
-            new CliParser<object>(new object(), help);
+            AssertEx.ThrowsAggregateContaining<ArgumentIntegrityException>(() =>
+            new CliParser<object>(new object(), help));
         }
 
 #endregion
@@ -511,11 +505,11 @@ namespace clipr.UnitTests
         }
 
         [TestMethod]
-        [ExpectedException(typeof (AggregateException))]
         public void CheckIntegrity_WithConfigContainingBothPositionalAndVerbs_ThrowsException()
         {
+            AssertEx.Throws<AggregateException>(() =>
             new CliParser<PositionalAndVerbOptions>(
-                new PositionalAndVerbOptions());
+                new PositionalAndVerbOptions()));
         }
 
 #endregion
@@ -566,6 +560,22 @@ namespace clipr.UnitTests
             parser.Parse(arguments);
 
             Assert.AreEqual(2, opts.Args.Count);
+        }
+
+        private class OptionsWithOptionalNonNullable
+        {
+            [NamedArgument('a', Constraint = NumArgsConstraint.Optional)]
+            public int Age { get; set; }
+        }
+
+        [TestMethod]
+        public void NamedArgument_WithOptionalConstraintButNonNullable_FailsIntegrityCheck()
+        {
+            var opts = new OptionsWithOptionalNonNullable();
+            var arguments = new[] { "-a", "10" };
+
+            AssertEx.ThrowsAggregateContaining<ArgumentIntegrityException>(
+                () => new CliParser<OptionsWithOptionalNonNullable>(opts));
         }
 
         // TODO check for case when property is localized but no ResourceType is provided by prop or its class

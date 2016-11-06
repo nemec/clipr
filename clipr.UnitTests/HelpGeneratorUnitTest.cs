@@ -23,7 +23,6 @@ namespace clipr.UnitTests
     public class HelpGeneratorUnitTest
     {
         [TestMethod]
-        [ExpectedException(typeof(ParserExit))]
         public void Help_WithNoDescription_NoNullPointer()
         {
 
@@ -33,7 +32,9 @@ namespace clipr.UnitTests
                 opt,
                 ParserOptions.None,
                 new Help());
-            parser.Parse(args);
+
+            AssertEx.Throws<ParserExit>(() =>
+            parser.Parse(args));
         }
         
         [StaticEnumeration]

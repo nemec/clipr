@@ -71,7 +71,7 @@ namespace clipr
                 }
                 Environment.Exit(2);
             }
-            catch (AggregateException ex)
+            catch (Utils.AggregateException ex)
             {
                 if (parser != null && parser.Config != null)
                 {
@@ -408,7 +408,7 @@ namespace clipr
                 Console.Error.WriteLine(HelpGenerator.GetUsage(Config));
                 Console.Error.WriteLine(e.Message);
             }
-            catch (AggregateException ex)
+            catch (Utils.AggregateException ex)
             {
                 Console.Error.WriteLine(HelpGenerator.GetUsage(Config));
                 ex.Handle(e =>
