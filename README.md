@@ -1,4 +1,4 @@
-clipr: A Command Line Interface ParseR for .Net 3.5+
+clipr: A Command Line Interface ParseR for .Net 3.5+ and .Net Core
 ===============================================
 
 Created by [Dan Nemec](http://github.com/nemec)
