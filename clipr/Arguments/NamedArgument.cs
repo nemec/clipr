@@ -31,8 +31,6 @@ namespace clipr.Arguments
 
         public bool Required { get; set; }
 
-        public PromptIfValueMissing PromptIfValueMissing { get; set; }
-
         public NamedArgument(IValueStoreDefinition store)
             : base(store)
         {

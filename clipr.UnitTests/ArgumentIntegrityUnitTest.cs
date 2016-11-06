@@ -1,6 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using clipr.Utils;
+
+#if NET35
+using AggregateException = clipr.Utils.AggregateException;
+#endif
 
 // ReSharper disable ObjectCreationAsStatement
 // ReSharper disable UseObjectOrCollectionInitializer
@@ -10,7 +14,7 @@ namespace clipr.UnitTests
     [TestClass]
     public class ArgumentIntegrityUnitTest
     {
-        #region Duplicate argument check.
+#region Duplicate argument check.
 
         internal class DuplicateArgumentWhenCaseInsensitive
         {
@@ -56,9 +60,9 @@ namespace clipr.UnitTests
                 () => new CliParser<DuplicateArguments>(new DuplicateArguments()));
         }
 
-        #endregion
+#endregion
 
-        #region Mutually Exclusive check.
+#region Mutually Exclusive check.
 
         internal class MutuallyExclusiveArgumentAttributes
         {
@@ -75,9 +79,9 @@ namespace clipr.UnitTests
                 new MutuallyExclusiveArgumentAttributes());
         }
 
-        #endregion
+#endregion
 
-        #region NumArgs cannot equal zero unless it's the lower bound
+#region NumArgs cannot equal zero unless it's the lower bound
 
         internal class NamedArgumentExactCountLessThanOne
         {
@@ -135,9 +139,9 @@ namespace clipr.UnitTests
                 new PositionalArgumentUpperBoundCountLessThanOne());
         }
 
-        #endregion
+#endregion
 
-        #region Last positional has varargs only.
+#region Last positional has varargs only.
 
         internal class MultiplePositionalArgsWithMultipleValues
         {
@@ -156,9 +160,9 @@ namespace clipr.UnitTests
                 new MultiplePositionalArgsWithMultipleValues());
         }
 
-        #endregion
+#endregion
 
-        #region Append/AppendConst implements IEnumerable<>.
+#region Append/AppendConst implements IEnumerable<>.
 
         internal class ParseActionAppend
         {
@@ -186,9 +190,9 @@ namespace clipr.UnitTests
             new CliParser<ParseActionAppendConst>(new ParseActionAppendConst());
         }
 
-        #endregion
+#endregion
 
-        #region Count implements int.
+#region Count implements int.
 
         internal class ParseActionCount
         {
@@ -203,9 +207,9 @@ namespace clipr.UnitTests
             new CliParser<ParseActionCount>(new ParseActionCount());
         }
 
-        #endregion
+#endregion
 
-        #region Short name has valid characters.
+#region Short name has valid characters.
 
         internal class InvalidShortName
         {
@@ -220,9 +224,9 @@ namespace clipr.UnitTests
             new CliParser<InvalidShortName>(new InvalidShortName());
         }
 
-        #endregion
+#endregion
 
-        #region Long name has valid characters.
+#region Long name has valid characters.
 
         internal class InvalidLongName
         {
@@ -237,9 +241,9 @@ namespace clipr.UnitTests
             new CliParser<InvalidLongName>(new InvalidLongName());
         }
 
-        #endregion
+#endregion
 
-        #region Const value's type convertible to property type.
+#region Const value's type convertible to property type.
 
         internal class ConstWithWrongType
         {
@@ -254,9 +258,9 @@ namespace clipr.UnitTests
             new CliParser<ConstWithWrongType>(new ConstWithWrongType());
         }
 
-        #endregion
+#endregion
 
-        #region Positional arguments cannot store const.
+#region Positional arguments cannot store const.
 
         internal class PositionalArgumentWithConst
         {
@@ -271,9 +275,9 @@ namespace clipr.UnitTests
             new CliParser<PositionalArgumentWithConst>(new PositionalArgumentWithConst());
         }
 
-        #endregion
+#endregion
 
-        #region Const True/False must be bool.
+#region Const True/False must be bool.
 
         internal class ConstTrueWithWrongType
         {
@@ -301,9 +305,9 @@ namespace clipr.UnitTests
             new CliParser<ConstFalseWithWrongType>(new ConstFalseWithWrongType());
         }
 
-        #endregion
+#endregion
 
-        #region Help short name validity.
+#region Help short name validity.
 
         [TestMethod]
         public void Help_WithInvalidShortName_ThrowsException()
@@ -325,9 +329,9 @@ namespace clipr.UnitTests
                             () => new CliParser<object>(new object(), help));
         }
 
-        #endregion
+#endregion
 
-        #region Help long name validity.
+#region Help long name validity.
 
         [TestMethod]
         public void Help_WithInvalidLongName_ThrowsException()
@@ -371,9 +375,9 @@ namespace clipr.UnitTests
             });
         }
 
-        #endregion
+#endregion
 
-        #region Version short name validity.
+#region Version short name validity.
 
         [TestMethod]
         [Ignore]
@@ -401,9 +405,9 @@ namespace clipr.UnitTests
             });
         }
 
-        #endregion
+#endregion
 
-        #region Version long name validity.
+#region Version long name validity.
 
         [TestMethod]
         [Ignore]
@@ -449,9 +453,9 @@ namespace clipr.UnitTests
             new CliParser<object>(new object(), help);
         }
 
-        #endregion
+#endregion
 
-        #region Positional argument checks respect value Index
+#region Positional argument checks respect value Index
 
         internal class MultiplePositionalArgsDefinedOutOfOrder
         {
@@ -488,9 +492,9 @@ namespace clipr.UnitTests
                 new MultiplePositionalArgsDefinedSubClass());
         }
 
-        #endregion
+#endregion
 
-        #region Config cannot contain both Positional and Verbs
+#region Config cannot contain both Positional and Verbs
 
         internal class PositionalAndVerbOptions
         {
@@ -514,7 +518,7 @@ namespace clipr.UnitTests
                 new PositionalAndVerbOptions());
         }
 
-        #endregion
+#endregion
 
         [TestMethod]
         public void PositionalArgument_WithLowerBoundCountEqualsZero_ParsesNoArguments()

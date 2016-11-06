@@ -249,7 +249,7 @@ namespace clipr.UnitTests
         public void Argument_WithLongOptionAndPromptNoMasking_GetsValueFromStdin()
         {
             // TODO inject pw into stdin
-            const string password = "Changeme123";
+            //const string password = "Changeme123";
             var opt = CliParser.Parse<NamedArgumentWithOption>("--password".Split());
             Assert.AreEqual("tim", opt.Name);
         }
@@ -260,7 +260,7 @@ namespace clipr.UnitTests
         {
             // TODO inject pw into stdin
             // TODO verify stdout doesn't contain password?
-            const string password = "Changeme123";
+            //const string password = "Changeme123";
             var opt = CliParser.Parse<NamedArgumentWithOption>("--name=tim".Split());
             Assert.AreEqual("tim", opt.Name);
         }

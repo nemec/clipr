@@ -61,6 +61,7 @@ static void Main()
 ###Master
 
 * Add ability to mask password.
+* Add "optional" value constraint for reference or nullable types.
 
 ###2016-08-28 1.5.1
 
@@ -252,14 +253,27 @@ can be performed when the user specifies a named argument.
   Good for specifying a "level" (like verbosity). There is no way to limit
   the number of times a user specifies the argument.
 
-##Variable Argument Count
+##Variable/Optional Argument Count
 
 In addition to choosing an action for each argument, you can specify
 *how many* values each argument can consume. The first part is the NumArgs
 property, which gives the value limit for the argument. The second part,
-constraints, comes in three flavors: Exact, AtLeast, and AtMost. Any named
-argument may take exactly the number of values specified or use that as
-the minimum or maximum number consumed. Since positional arguments are not
+constraints, comes in four flavors: Exact, AtLeast, AtMost, and Optional. Any
+named argument may take exactly the number of values specified or use that as
+the minimum or maximum number consumed. The final constraint, Optional, can be
+set on a reference type or Nullable property and it indicates that a value
+for the argument can be provided or left off. If the argument is given without
+a value, the value will be copied from the `Const` property on the argument.
+For more complex types, `Const` may be set to a string and the value will be
+converted to the destination type in the same way other argument values are 
+converted.
+
+```csharp
+[NamedArgument('s', "server", Constraint = NumArgsConstraint.Optional, Const = 1234)]
+public int? Server { get; set; }
+```
+
+Since positional arguments are not
 delimited in any discernable way only the *last* positional argument,
 by Index, may use the constraints AtLeast or AtMost. All previous positional
 arguments must consume an exact number of values.

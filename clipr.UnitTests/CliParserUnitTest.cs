@@ -377,5 +377,27 @@ namespace clipr.UnitTests
                 this.value = value;
             }
         }
+
+        private class OptionsWithOptionalValue
+        {
+            [NamedArgument('s', "server", Constraint = NumArgsConstraint.Optional, Const = 1234)]
+            public int? Server { get; set; }
+        }
+
+        [TestMethod]
+        public void Parse_WithOptionalValueAndValueProvided_SetsValue()
+        {
+            var obj = CliParser.Parse<OptionsWithOptionalValue>("--server 123".Split());
+
+            Assert.AreEqual(123, obj.Server);
+        }
+
+        [TestMethod]
+        public void Parse_WithOptionalValueAndNoValueProvided_SetsConst()
+        {
+            var obj = CliParser.Parse<OptionsWithOptionalValue>("--server".Split());
+
+            Assert.AreEqual(1234, obj.Server);
+        }
     }
 }

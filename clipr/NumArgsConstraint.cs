@@ -12,6 +12,12 @@
         Exactly = 0,
 
         /// <summary>
+        /// The parameter allows either zero or one arguments. When specifying
+        /// this constraint, you cannot also set NumArgs.
+        /// </summary>
+        Optional,
+
+        /// <summary>
         /// The parameter must provide at least this number of arguments.
         /// </summary>
         AtLeast,

@@ -28,7 +28,9 @@ namespace clipr.Arguments
         {
             get
             {
-                return Constraint != NumArgsConstraint.Exactly || NumArgs > 1;
+                return (Constraint != NumArgsConstraint.Exactly &&
+                        Constraint != NumArgsConstraint.Optional) 
+                       || NumArgs > 1;
             }
         }
 
@@ -53,6 +55,10 @@ namespace clipr.Arguments
             MetaVar = Name;
             Store = value;
             NumArgs = 1;
+            PromptIfValueMissing = new PromptIfValueMissing()
+            {
+                Enabled = false
+            };
         }
     }
 }

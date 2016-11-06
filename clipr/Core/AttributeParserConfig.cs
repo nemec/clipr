@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.Linq;
 using clipr.Triggers;
 using clipr.Utils;
 using clipr.IOC;
-using System.Reflection;
 #if NETCORE
 using System.Reflection;
 #endif

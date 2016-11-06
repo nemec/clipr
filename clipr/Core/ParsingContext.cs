@@ -314,7 +314,24 @@ namespace clipr.Core
                         {
                             if (remainingArgs.Count == 0)
                             {
-                                if (!arg.PromptIfValueMissing.Enabled)
+                                if(arg.Constraint == NumArgsConstraint.Optional)
+                                {
+                                    var defaultValue = arg.Const;
+                                    object converted;
+                                    if (TryConvertFrom(store, defaultValue, out converted))
+                                    {
+                                        store.SetValue(Object, converted);
+                                    }
+                                    else
+                                    {
+                                        throw new ParseException(attrName, String.Format(
+                                            @"Argument {0} value ""{1}"" cannot be converted to the " +
+                                            "required type {2}.",
+                                            attrName, defaultValue, store.Type));
+                                    }
+                                    break;
+                                }
+                                else if (!arg.PromptIfValueMissing.Enabled)
                                 {
                                     throw new ParseException(attrName, String.Format(
                                         @"Argument ""{0}"" requires a value but " +
@@ -592,6 +609,51 @@ namespace clipr.Core
             {
                 method.Invoke(Object, null);
             }
+        }
+
+        private static bool TryConvertFrom(IValueStoreDefinition store, object value, out object obj)
+        {
+            if(value == null)
+            {
+                // Reference types and nullables can be set to null
+                obj = null;
+                var sti = store.Type.GetTypeInfo();
+                return !sti.IsValueType ||
+                    (sti.IsGenericType &&
+                     sti.GetGenericTypeDefinition() == typeof(Nullable<>));
+            }
+
+            var srcType = value.GetType();
+            var destType = store.Type;
+
+            // Types are the same, no conversion necessary
+            if(srcType == destType)
+            {
+                obj = value;
+                return true;
+            }
+
+            // Source is a string, try to convert to the destination type
+            if(srcType == typeof(string))
+            {
+                return TryConvertFrom(store, value, out obj);
+            }
+
+            // Source is nullable and underlying type is of the same type as destination
+            var ti = destType.GetTypeInfo();
+            if (ti.IsGenericType)
+            {
+                var def = ti.GetGenericTypeDefinition();
+                var args = ti.GetGenericArguments();
+                if(def == typeof(Nullable<>) && args.Length == 1 && args[0] == srcType)
+                {
+                    obj = value;
+                    return true;
+                }
+            }
+
+            obj = null;
+            return false;
         }
 
         private static bool TryConvertFrom(IValueStoreDefinition store, string value, out object obj)

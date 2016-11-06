@@ -79,7 +79,9 @@ namespace clipr.Core
         {
             get
             {
-                return Constraint != NumArgsConstraint.Exactly || NumArgs > 1;
+                return (Constraint != NumArgsConstraint.Exactly &&
+                        Constraint != NumArgsConstraint.Optional)
+                       || NumArgs > 1;
             }
         }
 

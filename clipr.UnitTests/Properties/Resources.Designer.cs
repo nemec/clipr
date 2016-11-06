@@ -10,6 +10,7 @@
 
 namespace clipr.UnitTests.Properties {
     using System;
+    using System.Reflection;
     
     
     /// <summary>
@@ -39,7 +40,12 @@ namespace clipr.UnitTests.Properties {
         public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("clipr.UnitTests.Properties.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("clipr.UnitTests.Properties.Resources",
+#if NETCORE
+                        typeof(Resources).GetTypeInfo().Assembly);
+#else
+                        typeof(Resources).Assembly);
+#endif
                     resourceMan = temp;
                 }
                 return resourceMan;

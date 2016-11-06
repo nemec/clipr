@@ -8,6 +8,39 @@ using clipr.Attributes;
 
 namespace clipr.UnitTests
 {
+    internal static class LocalizationExtensions
+    {
+        private class CultureChanger : IDisposable
+        {
+            private readonly CultureInfo oldCulture;
+
+            public CultureChanger(CultureInfo culture)
+            {
+#if NETCORE
+                oldCulture = CultureInfo.CurrentUICulture;
+                CultureInfo.CurrentUICulture = culture;
+#else
+                oldCulture = Thread.CurrentThread.CurrentUICulture;
+                Thread.CurrentThread.CurrentUICulture = culture;
+#endif
+            }
+
+            public void Dispose()
+            {
+#if NETCORE
+                CultureInfo.CurrentUICulture = oldCulture;
+#else
+                Thread.CurrentThread.CurrentUICulture = oldCulture;
+#endif
+            }
+        }
+
+        public static IDisposable WithUiCulture(CultureInfo culture)
+        {
+            return new CultureChanger(culture);
+        }
+    }
+
     [TestClass]
     public class LocalizationUnitTest
     {
@@ -34,134 +67,130 @@ namespace clipr.UnitTests
         [TestMethod]
         public void ParseDate_WithAmericanLocaleAndAmericanDateFormat_ParsesDateCorrectly()
         {
-            // Arrange
-            var expected = new DateTime(2016, 3, 12);
-            var oldCulture = Thread.CurrentThread.CurrentUICulture;
-            Thread.CurrentThread.CurrentUICulture = new CultureInfo("en-US");
+            using (LocalizationExtensions.WithUiCulture(new CultureInfo("en-US")))
+            {
+                // Arrange
+                var expected = new DateTime(2016, 3, 12);
 
-            var opt = new LocalizationOptions();
-            var parser = new CliParser<LocalizationOptions>(opt);
-            var help = new AutomaticHelpGenerator<LocalizationOptions>();
+                var opt = new LocalizationOptions();
+                var parser = new CliParser<LocalizationOptions>(opt);
+                var help = new AutomaticHelpGenerator<LocalizationOptions>();
 
-            // Act
-            parser.Parse("-s 3/12/2016 file.txt".Split());
+                // Act
+                parser.Parse("-s 3/12/2016 file.txt".Split());
 
-            // Assert
-            Assert.AreEqual(expected, opt.StartDate);
-
-            Thread.CurrentThread.CurrentUICulture = oldCulture;
+                // Assert
+                Assert.AreEqual(expected, opt.StartDate);
+            }
         }
 
         [TestMethod]
         public void ParseDate_WithMexicanLocaleAndMexicanDateFormat_ParsesDateCorrectly()
         {
-            // Arrange
-            var expected = new DateTime(2016, 3, 12);
-            var oldCulture = Thread.CurrentThread.CurrentUICulture;
-            Thread.CurrentThread.CurrentUICulture = new CultureInfo("es-MX");
+            using (LocalizationExtensions.WithUiCulture(new CultureInfo("es-MX")))
+            {
+                // Arrange
+                var expected = new DateTime(2016, 3, 12);
 
-            var opt = new LocalizationOptions();
-            var parser = new CliParser<LocalizationOptions>(opt);
-            var help = new AutomaticHelpGenerator<LocalizationOptions>();
+                var opt = new LocalizationOptions();
+                var parser = new CliParser<LocalizationOptions>(opt);
+                var help = new AutomaticHelpGenerator<LocalizationOptions>();
 
-            // Act
-            parser.Parse("-s 12/3/2016 file.txt".Split());
+                // Act
+                parser.Parse("-s 12/3/2016 file.txt".Split());
 
-            // Assert
-            Assert.AreEqual(expected, opt.StartDate);
-
-            Thread.CurrentThread.CurrentUICulture = oldCulture;
+                // Assert
+                Assert.AreEqual(expected, opt.StartDate);
+            }
         }
 
         [TestMethod]
         public void ParseDate_WithSpanishLocaleAndSpanishDateFormat_ParsesDateCorrectly()
         {
-            // Arrange
-            var expected = new DateTime(2016, 3, 12);
-            var oldCulture = Thread.CurrentThread.CurrentUICulture;
-            Thread.CurrentThread.CurrentUICulture = new CultureInfo("es-ES");
+            using (LocalizationExtensions.WithUiCulture(new CultureInfo("es-ES")))
+            {
+                // Arrange
+                var expected = new DateTime(2016, 3, 12);
 
-            var opt = new LocalizationOptions();
-            var parser = new CliParser<LocalizationOptions>(opt);
-            var help = new AutomaticHelpGenerator<LocalizationOptions>();
+                var opt = new LocalizationOptions();
+                var parser = new CliParser<LocalizationOptions>(opt);
+                var help = new AutomaticHelpGenerator<LocalizationOptions>();
 
-            // Act
-            parser.Parse("-s 12/3/2016 file.txt".Split());
+                // Act
+                parser.Parse("-s 12/3/2016 file.txt".Split());
 
-            // Assert
-            Assert.AreEqual(expected, opt.StartDate);
-
-            Thread.CurrentThread.CurrentUICulture = oldCulture;
+                // Assert
+                Assert.AreEqual(expected, opt.StartDate);
+            }
         }
 
         [TestMethod]
         public void ParseNumber_WithAmericanLocaleAndAmericanNumberFormat_ParsesNumberCorrectly()
         {
-            // Arrange
-            var expected = 2.3;
-            var oldCulture = Thread.CurrentThread.CurrentUICulture;
-            Thread.CurrentThread.CurrentUICulture = new CultureInfo("en-US");
+            using (LocalizationExtensions.WithUiCulture(new CultureInfo("en-US")))
+            {
+                // Arrange
+                var expected = 2.3;
 
-            var opt = new LocalizationOptions();
-            var parser = new CliParser<LocalizationOptions>(opt);
-            var help = new AutomaticHelpGenerator<LocalizationOptions>();
+                var opt = new LocalizationOptions();
+                var parser = new CliParser<LocalizationOptions>(opt);
+                var help = new AutomaticHelpGenerator<LocalizationOptions>();
 
-            // Act
-            parser.Parse("-c 2.3 file.txt".Split());
+                // Act
+                parser.Parse("-c 2.3 file.txt".Split());
 
-            // Assert
-            Assert.AreEqual(expected, opt.MyCounter);
-
-            Thread.CurrentThread.CurrentUICulture = oldCulture;
+                // Assert
+                Assert.AreEqual(expected, opt.MyCounter);
+            }
         }
 
         [TestMethod]
         public void ParseNumber_WithMexicanLocaleAndMexicanNumberFormat_ParsesNumberCorrectly()
         {
-            // Arrange
-            var expected = 2.3;
-            var oldCulture = Thread.CurrentThread.CurrentUICulture;
-            Thread.CurrentThread.CurrentUICulture = new CultureInfo("es-MX");
+            using (LocalizationExtensions.WithUiCulture(new CultureInfo("es-MX")))
+            {
+                // Arrange
+                var expected = 2.3;
 
-            var opt = new LocalizationOptions();
-            var parser = new CliParser<LocalizationOptions>(opt);
-            var help = new AutomaticHelpGenerator<LocalizationOptions>();
+                var opt = new LocalizationOptions();
+                var parser = new CliParser<LocalizationOptions>(opt);
+                var help = new AutomaticHelpGenerator<LocalizationOptions>();
 
-            // Act
-            parser.Parse("-c 2.3 file.txt".Split());
+                // Act
+                parser.Parse("-c 2.3 file.txt".Split());
 
-            // Assert
-            Assert.AreEqual(expected, opt.MyCounter);
-
-            Thread.CurrentThread.CurrentUICulture = oldCulture;
+                // Assert
+                Assert.AreEqual(expected, opt.MyCounter);
+            }
         }
 
         [TestMethod]
         public void ParseNumber_WithSpanishLocaleAndSpanishNumberFormat_ParsesNumberCorrectly()
         {
-            // Arrange
-            var expected = 2.3;
-            var oldCulture = Thread.CurrentThread.CurrentUICulture;
-            Thread.CurrentThread.CurrentUICulture = new CultureInfo("es-ES");
+            using (LocalizationExtensions.WithUiCulture(new CultureInfo("es-ES")))
+            {
+                // Arrange
+                var expected = 2.3;
 
-            var opt = new LocalizationOptions();
-            var parser = new CliParser<LocalizationOptions>(opt);
-            var help = new AutomaticHelpGenerator<LocalizationOptions>();
+                var opt = new LocalizationOptions();
+                var parser = new CliParser<LocalizationOptions>(opt);
+                var help = new AutomaticHelpGenerator<LocalizationOptions>();
 
-            // Act
-            parser.Parse("-c 2,3 file.txt".Split());
+                // Act
+                parser.Parse("-c 2,3 file.txt".Split());
 
-            // Assert
-            Assert.AreEqual(expected, opt.MyCounter);
-
-            Thread.CurrentThread.CurrentUICulture = oldCulture;
+                // Assert
+                Assert.AreEqual(expected, opt.MyCounter);
+            }
         }
 
         [TestMethod]
         public void ShowHelp_WithAmericanLocale_ShowsEnglishHelpText()
         {
-            // Arrange
-            var expected = @"Usage: clipr [ -h|--help ] [ --version ] [ --turnonthepower ] [ -s S ] [ -c C ] FILETOADD 
+            using (LocalizationExtensions.WithUiCulture(new CultureInfo("en-US")))
+            {
+                // Arrange
+                var expected = @"Usage: clipr [ -h|--help ] [ --version ] [ --turnonthepower ] [ -s S ] [ -c C ] FILETOADD 
 Positional Arguments:
  FileToAdd         File to add to the thing.
 
@@ -171,27 +200,26 @@ Optional Arguments:
  -h, --help        Display this help document.
  -s                Start date.
  --version         Displays the version of the current executable.";
-            var oldCulture = Thread.CurrentThread.CurrentUICulture;
-            Thread.CurrentThread.CurrentUICulture = new CultureInfo("en-US");
 
-            var opt = new LocalizationOptions();
-            var parser = new CliParser<LocalizationOptions>(opt);
-            var help = new AutomaticHelpGenerator<LocalizationOptions>();  // TODO simplify work required to get help info
+                var opt = new LocalizationOptions();
+                var parser = new CliParser<LocalizationOptions>(opt);
+                var help = new AutomaticHelpGenerator<LocalizationOptions>();  // TODO simplify work required to get help info
 
-            // Act
-            var actual = help.GetHelp(parser.Config);
+                // Act
+                var actual = help.GetHelp(parser.Config);
 
-            // Assert
-            Assert.AreEqual(expected, actual);
-
-            Thread.CurrentThread.CurrentUICulture = oldCulture;
+                // Assert
+                Assert.AreEqual(expected, actual);
+            }
         }
 
         [TestMethod]
         public void ShowHelp_WithMexicanLocale_ShowsSpanishHelpText()
         {
-            // Arrange
-            var expected = @"Uso: clipr [ -h|--help ] [ --version ] [ --turnonthepower ] [ -s S ] [ -c C ] FILETOADD 
+            using (LocalizationExtensions.WithUiCulture(new CultureInfo("en-MX")))
+            {
+                // Arrange
+                var expected = @"Uso: clipr [ -h|--help ] [ --version ] [ --turnonthepower ] [ -s S ] [ -c C ] FILETOADD 
 Los Argumentos Posicionales:
  FileToAdd         Archivo para añadir a la cosa.
 
@@ -201,20 +229,17 @@ Los Argumentos Opcionales:
  -h, --help        Mostrar este documento de ayuda.
  -s                Fecha de inicio.
  --version         Muestra la versión del ejecutable actual.";
-            var oldCulture = Thread.CurrentThread.CurrentUICulture;
-            Thread.CurrentThread.CurrentUICulture = new CultureInfo("es-MX");
 
-            var opt = new LocalizationOptions();
-            var parser = new CliParser<LocalizationOptions>(opt);
-            var help = new AutomaticHelpGenerator<LocalizationOptions>();
+                var opt = new LocalizationOptions();
+                var parser = new CliParser<LocalizationOptions>(opt);
+                var help = new AutomaticHelpGenerator<LocalizationOptions>();
 
-            // Act
-            var actual = help.GetHelp(parser.Config);
+                // Act
+                var actual = help.GetHelp(parser.Config);
 
-            // Assert
-            Assert.AreEqual(expected, actual);
-
-            Thread.CurrentThread.CurrentUICulture = oldCulture;
+                // Assert
+                Assert.AreEqual(expected, actual);
+            }
         }
 
         // TODO localize verb description

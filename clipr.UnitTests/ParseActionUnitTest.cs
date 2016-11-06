@@ -1,13 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using clipr.Utils;
+
+#if NET35
+using AggregateException = clipr.Utils.AggregateException;
+#endif
 
 namespace clipr.UnitTests
 {
     [TestClass]
     public class ParseActionUnitTest
     {
-        #region Count Action
+#region Count Action
 
         internal class NamedArgumentCount
         {
@@ -22,9 +26,9 @@ namespace clipr.UnitTests
             Assert.AreEqual(3, opt.Verbosity);
         }
 
-        #endregion
+#endregion
 
-        #region StoreTrue Action
+#region StoreTrue Action
 
         internal class StoreTrueAction
         {
@@ -52,9 +56,9 @@ namespace clipr.UnitTests
             Assert.IsTrue(opt.IsSet.GetValueOrDefault());
         }
 
-        #endregion
+#endregion
 
-        #region StoreFalse Action
+#region StoreFalse Action
 
         internal class StoreFalseAction
         {
@@ -94,9 +98,9 @@ namespace clipr.UnitTests
             Assert.IsNull(opt.IsSet);
         }
 
-        #endregion
+#endregion
 
-        #region Store Action
+#region Store Action
 
         internal class StoreValue
         {
@@ -148,9 +152,9 @@ namespace clipr.UnitTests
             Assert.IsFalse(opt.IsSet.Value);
         }
 
-        #endregion
+#endregion
 
-        #region StoreConst Action
+#region StoreConst Action
 
         internal class StoreConst
         {
@@ -178,9 +182,9 @@ namespace clipr.UnitTests
             CliParser.Parse<StoreConstWrongConstValue>("-s bbb".Split());
         }
 
-        #endregion
+#endregion
 
-        #region Append Action
+#region Append Action
 
         internal class Append
         {
@@ -205,9 +209,9 @@ namespace clipr.UnitTests
             CollectionAssert.AreEqual(expected, opt.Values);
         }
 
-        #endregion
+#endregion
 
-        #region AppendConst Action
+#region AppendConst Action
 
         internal class AppendConst
         {
@@ -223,6 +227,6 @@ namespace clipr.UnitTests
             CollectionAssert.AreEqual(expected, opt.Values);
         }
 
-        #endregion
+#endregion
     }
 }
