@@ -47,11 +47,19 @@ namespace clipr.Usage
         }
 
         /// <summary>
-        /// Title of the optional arguments section.
+        /// Title of the optional named arguments section.
         /// </summary>
-        protected virtual string OptionalArgumentsTitle
+        protected virtual string OptionalNamedArgumentsTitle
         {
             get { return I18N._("AutomaticHelpGenerator_NamedArgumentsTitle"); }
+        }
+
+        /// <summary>
+        /// Title of the required named arguments section.
+        /// </summary>
+        protected virtual string RequiredNamedArgumentsTitle
+        {
+            get { return I18N._("AutomaticHelpGenerator_NamedRequiredArgumentsTitle"); }
         }
 
         private readonly Func<IPositionalArgument, int> _argumentIndex =
@@ -118,9 +126,15 @@ namespace clipr.Usage
                 .Concat(config.ShortNameArguments.Values.Cast<INamedArgument>())
                 .Distinct())
             {
-                builder.Append("[ ");
+                if (!arg.Required)
+                {
+                    builder.Append("[ ");
+                }
                 builder.Append(String.Join("|", GetArgumentNames(arg).ToArray()));
-                builder.Append(" ");
+                if (!arg.Required)
+                {
+                    builder.Append(" ");
+                }
 
                 if (arg.Action.ConsumesArgumentValues())
                 {
@@ -148,8 +162,10 @@ namespace clipr.Usage
                         builder.Append("] ");
                     }
                 }
-
-                builder.Append("] ");
+                if (!arg.Required)
+                {
+                    builder.Append("] ");
+                }
             }
 
             foreach (var arg in config.PositionalArguments.OrderBy(p => p.Index))
@@ -206,16 +222,24 @@ namespace clipr.Usage
                 .Distinct()
                 .ToList();
 
+            var namedRequiredArgs = namedArgs.Where(a => a.Required).ToList();
+            var namedOptionalArgs = namedArgs.Where(a => !a.Required).ToList();
+
             var positionalDisplay = positionalArgs
                 .OrderBy(_argumentIndex)
                 .Select(GetArgumentsForDisplay).ToList();
 
-            var namedDisplay = namedArgs
+            var namedRequiredDisplay = namedRequiredArgs
+                .OrderBy(_argumentDisplayName)
+                .Select(GetArgumentsForDisplay).ToList();
+
+            var namedOptionalDisplay = namedOptionalArgs
                 .OrderBy(_argumentDisplayName)
                 .Select(GetArgumentsForDisplay).ToList();
 
             var tabstop = positionalDisplay
-                .Concat(namedDisplay)
+                .Concat(namedRequiredDisplay)
+                .Concat(namedOptionalDisplay)
                 .Select(a => a.ArgumentNames.Length)
                 .Max() + Indent.Length + Spacing;
 
@@ -263,15 +287,25 @@ namespace clipr.Usage
                 }
             }
 
-            if (namedArgs.Any())
+            var prevSection = positionalArgs.Any();
+            AppendNamedArgumentList(helpDataBuilder, RequiredNamedArgumentsTitle, namedRequiredDisplay, tabstop, lineWidth, prevSection);
+            prevSection |= namedRequiredDisplay.Any();
+            AppendNamedArgumentList(helpDataBuilder, OptionalNamedArgumentsTitle, namedOptionalDisplay, tabstop, lineWidth, prevSection);
+
+            return helpDataBuilder.ToString().TrimEnd();
+        }
+
+        private static void AppendNamedArgumentList(StringBuilder helpDataBuilder, string sectionTitle, List<ArgumentDisplay> args, int tabstop, int lineWidth, bool prevSection)
+        {
+            if (args.Any())
             {
-                if (positionalArgs.Any())
+                if (prevSection)
                 {
                     helpDataBuilder.AppendLine();
                 }
-                helpDataBuilder.AppendLine(OptionalArgumentsTitle + ":");
+                helpDataBuilder.AppendLine(sectionTitle + ":");
             }
-            foreach (var arg in namedDisplay)
+            foreach (var arg in args)
             {
                 helpDataBuilder.Append(Indent);
                 helpDataBuilder.Append(arg.ArgumentNames.PadRight(
@@ -293,8 +327,6 @@ namespace clipr.Usage
                     }
                 }
             }
-
-            return helpDataBuilder.ToString().TrimEnd();
         }
 
         private static ArgumentDisplay GetArgumentsForDisplay(IPositionalArgument arg)

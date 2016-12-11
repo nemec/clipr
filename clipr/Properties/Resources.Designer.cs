@@ -10,7 +10,6 @@
 
 namespace clipr.Properties {
     using System;
-    using System.Reflection;
     
     
     /// <summary>
@@ -40,12 +39,7 @@ namespace clipr.Properties {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("clipr.Properties.Resources",
-#if NETCORE
-                        typeof(Resources).GetTypeInfo().Assembly);
-#else
-                        typeof(Resources).Assembly);
-#endif
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("clipr.Properties.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -81,6 +75,15 @@ namespace clipr.Properties {
         internal static string AutomaticHelpGenerator_NamedArgumentsTitle {
             get {
                 return ResourceManager.GetString("AutomaticHelpGenerator_NamedArgumentsTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Required Arguments.
+        /// </summary>
+        internal static string AutomaticHelpGenerator_NamedRequiredArgumentsTitle {
+            get {
+                return ResourceManager.GetString("AutomaticHelpGenerator_NamedRequiredArgumentsTitle", resourceCulture);
             }
         }
         

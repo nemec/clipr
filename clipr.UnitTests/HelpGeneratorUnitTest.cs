@@ -100,6 +100,37 @@ Nullam condimentum consectetur interdum.")]
             Assert.AreEqual(expected, help[3]);
         }
 
+        [ApplicationInfo(Description = "This is a set of options.")]
+        public class RequiredNamedOptions
+        {
+            [NamedArgument('c', "confirm", Action = ParseAction.StoreTrue, Required = true,
+                 Description = "Confirms that the action is intended.")]
+            public bool Confirmed { get; set; }
+        }
+
+        [TestMethod]
+        public void Help_WithRequiredNamedArgument_ShowsArgumentInRequiredSection()
+        {
+            const string expected = @"Usage: clipr [ -h|--help ] [ --version ] -c|--confirm
+
+ This is a set of options.
+
+Required Arguments:
+ -c, --confirm  Confirms that the action is intended.
+
+Optional Arguments:
+ -h, --help     Display this help document.
+ --version      Displays the version of the current executable.";
+
+            var opt = new RequiredNamedOptions();
+            var parser = new CliParser<RequiredNamedOptions>(opt);
+            var gen = new AutomaticHelpGenerator<RequiredNamedOptions>();
+
+            var help = gen.GetHelp(parser.Config);
+
+            Assert.AreEqual(expected, help);
+        }
+
         // TODO GenerateUsage_WithStaticEnum_ListsEnumValues()
     }
 }

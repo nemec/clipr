@@ -123,6 +123,9 @@
   <data name="AutomaticHelpGenerator_NamedArgumentsTitle" xml:space="preserve">
     <value>Los Argumentos Opcionales</value>
   </data>
+  <data name="AutomaticHelpGenerator_NamedRequiredArgumentsTitle" xml:space="preserve">
+    <value>Los Argumentos Requeridos</value>
+  </data>
   <data name="AutomaticHelpGenerator_PositionalArgumentsTitle" xml:space="preserve">
     <value>Los Argumentos Posicionales</value>
   </data>
