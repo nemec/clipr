@@ -18,8 +18,21 @@ namespace clipr.Utils
             var types = prop.GetCustomAttributes<TypeConverterAttribute>()
                 .Select(attr => Type.GetType(attr.ConverterTypeName))
                 .Where(t => t != null)
-                .Select(Activator.CreateInstance)
-                .ToList();
+                .Select(Activator.CreateInstance);
+            return staticEnumConverter
+                .Concat(types.OfType<TypeConverter>())
+                .ToArray();
+        }
+
+        public static TypeConverter[] GetConverters(Type type)
+        {
+            var staticEnumConverter = GetStaticEnumerationConverter(type);
+            var typeInfo = type.GetTypeInfo();
+            var types = typeInfo.GetCustomAttributes<TypeConverterAttribute>()
+                .Select(attr => Type.GetType(attr.ConverterTypeName))
+                .Where(t => t != null)
+                .Select(Activator.CreateInstance);
+
             return staticEnumConverter
                 .Concat(types.OfType<TypeConverter>())
                 .ToArray();
@@ -29,14 +42,29 @@ namespace clipr.Utils
         {
             var type = prop.PropertyType;
             var typeInfo = type.GetTypeInfo();
-
             var attr = prop.GetCustomAttribute<StaticEnumerationAttribute>()
                 ?? typeInfo.GetCustomAttribute<StaticEnumerationAttribute>();
             if (attr == null)
             {
                 return Enumerable.Empty<TypeConverter>();
             }
+            return GetStaticEnumerationConverterGated(type);
+        }
 
+        private static IEnumerable<TypeConverter> GetStaticEnumerationConverter(Type type)
+        {
+            var typeInfo = type.GetTypeInfo();
+            if (typeInfo.GetCustomAttribute<StaticEnumerationAttribute>() == null)
+            {
+                return Enumerable.Empty<TypeConverter>();
+            }
+            return GetStaticEnumerationConverterGated(type);
+        }
+
+        // Call this once we've determined the type has an attribute tagged to it
+        private static IEnumerable<TypeConverter> GetStaticEnumerationConverterGated(Type type)
+        {
+            var typeInfo = type.GetTypeInfo();
             var fields = typeInfo.GetFields(
                 BindingFlags.Public | BindingFlags.Static)
                 .Where(f => f.IsInitOnly &&  // readonly

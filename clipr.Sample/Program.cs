@@ -322,6 +322,50 @@ namespace clipr.Sample
             Console.WriteLine(opt.Password);
         }
 
+        public enum Color
+        {
+            Red,
+            Green,
+            Blue
+        }
+
+
+        [StaticEnumeration]
+        internal abstract class ColorEnum
+        {
+            public static readonly ColorEnum Red = new EnumValue(Color.Red);
+
+
+            public class EnumValue : ColorEnum
+            {
+                public EnumValue(Color value)
+                {
+                    Value = value;
+                }
+
+                public Color Value { get; private set; }
+
+                public override string ToString()
+                {
+                    return Value.ToString();
+                }
+            }
+        }
+
+        internal class StaticEnumListOptions
+        {
+            [NamedArgument('c', "colors", Action = ParseAction.Append, Constraint = NumArgsConstraint.AtLeast, Const = 1)]
+            public IList<ColorEnum> Colors { get; set; }
+        }
+
+        public static void ParseStaticEnumList()
+        {
+            var options = CliParser.Parse<StaticEnumListOptions>("-c Red".Split());
+            foreach (var color in options.Colors)
+                Console.WriteLine("Color: {0}", color);
+        }
+        
+
         static void Main()
         {
             //FluentWithVerb("-n3 add oranges.txt".Split());
@@ -329,7 +373,8 @@ namespace clipr.Sample
             //DictBackendMethodConfig("-n frank".Split());
             //CustomDateTime("-d 20140730 2013-09-10".Split());
             //ParseRequiredNamedArgument("-c -d 10/13/2010".Split());
-            DoPwMaskingAndPositional();
+            //DoPwMaskingAndPositional();
+            ParseStaticEnumList();
         }
     }
 }

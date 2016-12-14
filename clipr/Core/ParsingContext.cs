@@ -682,15 +682,18 @@ namespace clipr.Core
 
         private static bool TryConvertFromGeneric(IValueStoreDefinition store, string value, out object obj)
         {
+#if NET35
+            var innerType = store.Type.GetGenericArguments().First();
+#else
+            var innerType = store.Type.GetTypeInfo().GetGenericArguments().First();
+#endif
             var tempStore = new DummyValueStore
             {
                 Name = store.Name,
-                Converters = store.Converters,
-#if NET35
-                Type = store.Type.GetGenericArguments().First()
-#else
-                Type = store.Type.GetTypeInfo().GetGenericArguments().First()           
-#endif
+                Converters = store.Converters
+                    .Concat(AttributeConverter.GetConverters(innerType))
+                    .ToArray(),
+                Type = innerType
             };
 
             return TryConvertFrom(tempStore, value, out obj);
