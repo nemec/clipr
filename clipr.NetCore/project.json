@@ -1,6 +1,6 @@
 {
   "authors": [ "Dan Nemec" ],
-  "version": "1.5.1-*",
+  "version": "1.6.0.0-beta-1",
   "buildOptions": {
     "compile": "..\\clipr\\**\\*.cs",
     "define": [ "NETCORE" ],

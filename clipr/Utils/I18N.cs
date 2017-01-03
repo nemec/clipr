@@ -8,11 +8,13 @@ namespace clipr.Utils
     {
 #if NET35
         private static Assembly _asm = Assembly.GetAssembly(typeof(I18N));
+        private const string ResourceName = "clipr.Properties.Resources";
 #else
         private static Assembly _asm = typeof(I18N).GetTypeInfo().Assembly;
+        private const string ResourceName = "clipr.NetCore.Resources";
 #endif
 
-        private static ResourceManager _mgr = new ResourceManager("clipr.Properties.Resources", _asm);
+        private static ResourceManager _mgr = new ResourceManager(ResourceName, _asm);
 
         public static string _(string resourceName)
         {

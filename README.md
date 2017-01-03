@@ -63,6 +63,7 @@ static void Main()
 * Add ability to mask password.
 * Add "optional" value constraint for reference or nullable types.
 * Add section in help generation for required named arguments.
+* Fixed bug in .Net Core localization resource name.
 
 ###2016-08-28 1.5.1
 
