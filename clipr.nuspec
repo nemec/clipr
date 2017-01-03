@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>clipr</id>
-    <version>1.6.0.0-beta-1</version>
+    <version>1.6.0.0</version>
     <title>clipr Command Line Interface ParseR</title>
     <authors>Dan Nemec</authors>
     <owners>Dan Nemec</owners>
@@ -11,6 +11,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Simple command line argument parser inspired by Python's argparse.</description>
     <releaseNotes>
+      2016-01-02 1.6.0 Add optional constraints on NamedArguments where the value can be left off.
       2016-07-31 1.5.1 Support .Net Core, localization, and other fixes.
       2015-03-28 1.4.6 Relax restrictions on a NumArgs value of 0.
       2013-09-04 1.4.0 Added Dictionary backend.
