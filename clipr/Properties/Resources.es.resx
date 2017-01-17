@@ -118,22 +118,24 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="AutomaticHelpGenerator_Description" xml:space="preserve">
-    <value>Mostrar este documento de ayuda.</value>
+    <value>Muestra esta ayuda</value>
   </data>
   <data name="AutomaticHelpGenerator_NamedArgumentsTitle" xml:space="preserve">
-    <value>Los Argumentos Opcionales</value>
+    <value>Argumentos opcionales</value>
   </data>
   <data name="AutomaticHelpGenerator_NamedRequiredArgumentsTitle" xml:space="preserve">
-    <value>Los Argumentos Requeridos</value>
+    <value>Argumentos requeridos</value>
   </data>
   <data name="AutomaticHelpGenerator_PositionalArgumentsTitle" xml:space="preserve">
-    <value>Los Argumentos Posicionales</value>
+    <value>Argumentos dependientes de la posición</value>
   </data>
   <data name="AutomaticHelpGenerator_Usage" xml:space="preserve">
-    <value>Uso</value>
+    <value>Forma de uso</value>
   </data>
   <data name="ExecutingAssemblyVersion_Description" xml:space="preserve">
-    <value>Muestra la versión del ejecutable actual.</value>
-    <comment>.</comment>
+    <value>Muestra la versión del ejecutable</value>
+  </data>
+  <data name="PromptIfValueMissing_Prompt" xml:space="preserve">
+    <value>Ingrese un valor para {0}:</value>
   </data>
 </root>
