@@ -219,16 +219,16 @@ Optional Arguments:
             using (LocalizationExtensions.WithUiCulture(new CultureInfo("es-MX")))
             {
                 // Arrange
-                var expected = @"Uso: clipr [ -h|--help ] [ --version ] [ --turnonthepower ] [ -s S ] [ -c C ] FILETOADD 
-Los Argumentos Posicionales:
+                var expected = @"Forma de uso: clipr [ -h|--help ] [ --version ] [ --turnonthepower ] [ -s S ] [ -c C ] FILETOADD 
+Argumentos dependientes de la posición:
  FileToAdd         Archivo para añadir a la cosa.
 
-Los Argumentos Opcionales:
+Argumentos opcionales:
  --turnonthepower  Establecer el nivel de potencia de 9001.
  -c                Un contador fresco.
- -h, --help        Mostrar este documento de ayuda.
+ -h, --help        Muestra esta ayuda
  -s                Fecha de inicio.
- --version         Muestra la versión del ejecutable actual.";
+ --version         Muestra la versión del ejecutable";
 
                 var opt = new LocalizationOptions();
                 var parser = new CliParser<LocalizationOptions>(opt);
