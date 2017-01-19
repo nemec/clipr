@@ -78,8 +78,6 @@ namespace clipr.Core
                     continue;
                 }
 
-                arg = arg.Trim();
-
                 // Rest of arguments are positional
                 if (arg == positionalDelimiter)
                 {
