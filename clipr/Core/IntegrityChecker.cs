@@ -28,7 +28,7 @@ namespace clipr.Core
         /// <typeparam name="T">
         /// Perform integrity check on this type.
         /// </typeparam>
-        internal void EnsureAttributeIntegrity<T>()
+        internal IEnumerable<Exception> EnsureAttributeIntegrity<T>(ParserOptions options)
         {
             var integrityExceptions = new List<Exception>();
 
@@ -64,16 +64,12 @@ namespace clipr.Core
             integrityExceptions.Add(LastPositionalArgumentCanTakeMultipleValuesCheck<T>());
             integrityExceptions.Add(PostParseZeroParametersCheck<T>());
             integrityExceptions.Add(ConfigMayNotContainBothPositionalArgumentsAndVerbs<T>());
+            integrityExceptions.Add(ConfigMayNotContainDuplicateArguments<T>(options));
 
-            integrityExceptions = integrityExceptions
-                .Where(e => e != null).ToList();
-            if (integrityExceptions.Any())
-            {
-                throw new Utils.AggregateException(integrityExceptions);
-            }
+            return integrityExceptions.Where(e => e != null);
         }
 
-        internal void EnsureVerbIntegrity<T>(IVerbFactory factory)
+        internal IEnumerable<Exception> EnsureVerbIntegrity<T>(IVerbFactory factory)
         {
             var integrityExceptions = new List<Exception>();
 
@@ -86,15 +82,10 @@ namespace clipr.Core
 
             integrityExceptions.Add(CannotDefineDuplicateVerbs<T>());
 
-            integrityExceptions = integrityExceptions
-                .Where(e => e != null).ToList();
-            if (integrityExceptions.Any())
-            {
-                throw new Utils.AggregateException(integrityExceptions);
-            }
+            return integrityExceptions.Where(e => e != null);
         }
 
-        internal void EnsureTriggerIntegrity(IEnumerable<ITerminatingTrigger> triggers)
+        internal IEnumerable<Exception> EnsureTriggerIntegrity(IEnumerable<ITerminatingTrigger> triggers)
         {
             var integrityExceptions = new List<Exception>();
 
@@ -104,12 +95,7 @@ namespace clipr.Core
                     GetIntegrityExceptionsForArgument(trigger));
             }
 
-            integrityExceptions = integrityExceptions
-                .Where(e => e != null).ToList();
-            if (integrityExceptions.Any())
-            {
-                throw new Utils.AggregateException(integrityExceptions);
-            }
+            return integrityExceptions.Where(e => e != null);
         }
 
         private IEnumerable<Exception> GetIntegrityExceptionsForArgument(IArgument attr)
@@ -419,6 +405,48 @@ namespace clipr.Core
                     "Positional arguments and Verbs.");
             }
             return null;
+        }
+
+        private static Exception ConfigMayNotContainDuplicateArguments<T>(ParserOptions options)
+        {
+            var named = typeof(T)
+                .GetTypeInfo()
+                .GetProperties()
+                .Select(p => p.GetCustomAttribute<NamedArgumentAttribute>())
+                .Where(a => a != null);
+            var dupes = named
+                .Where(k => k.ShortName.HasValue)
+                .GroupBy(k => options.HasFlag(ParserOptions.CaseInsensitive)
+                    ? k.ShortName.ToString().ToLowerInvariant()
+                    : k.ShortName.ToString())
+                .Where(a => a.Count() > 1)
+                .Select(a => a.Key);
+            var dupel = named
+                .Where(k => k.LongName != null)
+                .GroupBy(k => options.HasFlag(ParserOptions.CaseInsensitive) 
+                    ? k.LongName.ToLowerInvariant()
+                    : k.LongName)
+                .Where(a => a.Count() > 1)
+                .Select(a => a.Key);
+
+            var errs = new List<Exception>();
+            foreach(var dupe in dupes)
+            {
+                errs.Add(new DuplicateArgumentException(dupe));
+            }
+            foreach(var dupe in dupel)
+            {
+                errs.Add(new DuplicateArgumentException(dupe));
+            }
+            if(errs.Count == 0)
+            {
+                return null;
+            }
+            if(errs.Count == 1)
+            {
+                return errs[0];
+            }
+            return new Utils.AggregateException(errs);
         }
 
         private static Exception VerbMustHaveFactoryDefined(PropertyInfo verbProp, IVerbFactory factory)

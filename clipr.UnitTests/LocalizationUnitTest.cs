@@ -73,11 +73,11 @@ namespace clipr.UnitTests
                 var expected = new DateTime(2016, 3, 12);
 
                 var opt = new LocalizationOptions();
-                var parser = new CliParser<LocalizationOptions>(opt);
+                var parser = new CliParser<LocalizationOptions>();
                 var help = new AutomaticHelpGenerator<LocalizationOptions>();
 
                 // Act
-                parser.Parse("-s 3/12/2016 file.txt".Split());
+                parser.Parse("-s 3/12/2016 file.txt".Split(), opt);
 
                 // Assert
                 Assert.AreEqual(expected, opt.StartDate);
@@ -93,11 +93,11 @@ namespace clipr.UnitTests
                 var expected = new DateTime(2016, 3, 12);
 
                 var opt = new LocalizationOptions();
-                var parser = new CliParser<LocalizationOptions>(opt);
+                var parser = new CliParser<LocalizationOptions>();
                 var help = new AutomaticHelpGenerator<LocalizationOptions>();
 
                 // Act
-                parser.Parse("-s 12/3/2016 file.txt".Split());
+                parser.Parse("-s 12/3/2016 file.txt".Split(), opt);
 
                 // Assert
                 Assert.AreEqual(expected, opt.StartDate);
@@ -113,11 +113,11 @@ namespace clipr.UnitTests
                 var expected = new DateTime(2016, 3, 12);
 
                 var opt = new LocalizationOptions();
-                var parser = new CliParser<LocalizationOptions>(opt);
+                var parser = new CliParser<LocalizationOptions>();
                 var help = new AutomaticHelpGenerator<LocalizationOptions>();
 
                 // Act
-                parser.Parse("-s 12/3/2016 file.txt".Split());
+                parser.Parse("-s 12/3/2016 file.txt".Split(), opt);
 
                 // Assert
                 Assert.AreEqual(expected, opt.StartDate);
@@ -133,11 +133,11 @@ namespace clipr.UnitTests
                 var expected = 2.3;
 
                 var opt = new LocalizationOptions();
-                var parser = new CliParser<LocalizationOptions>(opt);
+                var parser = new CliParser<LocalizationOptions>();
                 var help = new AutomaticHelpGenerator<LocalizationOptions>();
 
                 // Act
-                parser.Parse("-c 2.3 file.txt".Split());
+                parser.Parse("-c 2.3 file.txt".Split(), opt);
 
                 // Assert
                 Assert.AreEqual(expected, opt.MyCounter);
@@ -153,11 +153,11 @@ namespace clipr.UnitTests
                 var expected = 2.3;
 
                 var opt = new LocalizationOptions();
-                var parser = new CliParser<LocalizationOptions>(opt);
+                var parser = new CliParser<LocalizationOptions>();
                 var help = new AutomaticHelpGenerator<LocalizationOptions>();
 
                 // Act
-                parser.Parse("-c 2.3 file.txt".Split());
+                parser.Parse("-c 2.3 file.txt".Split(), opt);
 
                 // Assert
                 Assert.AreEqual(expected, opt.MyCounter);
@@ -173,11 +173,11 @@ namespace clipr.UnitTests
                 var expected = 2.3;
 
                 var opt = new LocalizationOptions();
-                var parser = new CliParser<LocalizationOptions>(opt);
+                var parser = new CliParser<LocalizationOptions>();
                 var help = new AutomaticHelpGenerator<LocalizationOptions>();
 
                 // Act
-                parser.Parse("-c 2,3 file.txt".Split());
+                parser.Parse("-c 2,3 file.txt".Split(), opt);
 
                 // Assert
                 Assert.AreEqual(expected, opt.MyCounter);
@@ -200,13 +200,12 @@ Optional Arguments:
  -h, --help        Display this help document.
  -s                Start date.
  --version         Displays the version of the current executable.";
-
-                var opt = new LocalizationOptions();
-                var parser = new CliParser<LocalizationOptions>(opt);
+                
+                var parser = new CliParser<LocalizationOptions>();
                 var help = new AutomaticHelpGenerator<LocalizationOptions>();  // TODO simplify work required to get help info
 
                 // Act
-                var actual = help.GetHelp(parser.Config);
+                var actual = help.GetHelp(parser.BuildConfig());
 
                 // Assert
                 Assert.AreEqual(expected, actual);
@@ -229,13 +228,12 @@ Argumentos opcionales:
  -h, --help        Muestra esta ayuda
  -s                Fecha de inicio.
  --version         Muestra la versión del ejecutable";
-
-                var opt = new LocalizationOptions();
-                var parser = new CliParser<LocalizationOptions>(opt);
+                
+                var parser = new CliParser<LocalizationOptions>();
                 var help = new AutomaticHelpGenerator<LocalizationOptions>();
 
                 // Act
-                var actual = help.GetHelp(parser.Config);
+                var actual = help.GetHelp(parser.BuildConfig());
 
                 // Assert
                 Assert.AreEqual(expected, actual);

@@ -29,12 +29,11 @@ namespace clipr.UnitTests
             var args = "--help".Split();
             var opt = new NoDescription();
             var parser = new CliParser<NoDescription>(
-                opt,
                 ParserOptions.None,
                 new Help());
 
             AssertEx.Throws<ParserExit>(() =>
-            parser.Parse(args));
+            parser.Parse(args, opt));
         }
         
         [StaticEnumeration]
@@ -68,16 +67,15 @@ Nullam condimentum consectetur interdum.")]
         public void Help_With80CharacterDisplayWidth_PrintsUpTo80Characters()
         {
             const string expected = " -n, --name  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec eget\r";
-
-            var opt = new OptionsWithLongDescription();
-            var parser = new CliParser<OptionsWithLongDescription>(opt);
+            
+            var parser = new CliParser<OptionsWithLongDescription>();
             var gen = new AutomaticHelpGenerator<OptionsWithLongDescription>
             {
                 DisplayWidth = 80
             };
 
 
-            var help = gen.GetHelp(parser.Config).Split('\n');
+            var help = gen.GetHelp(parser.BuildConfig()).Split('\n');
 
             Assert.AreEqual(expected, help[3]);
         }
@@ -86,16 +84,15 @@ Nullam condimentum consectetur interdum.")]
         public void Help_With40CharacterDisplayWidth_PrintsUpTo40Characters()
         {
             const string expected = " -n, --name  Lorem ipsum dolor sit amet,\r";
-
-            var opt = new OptionsWithLongDescription();
-            var parser = new CliParser<OptionsWithLongDescription>(opt);
+            
+            var parser = new CliParser<OptionsWithLongDescription>();
             var gen = new AutomaticHelpGenerator<OptionsWithLongDescription>
             {
                 DisplayWidth = 40
             };
 
 
-            var help = gen.GetHelp(parser.Config).Split('\n');
+            var help = gen.GetHelp(parser.BuildConfig()).Split('\n');
 
             Assert.AreEqual(expected, help[3]);
         }
@@ -121,12 +118,11 @@ Required Arguments:
 Optional Arguments:
  -h, --help     Display this help document.
  --version      Displays the version of the current executable.";
-
-            var opt = new RequiredNamedOptions();
-            var parser = new CliParser<RequiredNamedOptions>(opt);
+            
+            var parser = new CliParser<RequiredNamedOptions>();
             var gen = new AutomaticHelpGenerator<RequiredNamedOptions>();
 
-            var help = gen.GetHelp(parser.Config);
+            var help = gen.GetHelp(parser.BuildConfig());
 
             Assert.AreEqual(expected, help);
         }

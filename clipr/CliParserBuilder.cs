@@ -19,22 +19,16 @@ namespace clipr
 
         private ParserOptions Options { get; set; }
 
-        private TConf Object { get; set; }
-
-        public CliParserBuilder(TConf obj)
+        public CliParserBuilder()
         {
             FluentConfig = new FluentParserConfig<TConf>(ParserOptions.None, 
                 Enumerable.Empty<ITerminatingTrigger>(), new ParameterlessVerbFactory());
-            Object = obj;
         } 
 
         public CliParserBuilder(ParserOptions options, IEnumerable<ITerminatingTrigger> triggers)
         {
             FluentConfig = new FluentParserConfig<TConf>(options, triggers, new ParameterlessVerbFactory());
             Options = options;
-            // Verb's settings object
-            // Object must have default constructor
-            Object = (TConf)Activator.CreateInstance(typeof(TConf));
         }
 
         // TODO pass in object
@@ -44,7 +38,7 @@ namespace clipr
             get
             {
                 FluentConfig.ProcessArguments();
-                return new CliParser<TConf>(FluentConfig, Object, Options);
+                return new CliParser<TConf>(FluentConfig, Options);
             }
         }
 

@@ -63,7 +63,7 @@ namespace clipr.Sample
         {
             var opt = new Options();
 
-            new CliParserBuilder<Options>(opt)
+            new CliParserBuilder<Options>()
                 .HasNamedArgument(o => o.Verbosity)
                     .WithShortName('v')
                     .CountsInvocations()
@@ -75,7 +75,7 @@ namespace clipr.Sample
                     .HasDescription("These are numbers.")
                     .Consumes.AtLeast(1)
             .And.Parser
-                .Parse(args);
+                .Parse(args, opt);
 
             Console.WriteLine(opt.Verbosity);
             // >>> 3
@@ -95,15 +95,15 @@ namespace clipr.Sample
         static void FluentWithVerb(string[] args)
         {
             var opt = new VerbTestOptions();
-            new CliParserBuilder<VerbTestOptions>(opt)
+            new CliParserBuilder<VerbTestOptions>()
                 .HasNamedArgument(c => c.NumCounters)
                 .WithShortName()
             .And
                 .HasVerb("add", c => c.AddInfo,
-                         new CliParserBuilder<VerbSubOptions>(new VerbSubOptions())
+                         new CliParserBuilder<VerbSubOptions>()
                              .HasPositionalArgument(c => c.Filename).And)
             .And.Parser
-                .Parse(args);
+                .Parse(args, opt);
 
             Console.WriteLine("Number of counters: {0}", opt.NumCounters);  // 3
             Console.WriteLine("File name to add: {0}", opt.AddInfo.Filename);  // oranges.txt
@@ -119,7 +119,7 @@ namespace clipr.Sample
         public static void FluentConditional(string destinationFromConfig, string[] args)
         {
             var opt = new ConditionalOptions();
-            var builder = new CliParserBuilder<ConditionalOptions>(opt);
+            var builder = new CliParserBuilder<ConditionalOptions>();
 
             switch (destinationFromConfig)
             {
@@ -134,7 +134,7 @@ namespace clipr.Sample
                     break;
             }
 
-            builder.Parser.Parse(args);
+            builder.Parser.Parse(args, opt);
             Console.WriteLine("Filename: {0}", opt.Filename);
             Console.WriteLine("Url: {0}", opt.Url);
         }
@@ -142,11 +142,11 @@ namespace clipr.Sample
         public static void DictBackedConfiguration(string[] args)
         {
             var opt = new Dictionary<string, string>();
-            var builder = new CliParserBuilder<Dictionary<string, string>>(opt);
+            var builder = new CliParserBuilder<Dictionary<string, string>>();
             builder.HasNamedArgument(c => c["name"])
                   .WithShortName('n');
 
-            builder.Parser.Parse(args);
+            builder.Parser.Parse(args, opt);
 
             Console.WriteLine("Parsed Keys:");
             foreach (var kv in opt)
@@ -159,11 +159,11 @@ namespace clipr.Sample
         {
             const int key = 1;
             var opt = new Dictionary<int, object>();
-            var builder = new CliParserBuilder<Dictionary<int, object>>(opt);
+            var builder = new CliParserBuilder<Dictionary<int, object>>();
             builder.HasNamedArgument(c => c[key])
                   .WithShortName('n');
 
-            builder.Parser.Parse(args);
+            builder.Parser.Parse(args, opt);
 
             Console.WriteLine("Parsed Keys:");
             foreach (var kv in opt)
@@ -241,36 +241,36 @@ namespace clipr.Sample
             var culture = Thread.CurrentThread.CurrentUICulture;
 
             var opt = new LocalizationOptions();
-            var parser = new CliParser<LocalizationOptions>(opt);
+            var parser = new CliParser<LocalizationOptions>();
             var help = new AutomaticHelpGenerator<LocalizationOptions>();
 
-            parser.Parse("--turnonthepower -s 3/12/2016 -c 2.3 file1.txt".Split());
+            parser.Parse("--turnonthepower -s 3/12/2016 -c 2.3 file1.txt".Split(), opt);
             Console.WriteLine(opt.StartDate.Month); // 3
             Console.WriteLine(opt.MyCounter);  // 2.3
 
-            Console.WriteLine(help.GetHelp(parser.Config));
+            Console.WriteLine(help.GetHelp(parser.BuildConfig()));
 
             Thread.CurrentThread.CurrentUICulture = new CultureInfo("es-MX");
 
             var optMx = new LocalizationOptions();
-            var parserMx = new CliParser<LocalizationOptions>(optMx);
+            var parserMx = new CliParser<LocalizationOptions>();
 
-            parserMx.Parse("--turnonthepower -s 12/3/2016 -c 2.3 file1.txt".Split());
+            parserMx.Parse("--turnonthepower -s 12/3/2016 -c 2.3 file1.txt".Split(), optMx);
             Console.WriteLine(optMx.StartDate.Month);  // 3
             Console.WriteLine(optMx.MyCounter);  // 2.3
 
-            Console.WriteLine(help.GetHelp(parserMx.Config));
+            Console.WriteLine(help.GetHelp(parserMx.BuildConfig()));
 
             Thread.CurrentThread.CurrentUICulture = new CultureInfo("es-ES");
 
             var optEs = new LocalizationOptions();
-            var parserEs = new CliParser<LocalizationOptions>(optEs);
+            var parserEs = new CliParser<LocalizationOptions>();
 
-            parserEs.Parse("--turnonthepower -s 12/3/2016 -c 2,3 file1.txt".Split());
+            parserEs.Parse("--turnonthepower -s 12/3/2016 -c 2,3 file1.txt".Split(), optEs);
             Console.WriteLine(optEs.StartDate.Month);  // 3
             Console.WriteLine(optEs.MyCounter);  // 2.3
 
-            Console.WriteLine(help.GetHelp(parserEs.Config));
+            Console.WriteLine(help.GetHelp(parserEs.BuildConfig()));
 
             Thread.CurrentThread.CurrentUICulture = culture;
         }

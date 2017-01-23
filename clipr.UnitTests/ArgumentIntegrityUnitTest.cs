@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 using AggregateException = clipr.Utils.AggregateException;
+using System.Linq;
 
 // ReSharper disable ObjectCreationAsStatement
 // ReSharper disable UseObjectOrCollectionInitializer
@@ -35,11 +36,13 @@ namespace clipr.UnitTests
         [TestMethod]
         public void ParseArgument_WithArgumentsOfDifferingCaseWhenCaseInsensitive_ThrowsException()
         {
-            var opt = new DuplicateArgumentWhenCaseInsensitive();
+            var parser = new CliParser<DuplicateArgumentWhenCaseInsensitive>(
+                ParserOptions.CaseInsensitive);
+            var errs = parser.ValidateAttributeConfig();
 
-            AssertEx.Throws<DuplicateArgumentException>(() => 
-                new CliParser<DuplicateArgumentWhenCaseInsensitive>(
-                    opt, ParserOptions.CaseInsensitive));
+            Assert.IsTrue(errs
+                .OfType<DuplicateArgumentException>()
+                .Any());
         }
 
         internal class DuplicateArguments
@@ -54,8 +57,12 @@ namespace clipr.UnitTests
         [TestMethod]
         public void ParseArgument_WithDuplicateArguments_ThrowsException()
         {
-            AssertEx.Throws<DuplicateArgumentException>(
-                () => new CliParser<DuplicateArguments>(new DuplicateArguments()));
+            var parser = new CliParser<DuplicateArguments>();
+            var errs = parser.ValidateAttributeConfig();
+
+            Assert.IsTrue(errs
+                .OfType<ArgumentIntegrityException>()
+                .Any());
         }
 
 #endregion
@@ -72,9 +79,12 @@ namespace clipr.UnitTests
         [TestMethod]
         public void ParseArguments_WithMultipleArgumentAttributes_ThrowsIntegrityException()
         {
-            AssertEx.Throws<AggregateException>(() =>
-            new CliParser<MutuallyExclusiveArgumentAttributes>(
-                new MutuallyExclusiveArgumentAttributes()));
+            var parser = new CliParser<MutuallyExclusiveArgumentAttributes>();
+            var errs = parser.ValidateAttributeConfig();
+
+            Assert.IsTrue(errs
+                .OfType<ArgumentIntegrityException>()
+                .Any());
         }
 
 #endregion
@@ -90,9 +100,12 @@ namespace clipr.UnitTests
         [TestMethod]
         public void NamedArgument_WithExactCountLessThanOneThrows_ExceptionOnInitialize()
         {
-            AssertEx.Throws<AggregateException>(() =>
-            new CliParser<NamedArgumentExactCountLessThanOne>(
-                new NamedArgumentExactCountLessThanOne()));
+            var parser = new CliParser<NamedArgumentExactCountLessThanOne>();
+            var errs = parser.ValidateAttributeConfig();
+
+            Assert.IsTrue(errs
+                .OfType<ArgumentIntegrityException>()
+                .Any());
         }
 
         internal class NamedArgumentUpperBoundCountLessThanOne
@@ -104,9 +117,12 @@ namespace clipr.UnitTests
         [TestMethod]
         public void NamedArgument_WithUpperBoundCountLessThanOneThrows_ExceptionOnInitialize()
         {
-            AssertEx.Throws<AggregateException>(() =>
-            new CliParser<NamedArgumentUpperBoundCountLessThanOne>(
-                new NamedArgumentUpperBoundCountLessThanOne()));
+            var parser = new CliParser<PositionalArgumentUpperBoundCountLessThanOne>();
+            var errs = parser.ValidateAttributeConfig();
+
+            Assert.IsTrue(errs
+                .OfType<ArgumentIntegrityException>()
+                .Any());
         }
 
         internal class PositionalArgumentExactCountLessThanOne
@@ -118,9 +134,12 @@ namespace clipr.UnitTests
         [TestMethod]
         public void PositionalArgument_WithExactCountLessThanOneThrows_ExceptionOnInitialize()
         {
-            AssertEx.Throws<AggregateException>(() =>
-            new CliParser<PositionalArgumentExactCountLessThanOne>(
-                new PositionalArgumentExactCountLessThanOne()));
+            var parser = new CliParser<PositionalArgumentExactCountLessThanOne>();
+            var errs = parser.ValidateAttributeConfig();
+
+            Assert.IsTrue(errs
+                .OfType<ArgumentIntegrityException>()
+                .Any());
         }
 
         internal class PositionalArgumentUpperBoundCountLessThanOne
@@ -132,9 +151,12 @@ namespace clipr.UnitTests
         [TestMethod]
         public void PositionalArgument_WithUpperBoundCountLessThanOneThrows_ExceptionOnInitialize()
         {
-            AssertEx.Throws<AggregateException>(() =>
-            new CliParser<PositionalArgumentUpperBoundCountLessThanOne>(
-                new PositionalArgumentUpperBoundCountLessThanOne()));
+            var parser = new CliParser<PositionalArgumentUpperBoundCountLessThanOne>();
+            var errs = parser.ValidateAttributeConfig();
+
+            Assert.IsTrue(errs
+                .OfType<ArgumentIntegrityException>()
+                .Any());
         }
 
 #endregion
@@ -153,9 +175,12 @@ namespace clipr.UnitTests
         [TestMethod]
         public void PositionalArgument_WithMultiplePositionalArgumentsAndFirstHasVarArgs_FailsValidation()
         {
-            AssertEx.Throws<AggregateException>(() =>
-            new CliParser<MultiplePositionalArgsWithMultipleValues>(
-                new MultiplePositionalArgsWithMultipleValues()));
+            var parser = new CliParser<MultiplePositionalArgsWithMultipleValues>();
+            var errs = parser.ValidateAttributeConfig();
+
+            Assert.IsTrue(errs
+                .OfType<ArgumentIntegrityException>()
+                .Any());
         }
 
 #endregion
@@ -171,8 +196,12 @@ namespace clipr.UnitTests
         [TestMethod]
         public void Argument_WithParseActionAppendAndDoesNotImplementIEnumerable_FailsValidation()
         {
-            AssertEx.Throws<AggregateException>(() =>
-            new CliParser<ParseActionAppend>(new ParseActionAppend()));
+            var parser = new CliParser<ParseActionAppend>();
+            var errs = parser.ValidateAttributeConfig();
+
+            Assert.IsTrue(errs
+                .OfType<ArgumentIntegrityException>()
+                .Any());
         }
 
         internal class ParseActionAppendConst
@@ -184,8 +213,12 @@ namespace clipr.UnitTests
         [TestMethod]
         public void Argument_WithParseActionAppendConstAndDoesNotImplementIEnumerable_FailsValidation()
         {
-            AssertEx.Throws<AggregateException>(() =>
-            new CliParser<ParseActionAppendConst>(new ParseActionAppendConst()));
+            var parser = new CliParser<ParseActionAppendConst>();
+            var errs = parser.ValidateAttributeConfig();
+
+            Assert.IsTrue(errs
+                .OfType<ArgumentIntegrityException>()
+                .Any());
         }
 
 #endregion
@@ -201,8 +234,12 @@ namespace clipr.UnitTests
         [TestMethod]
         public void Argument_WithParseActionCountAndDoesNotImplementInt_FailsValidation()
         {
-            AssertEx.Throws<AggregateException>(() =>
-               new CliParser<ParseActionCount>(new ParseActionCount()));
+            var parser = new CliParser<ParseActionCount>();
+            var errs = parser.ValidateAttributeConfig();
+
+            Assert.IsTrue(errs
+                .OfType<ArgumentIntegrityException>()
+                .Any());
         }
 
 #endregion
@@ -218,8 +255,12 @@ namespace clipr.UnitTests
         [TestMethod]
         public void Argument_WithInvalidCharacterAsShortName_FailsValidation()
         {
-            AssertEx.Throws<AggregateException>(() =>
-            new CliParser<InvalidShortName>(new InvalidShortName()));
+            var parser = new CliParser<InvalidShortName>();
+            var errs = parser.ValidateAttributeConfig();
+
+            Assert.IsTrue(errs
+                .OfType<ArgumentIntegrityException>()
+                .Any());
         }
 
 #endregion
@@ -235,8 +276,12 @@ namespace clipr.UnitTests
         [TestMethod]
         public void Argument_WithInvalidCharacterAsLongName_FailsValidation()
         {
-            AssertEx.Throws<AggregateException>(() =>
-            new CliParser<InvalidLongName>(new InvalidLongName()));
+            var parser = new CliParser<InvalidLongName>();
+            var errs = parser.ValidateAttributeConfig();
+
+            Assert.IsTrue(errs
+                .OfType<ArgumentIntegrityException>()
+                .Any());
         }
 
 #endregion
@@ -252,8 +297,12 @@ namespace clipr.UnitTests
         [TestMethod]
         public void Argument_WithConstValueAsWrongType_FailsValidation()
         {
-            AssertEx.Throws<AggregateException>(() =>
-            new CliParser<ConstWithWrongType>(new ConstWithWrongType()));
+            var parser = new CliParser<ConstWithWrongType>();
+            var errs = parser.ValidateAttributeConfig();
+
+            Assert.IsTrue(errs
+                .OfType<ArgumentIntegrityException>()
+                .Any());
         }
 
 #endregion
@@ -269,8 +318,12 @@ namespace clipr.UnitTests
         [TestMethod]
         public void PositionalArgument_WithConstValue_FailsValidation()
         {
-            AssertEx.Throws<AggregateException>(() =>
-            new CliParser<PositionalArgumentWithConst>(new PositionalArgumentWithConst()));
+            var parser = new CliParser<PositionalArgumentWithConst>();
+            var errs = parser.ValidateAttributeConfig();
+
+            Assert.IsTrue(errs
+                .OfType<ArgumentIntegrityException>()
+                .Any());
         }
 
 #endregion
@@ -286,8 +339,12 @@ namespace clipr.UnitTests
         [TestMethod]
         public void Argument_WithConstTrueWithWrongType_FailsValidation()
         {
-            AssertEx.Throws<AggregateException>(() =>
-            new CliParser<ConstTrueWithWrongType>(new ConstTrueWithWrongType()));
+            var parser = new CliParser<ConstTrueWithWrongType>();
+            var errs = parser.ValidateAttributeConfig();
+
+            Assert.IsTrue(errs
+                .OfType<ArgumentIntegrityException>()
+                .Any());
         }
 
         internal class ConstFalseWithWrongType
@@ -299,8 +356,12 @@ namespace clipr.UnitTests
         [TestMethod]
         public void Argument_WithConstFalseWithWrongType_FailsValidation()
         {
-            AssertEx.Throws<AggregateException>(() =>
-            new CliParser<ConstFalseWithWrongType>(new ConstFalseWithWrongType()));
+            var parser = new CliParser<ConstFalseWithWrongType>();
+            var errs = parser.ValidateAttributeConfig();
+
+            Assert.IsTrue(errs
+                .OfType<ArgumentIntegrityException>()
+                .Any());
         }
 
 #endregion
@@ -313,8 +374,12 @@ namespace clipr.UnitTests
             var help = new Usage.AutomaticHelpGenerator<object>();
             help.ShortName = '.';
 
-            AssertEx.ThrowsAggregateContaining<ArgumentIntegrityException>(
-                            () => new CliParser<object>(new object(), help));
+            var parser = new CliParser<object>(help);
+            var errs = parser.ValidateAttributeConfig();
+
+            Assert.IsTrue(errs
+                .OfType<ArgumentIntegrityException>()
+                .Any());
         }
 
         [TestMethod]
@@ -323,8 +388,12 @@ namespace clipr.UnitTests
             var help = new Usage.AutomaticHelpGenerator<object>();
             help.ShortName = '1';
 
-            AssertEx.ThrowsAggregateContaining<ArgumentIntegrityException>(
-                            () => new CliParser<object>(new object(), help));
+            var parser = new CliParser<object>(help);
+            var errs = parser.ValidateAttributeConfig();
+
+            Assert.IsTrue(errs
+                .OfType<ArgumentIntegrityException>()
+                .Any());
         }
 
 #endregion
@@ -337,8 +406,12 @@ namespace clipr.UnitTests
             var help = new Usage.AutomaticHelpGenerator<object>();
             help.LongName = "no.thing";
 
-            AssertEx.ThrowsAggregateContaining<ArgumentIntegrityException>(
-                            () => new CliParser<object>(new object(), help));
+            var parser = new CliParser<object>(help);
+            var errs = parser.ValidateAttributeConfig();
+
+            Assert.IsTrue(errs
+                .OfType<ArgumentIntegrityException>()
+                .Any());
         }
 
         [TestMethod]
@@ -347,8 +420,12 @@ namespace clipr.UnitTests
             var help = new Usage.AutomaticHelpGenerator<object>();
             help.LongName = "n";
 
-            AssertEx.ThrowsAggregateContaining<ArgumentIntegrityException>(
-                () => new CliParser<object>(new object(), help));
+            var parser = new CliParser<object>(help);
+            var errs = parser.ValidateAttributeConfig();
+
+            Assert.IsTrue(errs
+                .OfType<ArgumentIntegrityException>()
+                .Any());
         }
 
         [TestMethod]
@@ -357,8 +434,12 @@ namespace clipr.UnitTests
             var help = new Usage.AutomaticHelpGenerator<object>();
             help.LongName = "none-";
 
-            AssertEx.ThrowsAggregateContaining<ArgumentIntegrityException>(
-                () => new CliParser<object>(new object(), help));
+            var parser = new CliParser<object>(help);
+            var errs = parser.ValidateAttributeConfig();
+
+            Assert.IsTrue(errs
+                .OfType<ArgumentIntegrityException>()
+                .Any());
         }
 
         [TestMethod]
@@ -367,10 +448,12 @@ namespace clipr.UnitTests
             var help = new Usage.AutomaticHelpGenerator<object>();
             help.LongName = "1none";
 
-            AssertEx.ThrowsAggregateContaining<ArgumentIntegrityException>(() =>
-            {
-                new CliParser<object>(new object(), help);
-            });
+            var parser = new CliParser<object>(help);
+            var errs = parser.ValidateAttributeConfig();
+
+            Assert.IsTrue(errs
+                .OfType<ArgumentIntegrityException>()
+                .Any());
         }
 
 #endregion
@@ -385,7 +468,7 @@ namespace clipr.UnitTests
             //help.Version.ShortName = '.';
 
             AssertEx.ThrowsAggregateContaining<ArgumentIntegrityException>(
-                () => new CliParser<object>(new object(), help));
+                () => new CliParser<object>(help));
         }
 
         [TestMethod]
@@ -397,7 +480,7 @@ namespace clipr.UnitTests
 
             AssertEx.ThrowsAggregateContaining<ArgumentIntegrityException>(() =>
             {
-                new CliParser<object>(new object(), help);
+                new CliParser<object>(help);
             });
         }
 
@@ -412,7 +495,7 @@ namespace clipr.UnitTests
             var help = new Usage.AutomaticHelpGenerator<object>();
             //help.Version.LongName = "no.thing";
             AssertEx.ThrowsAggregateContaining<ArgumentIntegrityException>(() =>
-            new CliParser<object>(new object(), help));
+            new CliParser<object>(help));
         }
 
         [TestMethod]
@@ -422,7 +505,7 @@ namespace clipr.UnitTests
             var help = new Usage.AutomaticHelpGenerator<object>();
             //help.Version.LongName = "n";
             AssertEx.ThrowsAggregateContaining<ArgumentIntegrityException>(() =>
-            new CliParser<object>(new object(), help));
+            new CliParser<object>(help));
         }
 
         [TestMethod]
@@ -433,7 +516,7 @@ namespace clipr.UnitTests
             //help.Version.LongName = "none-";
 
             AssertEx.ThrowsAggregateContaining<ArgumentIntegrityException>(() =>
-            new CliParser<object>(new object(), help));
+            new CliParser<object>(help));
         }
 
         [TestMethod]
@@ -444,7 +527,7 @@ namespace clipr.UnitTests
             //help.Version.LongName = "1none";
 
             AssertEx.ThrowsAggregateContaining<ArgumentIntegrityException>(() =>
-            new CliParser<object>(new object(), help));
+            new CliParser<object>(help));
         }
 
 #endregion
@@ -463,8 +546,7 @@ namespace clipr.UnitTests
         [TestMethod]
         public void PositionalArgument_SpecifiedOutOfOrder_PassesValidation()
         {
-            new CliParser<MultiplePositionalArgsDefinedOutOfOrder>(
-                new MultiplePositionalArgsDefinedOutOfOrder());
+            new CliParser<MultiplePositionalArgsDefinedOutOfOrder>();
         }
 
         internal class MultiplePositionalArgsDefinedSuperClass
@@ -482,8 +564,7 @@ namespace clipr.UnitTests
         [TestMethod]
         public void PositionalArgument_SpecifiedInSubClass_PassesValidation()
         {
-            new CliParser<MultiplePositionalArgsDefinedSubClass>(
-                new MultiplePositionalArgsDefinedSubClass());
+            new CliParser<MultiplePositionalArgsDefinedSubClass>();
         }
 
 #endregion
@@ -507,9 +588,12 @@ namespace clipr.UnitTests
         [TestMethod]
         public void CheckIntegrity_WithConfigContainingBothPositionalAndVerbs_ThrowsException()
         {
-            AssertEx.Throws<AggregateException>(() =>
-            new CliParser<PositionalAndVerbOptions>(
-                new PositionalAndVerbOptions()));
+            var parser = new CliParser<PositionalAndVerbOptions>();
+            var errs = parser.ValidateAttributeConfig();
+
+            Assert.IsTrue(errs
+                .OfType<ArgumentIntegrityException>()
+                .Any());
         }
 
 #endregion
@@ -519,9 +603,9 @@ namespace clipr.UnitTests
         {
             var opts = new PositionalArgumentUnitTest.PositionalArgumentLowerBoundCountEqualsZero();
             var arguments = new string[0];
-            var parser = new CliParser<PositionalArgumentUnitTest.PositionalArgumentLowerBoundCountEqualsZero>(opts);
+            var parser = new CliParser<PositionalArgumentUnitTest.PositionalArgumentLowerBoundCountEqualsZero>();
 
-            parser.Parse(arguments);
+            parser.Parse(arguments, opts);
 
             Assert.AreEqual(0, opts.Args.Count);
         }
@@ -531,9 +615,9 @@ namespace clipr.UnitTests
         {
             var opts = new PositionalArgumentUnitTest.PositionalArgumentLowerBoundCountEqualsZero();
             var arguments = new[] { "first", "second" };
-            var parser = new CliParser<PositionalArgumentUnitTest.PositionalArgumentLowerBoundCountEqualsZero>(opts);
+            var parser = new CliParser<PositionalArgumentUnitTest.PositionalArgumentLowerBoundCountEqualsZero>();
 
-            parser.Parse(arguments);
+            parser.Parse(arguments, opts);
 
             Assert.AreEqual(2, opts.Args.Count);
         }
@@ -543,9 +627,9 @@ namespace clipr.UnitTests
         {
             var opts = new PositionalArgumentUnitTest.MultiplePositionalArgumentLowerBoundCountEqualsZero();
             var arguments = new[] { "fixed" };
-            var parser = new CliParser<PositionalArgumentUnitTest.MultiplePositionalArgumentLowerBoundCountEqualsZero>(opts);
+            var parser = new CliParser<PositionalArgumentUnitTest.MultiplePositionalArgumentLowerBoundCountEqualsZero>();
 
-            parser.Parse(arguments);
+            parser.Parse(arguments, opts);
 
             Assert.AreEqual(0, opts.Args.Count);
         }
@@ -555,9 +639,9 @@ namespace clipr.UnitTests
         {
             var opts = new PositionalArgumentUnitTest.MultiplePositionalArgumentLowerBoundCountEqualsZero();
             var arguments = new[] { "fixed", "first", "second" };
-            var parser = new CliParser<PositionalArgumentUnitTest.MultiplePositionalArgumentLowerBoundCountEqualsZero>(opts);
+            var parser = new CliParser<PositionalArgumentUnitTest.MultiplePositionalArgumentLowerBoundCountEqualsZero>();
 
-            parser.Parse(arguments);
+            parser.Parse(arguments, opts);
 
             Assert.AreEqual(2, opts.Args.Count);
         }
@@ -571,11 +655,12 @@ namespace clipr.UnitTests
         [TestMethod]
         public void NamedArgument_WithOptionalConstraintButNonNullable_FailsIntegrityCheck()
         {
-            var opts = new OptionsWithOptionalNonNullable();
-            var arguments = new[] { "-a", "10" };
+            var parser = new CliParser<OptionsWithOptionalNonNullable>();
+            var errs = parser.ValidateAttributeConfig();
 
-            AssertEx.ThrowsAggregateContaining<ArgumentIntegrityException>(
-                () => new CliParser<OptionsWithOptionalNonNullable>(opts));
+            Assert.IsTrue(errs
+                .OfType<ArgumentIntegrityException>()
+                .Any());
         }
 
         // TODO check for case when property is localized but no ResourceType is provided by prop or its class

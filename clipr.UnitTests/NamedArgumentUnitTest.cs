@@ -211,9 +211,9 @@ namespace clipr.UnitTests
         {
             var opts = new NamedArgumentLowerBoundCountEqualsZero();
             var arguments = new string[0];
-            var parser = new CliParser<NamedArgumentLowerBoundCountEqualsZero>(opts);
+            var parser = new CliParser<NamedArgumentLowerBoundCountEqualsZero>();
 
-            parser.Parse(arguments);
+            parser.Parse(arguments, opts);
 
             Assert.AreEqual(0, opts.Args.Count);
         }
@@ -223,9 +223,9 @@ namespace clipr.UnitTests
         {
             var opts = new NamedArgumentLowerBoundCountEqualsZero();
             var arguments = new[] { "-s", "first", "second" };
-            var parser = new CliParser<NamedArgumentLowerBoundCountEqualsZero>(opts);
+            var parser = new CliParser<NamedArgumentLowerBoundCountEqualsZero>();
 
-            parser.Parse(arguments);
+            parser.Parse(arguments, opts);
 
             Assert.AreEqual(2, opts.Args.Count);
         }

@@ -271,9 +271,9 @@ namespace clipr.UnitTests
         {
             var opts = new PositionalArgumentLowerBoundCountEqualsZero();
             var arguments = new string[0];
-            var parser = new CliParser<PositionalArgumentLowerBoundCountEqualsZero>(opts);
+            var parser = new CliParser<PositionalArgumentLowerBoundCountEqualsZero>();
 
-            parser.Parse(arguments);
+            parser.Parse(arguments, opts);
 
             Assert.AreEqual(0, opts.Args.Count);
         }
@@ -283,9 +283,9 @@ namespace clipr.UnitTests
         {
             var opts = new PositionalArgumentLowerBoundCountEqualsZero();
             var arguments = new[] { "first", "second" };
-            var parser = new CliParser<PositionalArgumentLowerBoundCountEqualsZero>(opts);
+            var parser = new CliParser<PositionalArgumentLowerBoundCountEqualsZero>();
 
-            parser.Parse(arguments);
+            parser.Parse(arguments, opts);
 
             Assert.AreEqual(2, opts.Args.Count);
         }
@@ -304,9 +304,9 @@ namespace clipr.UnitTests
         {
             var opts = new MultiplePositionalArgumentLowerBoundCountEqualsZero();
             var arguments = new[] { "fixed" };
-            var parser = new CliParser<MultiplePositionalArgumentLowerBoundCountEqualsZero>(opts);
+            var parser = new CliParser<MultiplePositionalArgumentLowerBoundCountEqualsZero>();
 
-            parser.Parse(arguments);
+            parser.Parse(arguments, opts);
 
             Assert.AreEqual(0, opts.Args.Count);
         }
@@ -316,9 +316,9 @@ namespace clipr.UnitTests
         {
             var opts = new MultiplePositionalArgumentLowerBoundCountEqualsZero();
             var arguments = new[] { "fixed", "first", "second" };
-            var parser = new CliParser<MultiplePositionalArgumentLowerBoundCountEqualsZero>(opts);
+            var parser = new CliParser<MultiplePositionalArgumentLowerBoundCountEqualsZero>();
 
-            parser.Parse(arguments);
+            parser.Parse(arguments, opts);
 
             Assert.AreEqual(2, opts.Args.Count);
         }

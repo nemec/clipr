@@ -173,12 +173,16 @@ namespace clipr.UnitTests
         [TestMethod]
         public void Parse_WithDuplicateVerbNames_ThrowsDuplicateVerbException()
         {
-            AssertEx.ThrowsAggregateContaining<DuplicateVerbException>(() => 
-                CliParser.Parse<OptionsWithDuplicateVerb>("add myfile.txt".Split()));
+            var parser = new CliParser<OptionsWithDuplicateVerb>();
+            var errs = parser.ValidateAttributeConfig();
+
+            Assert.IsTrue(errs
+                .OfType<DuplicateVerbException>()
+                .Any());
         }
 
 
-        public class OptionsWithNoDefaultConstructor
+        public class OptionsWithNoDefaultVerbConstructor
         {
             [Verb("add")]
             public VerbWithNoDefaultConstructor AddInfo { get; set; }
@@ -198,24 +202,27 @@ namespace clipr.UnitTests
         [TestMethod]
         public void Parse_WithVerbHavingNoDefaultConstructor_ThrowsException()
         {
-            AssertEx.ThrowsAggregateContaining<ArgumentIntegrityException>(() =>
-                CliParser.Parse<OptionsWithNoDefaultConstructor>("add myfile.txt".Split()),
-                "has no default constructor or factory defined for its type");
+            var parser = new CliParser<OptionsWithNoDefaultVerbConstructor>();
+            var errs = parser.ValidateAttributeConfig();
+
+            Assert.IsTrue(errs
+                .OfType<ArgumentIntegrityException>()
+                .Any());
         }
 
         [TestMethod]
         public void Parse_WithFactoryAndVerbHavingNoDefaultConstructor_ParsesVerb()
         {
             const string expected = "myfile.txt";
-            var opt = new OptionsWithNoDefaultConstructor();
+            var opt = new OptionsWithNoDefaultVerbConstructor();
             var factory = new SimpleVerbfactory
             {
                 { typeof(VerbWithNoDefaultConstructor), () => new VerbWithNoDefaultConstructor("default.txt") }
             };
-            var parser = new CliParser<OptionsWithNoDefaultConstructor>(
-                opt, ParserOptions.None, new AutomaticHelpGenerator<OptionsWithNoDefaultConstructor>(), factory);
+            var parser = new CliParser<OptionsWithNoDefaultVerbConstructor>(
+                ParserOptions.None, new AutomaticHelpGenerator<OptionsWithNoDefaultVerbConstructor>(), factory);
 
-            parser.Parse("add myfile.txt".Split());
+            parser.Parse("add myfile.txt".Split(), opt);
 
             Assert.AreEqual(expected, opt.AddInfo.Filename);
         }
@@ -237,9 +244,9 @@ namespace clipr.UnitTests
         {
             const string expected = "myfile.txt";
             var opt = new OptionsWithVerbDefaultConstructor();
-            var parser = new CliParser<OptionsWithVerbDefaultConstructor>(opt);
+            var parser = new CliParser<OptionsWithVerbDefaultConstructor>();
 
-            parser.Parse("add myfile.txt".Split());
+            parser.Parse("add myfile.txt".Split(), opt);
 
             Assert.AreEqual(expected, opt.AddInfo.Filename);
         }
@@ -281,9 +288,9 @@ namespace clipr.UnitTests
                 { typeof(GitCommit), () => new GitCommit("My default message") }
             };
             var parser = new CliParser<OptionsWithGitVerbs>(
-                opt, ParserOptions.None, new AutomaticHelpGenerator<OptionsWithGitVerbs>(), factory);
+                ParserOptions.None, new AutomaticHelpGenerator<OptionsWithGitVerbs>(), factory);
 
-            parser.Parse("add myfile.txt otherfile.txt".Split());
+            parser.Parse("add myfile.txt otherfile.txt".Split(), opt);
             var actual = opt.Add.Files.ToList();
 
             CollectionAssert.AreEqual(expected, actual);
@@ -300,9 +307,9 @@ namespace clipr.UnitTests
                 { typeof(GitCommit), () => new GitCommit("My default message") }
             };
             var parser = new CliParser<OptionsWithGitVerbs>(
-                opt, ParserOptions.None, new AutomaticHelpGenerator<OptionsWithGitVerbs>(), factory);
+                ParserOptions.None, new AutomaticHelpGenerator<OptionsWithGitVerbs>(), factory);
 
-            parser.Parse("commit".Split());
+            parser.Parse("commit".Split(), opt);
             var actual = opt.Commit.CommitMessage;
 
             Assert.AreEqual(expected, actual);
@@ -319,9 +326,9 @@ namespace clipr.UnitTests
                 { typeof(GitCommit), () => new GitCommit("My default message") }
             };
             var parser = new CliParser<OptionsWithGitVerbs>(
-                opt, ParserOptions.None, new AutomaticHelpGenerator<OptionsWithGitVerbs>(), factory);
+                ParserOptions.None, new AutomaticHelpGenerator<OptionsWithGitVerbs>(), factory);
 
-            parser.Parse(new[] { "commit", "-m", "My message" });
+            parser.Parse(new[] { "commit", "-m", "My message" }, opt);
             var actual = opt.Commit.CommitMessage;
 
             Assert.AreEqual(expected, actual);

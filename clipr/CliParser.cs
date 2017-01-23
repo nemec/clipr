@@ -5,6 +5,7 @@ using clipr.Triggers;
 using clipr.Usage;
 using clipr.Utils;
 using clipr.IOC;
+using System.Linq;
 
 namespace clipr
 {
@@ -57,26 +58,28 @@ namespace clipr
         public static void StrictParse<TS>(string[] args, TS obj) where TS : class
         {
             CliParser<TS> parser = null;
+            IParserConfig conf = null;
             try
             {
-                parser = new CliParser<TS>(obj);
+                parser = new CliParser<TS>();
+                conf = parser.BuildConfig();
             }
             catch (ArgumentIntegrityException e)
             {
                 Console.Error.WriteLine(e.Message);
-                if (parser != null && parser.Config != null)
+                if (parser != null && conf != null)
                 {
                     Console.Error.WriteLine(
-                        new AutomaticHelpGenerator<TS>().GetUsage(parser.Config));
+                        new AutomaticHelpGenerator<TS>().GetUsage(conf));
                 }
                 Environment.Exit(2);
             }
             catch (Utils.AggregateException ex)
             {
-                if (parser != null && parser.Config != null)
+                if (parser != null && conf != null)
                 {
                     Console.Error.WriteLine(
-                        new AutomaticHelpGenerator<TS>().GetUsage(parser.Config));
+                        new AutomaticHelpGenerator<TS>().GetUsage(conf));
                 }
                 ex.Handle(e =>
                 {
@@ -85,7 +88,7 @@ namespace clipr
                 });
                 Environment.Exit(2);
             }
-            parser.StrictParse(args);
+            parser.StrictParse(args, obj);
         }
 
         /// <summary>
@@ -121,8 +124,8 @@ namespace clipr
         /// <returns>True if parsing succeeded.</returns>
         public static bool TryParse<TS>(string[] args, TS obj) where TS : class
         {
-            var parser = new CliParser<TS>(obj);
-            return parser.TryParse(args);
+            var parser = new CliParser<TS>();
+            return parser.TryParse(args, obj);
         }
 
         /// <summary>
@@ -161,8 +164,8 @@ namespace clipr
         /// <param name="obj">Parsed arguments will be store here.</param>
         public static void Parse<TS>(string[] args, TS obj) where TS : class
         {
-            var parser = new CliParser<TS>(obj);
-            parser.Parse(args);
+            var parser = new CliParser<TS>();
+            parser.Parse(args, obj);
         }
     }
 
@@ -173,11 +176,6 @@ namespace clipr
     public class CliParser<TConf> where TConf : class
     {
         #region Public Properties
-
-        /// <summary>
-        /// Configuration of the parser.
-        /// </summary>
-        public IParserConfig Config { get; private set; }
 
         /// <summary>
         /// Punctuation character prefixed to short and long argument
@@ -207,13 +205,15 @@ namespace clipr
 
         internal const int ErrorExitCode = 2;
 
+        private IParserConfig Config { get; set; }
+
         private ParserOptions Options { get; set; }
 
         private IHelpGenerator HelpGenerator { get; set; }
 
-        private IEnumerable<ITerminatingTrigger> Triggers { get; set; } 
+        private IEnumerable<ITerminatingTrigger> Triggers { get; set; }
 
-        private TConf Object { get; set; }
+        private IVerbFactory Factory { get; set; }
 
         #endregion
 
@@ -234,9 +234,8 @@ namespace clipr
         /// found while checking <see cref="ArgumentAttribute"/>
         /// integrity.
         /// </exception>
-        /// <param name="obj">Store parsed values in this object.</param>
-        public CliParser(TConf obj)
-            : this(obj, ParserOptions.None, new AutomaticHelpGenerator<TConf>())
+        public CliParser()
+            : this(ParserOptions.None, new AutomaticHelpGenerator<TConf>())
         {
         }
 
@@ -256,10 +255,9 @@ namespace clipr
         /// found while checking <see cref="ArgumentAttribute"/>
         /// integrity.
         /// </exception>
-        /// <param name="obj">Store parsed values in this object.</param>
         /// <param name="options">Extra options for the parser.</param>
-        public CliParser(TConf obj, ParserOptions options)
-            : this(obj, options, new AutomaticHelpGenerator<TConf>())
+        public CliParser(ParserOptions options)
+            : this(options, new AutomaticHelpGenerator<TConf>())
         {
         }
 
@@ -278,12 +276,11 @@ namespace clipr
         /// found while checking <see cref="ArgumentAttribute"/>
         /// integrity.
         /// </exception>
-        /// <param name="obj">Store parsed values in this object.</param>
         /// <param name="usageGenerator">
         /// Generates help documentation for this parser.
         /// </param>
-        public CliParser(TConf obj, IHelpGenerator usageGenerator)
-            : this(obj, ParserOptions.None, usageGenerator)
+        public CliParser(IHelpGenerator usageGenerator)
+            : this(ParserOptions.None, usageGenerator)
         {
         }
 
@@ -303,13 +300,12 @@ namespace clipr
         /// found while checking <see cref="ArgumentAttribute"/>
         /// integrity.
         /// </exception>
-        /// <param name="obj">Store parsed values in this object.</param>
         /// <param name="options">Extra options for the parser.</param>
         /// <param name="usageGenerator">
         /// Generates help documentation for this parser.
         /// </param>
-        public CliParser(TConf obj, ParserOptions options, IHelpGenerator usageGenerator)
-            : this(obj, options, usageGenerator, new ParameterlessVerbFactory())
+        public CliParser(ParserOptions options, IHelpGenerator usageGenerator)
+            : this(options, usageGenerator, new ParameterlessVerbFactory())
         {
         }
 
@@ -329,50 +325,59 @@ namespace clipr
         /// found while checking <see cref="ArgumentAttribute"/>
         /// integrity.
         /// </exception>
-        /// <param name="obj">Store parsed values in this object.</param>
         /// <param name="options">Extra options for the parser.</param>
         /// <param name="usageGenerator">
         /// Generates help documentation for this parser.
         /// </param>
         /// <param name="factory">The IOC factory used to generate necessary Verb objects.</param>
-        public CliParser(TConf obj, ParserOptions options, IHelpGenerator usageGenerator, IVerbFactory factory)
+        public CliParser(ParserOptions options, IHelpGenerator usageGenerator, IVerbFactory factory)
         {
-            if (obj == null)
-            {
-                throw new ArgumentNullException("obj");
-            }
-            Object = obj;
             Options = options;
             HelpGenerator = usageGenerator;
+            Factory = factory;
 
             Triggers = new ITerminatingTrigger[]
             {
                 usageGenerator,
                 new ExecutingAssemblyVersion()
             };
-            var checker = new IntegrityChecker();
-            checker.EnsureAttributeIntegrity<TConf>();
-            checker.EnsureVerbIntegrity<TConf>(factory);
-            checker.EnsureTriggerIntegrity(Triggers);
-
-            Config = new AttributeParserConfig<TConf>(Options, Triggers, factory);
         }
 
         /// <summary>
         /// Generates a new parser from the fluent builder.
         /// </summary>
         /// <param name="config"></param>
-        /// <param name="obj"></param>
         /// <param name="options"></param>
-        internal CliParser(ParserConfig<TConf> config, TConf obj, ParserOptions options)
+        internal CliParser(ParserConfig<TConf> config, ParserOptions options)
         {
-            Object = obj;
             Config = config;
             Options = options;
             // TODO help
         }
 
         #endregion
+
+        /// <summary>
+        /// Checks the configuration type TConf for any attribute issues.
+        /// </summary>
+        /// <returns></returns>
+        public Exception[] ValidateAttributeConfig()
+        {
+            var checker = new IntegrityChecker();
+            return checker.EnsureAttributeIntegrity<TConf>(Options)
+                .Concat(checker.EnsureVerbIntegrity<TConf>(Factory))
+                .Concat(checker.EnsureTriggerIntegrity(Triggers))
+                .ToArray();
+        }
+
+        public IParserConfig BuildConfig()
+        {
+            if(Config != null)
+            {
+                return Config;
+            }
+            return Config = new AttributeParserConfig<TConf>(Options, Triggers, Factory);
+        }
 
         #region Public Parsing Methods
 
@@ -390,12 +395,13 @@ namespace clipr
         /// </para>
         /// </summary>
         /// <param name="args">Argument list to parse.</param>
+        /// <param name="obj">Object to fill with parsed data.</param>
         /// <returns>The object parsed from the argument list.</returns>
-        public void StrictParse(string[] args)
+        public void StrictParse(string[] args, TConf obj)
         {
             try
             {
-                Parse(args);
+                Parse(args, obj);
                 return;
             }
             catch (ParseException e)
@@ -431,12 +437,13 @@ namespace clipr
         /// object may be left in an incomplete state.
         /// </summary>
         /// <param name="args">Argument list to parse.</param>
+        /// <param name="obj">Object to fill with parsed data.</param>
         /// <returns>True if parsing succeeded.</returns>
-        public bool TryParse(string[] args)
+        public bool TryParse(string[] args, TConf obj)
         {
             try
             {
-                Parse(args);
+                Parse(args, obj);
                 return true;
             }
             catch (Exception)
@@ -456,14 +463,16 @@ namespace clipr
         /// parsing was aborted.
         /// </exception>
         /// <param name="args">Argument list to parse.</param>
-        public void Parse(string[] args)
+        /// <param name="obj">Object to fill with parsed data.</param>
+        public void Parse(string[] args, TConf obj)
         {
-            Config.ArgumentPrefix = ArgumentPrefix;
-            new ParsingContext<TConf>(Object, Config).Parse(args);
+            var conf = BuildConfig();
+            conf.ArgumentPrefix = ArgumentPrefix;
+            new ParsingContext<TConf>(obj, conf).Parse(args);
         }
 
         #endregion
 
-        
+
     }
 }

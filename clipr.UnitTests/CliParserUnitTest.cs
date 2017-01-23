@@ -21,8 +21,8 @@ namespace clipr.UnitTests
         public void CaseFolding_ParseLongArgWithWrongCaseWhenCaseInsensitive_CorrectlyParsesArgs()
         {
             var parser = new CliParser<CaseFoldingOptions>(
-                new CaseFoldingOptions(), ParserOptions.CaseInsensitive);
-            parser.Parse("--Name timothy".Split());
+                ParserOptions.CaseInsensitive);
+            parser.Parse("--Name timothy".Split(), new CaseFoldingOptions());
         }
 
         [TestMethod]
@@ -36,8 +36,8 @@ namespace clipr.UnitTests
         public void CaseFolding_ParseShortArgWithWrongCaseWhenCaseInsensitive_CorrectlyParsesArgs()
         {
             var parser = new CliParser<CaseFoldingOptions>(
-                new CaseFoldingOptions(), ParserOptions.CaseInsensitive);
-            parser.Parse("-N timothy".Split());
+                ParserOptions.CaseInsensitive);
+            parser.Parse("-N timothy".Split(), new CaseFoldingOptions());
         }
 
         [TestMethod]
@@ -51,16 +51,16 @@ namespace clipr.UnitTests
         public void CaseFolding_ParseLongArgPrefixWithCorrectCaseWhenCaseSensitiveAndPartialMatch_CorrectlyParsesArgs()
         {
             var parser = new CliParser<CaseFoldingOptions>(
-                new CaseFoldingOptions(), ParserOptions.NamedPartialMatch);
-            parser.Parse("--na timothy".Split());
+                ParserOptions.NamedPartialMatch);
+            parser.Parse("--na timothy".Split(), new CaseFoldingOptions());
         }
 
         [TestMethod]
         public void CaseFolding_ParseLongArgPrefixWithWrongCaseWhenCaseInsensitiveAndPartialMatch_CorrectlyParsesArgs()
         {
             var parser = new CliParser<CaseFoldingOptions>(
-                new CaseFoldingOptions(), ParserOptions.CaseInsensitive | ParserOptions.NamedPartialMatch);
-            parser.Parse("--Na timothy".Split());
+                ParserOptions.CaseInsensitive | ParserOptions.NamedPartialMatch);
+            parser.Parse("--Na timothy".Split(), new CaseFoldingOptions());
         }
 
         internal class IntTypeConversion
@@ -132,7 +132,7 @@ namespace clipr.UnitTests
         {
             var opt = new NullUsageAndVersion();
             new CliParser<NullUsageAndVersion>(
-                opt, ParserOptions.None, null).Parse("name".Split());
+                ParserOptions.None, null).Parse("name".Split(), opt);
             Assert.AreEqual("name", opt.Value);
         }
 
@@ -141,7 +141,7 @@ namespace clipr.UnitTests
         {
             var opt = new object();
             AssertEx.Throws<ParserExit>(() =>
-            new CliParser<object>(opt).Parse("--version".Split()));
+            new CliParser<object>().Parse("--version".Split(), opt));
         }
 
         [TestMethod]
