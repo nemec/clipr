@@ -482,7 +482,7 @@ namespace clipr.UnitTests
         {
             var help = new Usage.AutomaticHelpGenerator<object>();
             //help.Version.ShortName = '.';
-
+            
             var errs = new CliParser<object>(help).ValidateAttributeConfig();
             Assert.IsTrue(errs
                 .OfType<ArgumentIntegrityException>()
@@ -495,7 +495,7 @@ namespace clipr.UnitTests
         {
             var help = new Usage.AutomaticHelpGenerator<object>();
             //help.Version.ShortName = '1';
-
+            
             var errs = new CliParser<object>(help).ValidateAttributeConfig();
             Assert.IsTrue(errs
                 .OfType<ArgumentIntegrityException>()
@@ -537,7 +537,7 @@ namespace clipr.UnitTests
         {
             var help = new Usage.AutomaticHelpGenerator<object>();
             //help.Version.LongName = "none-";
-
+            
             var errs = new CliParser<object>(help).ValidateAttributeConfig();
             Assert.IsTrue(errs
                 .OfType<ArgumentIntegrityException>()
@@ -550,7 +550,7 @@ namespace clipr.UnitTests
         {
             var help = new Usage.AutomaticHelpGenerator<object>();
             //help.Version.LongName = "1none";
-
+            
             var errs = new CliParser<object>(help).ValidateAttributeConfig();
             Assert.IsTrue(errs
                 .OfType<ArgumentIntegrityException>()

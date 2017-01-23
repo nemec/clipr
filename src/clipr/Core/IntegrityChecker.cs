@@ -406,7 +406,7 @@ namespace clipr.Core
             }
             return null;
         }
-
+        
         private static IEnumerable<Exception> ConfigMayNotContainDuplicateArguments<T>(ParserOptions options)
         {
             var named = typeof(T)

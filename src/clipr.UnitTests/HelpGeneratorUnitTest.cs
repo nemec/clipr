@@ -32,7 +32,7 @@ namespace clipr.UnitTests
             var parser = new CliParser<NoDescription>(
                 ParserOptions.Default,
                 new Help());
-
+            
             var result = parser.Parse(args, opts);
             result.Handle(
                 opt => Assert.Fail("Parse succeeded but trigger was expected."),
@@ -200,7 +200,6 @@ Commands:
 
             Assert.AreEqual(expected, help);
         }
-
         [TestMethod]
         public void Help_WithHelpOfVerbCalled_GeneratedHelpOutputForVerb()
         {

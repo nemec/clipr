@@ -177,7 +177,7 @@ namespace clipr
         private readonly Exception[] Errors;
 
         internal static readonly ParseResult<T> Empty = new ParseResult<T>(new Exception[0]);
-
+        
         /// <summary>
         /// Create a new ParseResult with the specified value.
         /// </summary>
