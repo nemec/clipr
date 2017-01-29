@@ -27,13 +27,16 @@ namespace clipr.UnitTests
         {
 
             var args = "--help".Split();
-            var opt = new NoDescription();
+            var opts = new NoDescription();
             var parser = new CliParser<NoDescription>(
                 ParserOptions.None,
                 new Help());
 
-            AssertEx.Throws<ParserExit>(() =>
-            parser.Parse(args, opt));
+            var result = parser.Parse(args, opts);
+            result.Handle(
+                opt => Assert.Fail("Parse succeeded but trigger was expected."),
+                t => Assert.IsInstanceOfType(t, typeof(AutomaticHelpGenerator<NoDescription>)),
+                errs => Assert.Fail("Error occurred but trigger was expected."));
         }
         
         [StaticEnumeration]

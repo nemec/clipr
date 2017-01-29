@@ -57,35 +57,14 @@ namespace clipr
         /// <param name="args">Argument list to parse.</param>
         public static void StrictParse<TS>(string[] args, TS obj) where TS : class
         {
-            CliParser<TS> parser = null;
-            IParserConfig conf = null;
-            try
+            var parser = new CliParser<TS>();
+            var errs = parser.ValidateAttributeConfig();
+            if (errs.Any())
             {
-                parser = new CliParser<TS>();
-                conf = parser.BuildConfig();
-            }
-            catch (ArgumentIntegrityException e)
-            {
-                Console.Error.WriteLine(e.Message);
-                if (parser != null && conf != null)
+                foreach(var err in errs)
                 {
-                    Console.Error.WriteLine(
-                        new AutomaticHelpGenerator<TS>().GetUsage(conf));
+                    Console.Error.WriteLine(err);
                 }
-                Environment.Exit(2);
-            }
-            catch (Utils.AggregateException ex)
-            {
-                if (parser != null && conf != null)
-                {
-                    Console.Error.WriteLine(
-                        new AutomaticHelpGenerator<TS>().GetUsage(conf));
-                }
-                ex.Handle(e =>
-                {
-                    Console.Error.WriteLine(e.Message);
-                    return true;
-                });
                 Environment.Exit(2);
             }
             parser.StrictParse(args, obj);
@@ -132,40 +111,25 @@ namespace clipr
         /// Parse the given argument list and return a new object
         /// containing the converted arguments.
         /// </summary>
-        /// <exception cref="ParseException">
-        /// An error happened while parsing.
-        /// </exception>
-        /// <exception cref="ParserExit">
-        /// Either the help or version information were triggered so
-        /// parsing was aborted.
-        /// </exception>
         /// <param name="args">Argument list to parse.</param>
         /// <returns>
         /// A new object containing values parsed from the argument list.
         /// </returns>
-        public static TS Parse<TS>(string[] args) where TS : class, new()
+        public static ParseResult<TS> Parse<TS>(string[] args) where TS : class, new()
         {
             var obj = new TS();
-            Parse(args, obj);
-            return obj;
+            return Parse(args, obj);
         }
 
         /// <summary>
         /// Parse the given argument list.
         /// </summary>
-        /// <exception cref="ParseException">
-        /// An error happened while parsing.
-        /// </exception>
-        /// <exception cref="ParserExit">
-        /// Either the help or version information were triggered so
-        /// parsing was aborted.
-        /// </exception>
         /// <param name="args">Argument list to parse.</param>
         /// <param name="obj">Parsed arguments will be store here.</param>
-        public static void Parse<TS>(string[] args, TS obj) where TS : class
+        public static ParseResult<TS> Parse<TS>(string[] args, TS obj) where TS : class
         {
             var parser = new CliParser<TS>();
-            parser.Parse(args, obj);
+            return parser.Parse(args, obj);
         }
     }
 
@@ -222,18 +186,6 @@ namespace clipr
         /// <summary>
         /// Create a new parser with the default usage generator.
         /// </summary>
-        /// <exception cref="ArgumentNullException">
-        /// The object used to store parsed argument values
-        /// is null.
-        /// </exception>
-        /// <exception cref="ArgumentIntegrityException">
-        /// Some argument is invalid.
-        /// </exception>
-        /// <exception cref="AggregateException">
-        /// Contains multiple <see cref="ArgumentIntegrityException"/>s
-        /// found while checking <see cref="ArgumentAttribute"/>
-        /// integrity.
-        /// </exception>
         public CliParser()
             : this(ParserOptions.None, new AutomaticHelpGenerator<TConf>())
         {
@@ -243,18 +195,6 @@ namespace clipr
         /// Create a new parser with a set of options and the
         /// default usage generator.
         /// </summary>
-        /// <exception cref="ArgumentNullException">
-        /// The object used to store parsed argument values
-        /// is null.
-        /// </exception>
-        /// <exception cref="ArgumentIntegrityException">
-        /// Some argument is invalid.
-        /// </exception>
-        /// <exception cref="AggregateException">
-        /// Contains multiple <see cref="ArgumentIntegrityException"/>s
-        /// found while checking <see cref="ArgumentAttribute"/>
-        /// integrity.
-        /// </exception>
         /// <param name="options">Extra options for the parser.</param>
         public CliParser(ParserOptions options)
             : this(options, new AutomaticHelpGenerator<TConf>())
@@ -264,18 +204,6 @@ namespace clipr
         /// <summary>
         /// Create a new parser with a custom usage generator.
         /// </summary>
-        /// <exception cref="ArgumentNullException">
-        /// The object used to store parsed argument values
-        /// is null.
-        /// </exception>
-        /// <exception cref="ArgumentIntegrityException">
-        /// Some argument is invalid.
-        /// </exception>
-        /// <exception cref="AggregateException">
-        /// Contains multiple <see cref="ArgumentIntegrityException"/>s
-        /// found while checking <see cref="ArgumentAttribute"/>
-        /// integrity.
-        /// </exception>
         /// <param name="usageGenerator">
         /// Generates help documentation for this parser.
         /// </param>
@@ -288,18 +216,6 @@ namespace clipr
         /// Create a new parser with a set of options and a custom
         /// usage generator.
         /// </summary>
-        /// <exception cref="ArgumentNullException">
-        /// The object used to store parsed argument values
-        /// is null.
-        /// </exception>
-        /// <exception cref="ArgumentIntegrityException">
-        /// Some argument is invalid.
-        /// </exception>
-        /// <exception cref="AggregateException">
-        /// Contains multiple <see cref="ArgumentIntegrityException"/>s
-        /// found while checking <see cref="ArgumentAttribute"/>
-        /// integrity.
-        /// </exception>
         /// <param name="options">Extra options for the parser.</param>
         /// <param name="usageGenerator">
         /// Generates help documentation for this parser.
@@ -313,18 +229,6 @@ namespace clipr
         /// Create a new parser with a set of options and a custom
         /// usage generator.
         /// </summary>
-        /// <exception cref="ArgumentNullException">
-        /// The object used to store parsed argument values
-        /// is null.
-        /// </exception>
-        /// <exception cref="ArgumentIntegrityException">
-        /// Some argument is invalid.
-        /// </exception>
-        /// <exception cref="AggregateException">
-        /// Contains multiple <see cref="ArgumentIntegrityException"/>s
-        /// found while checking <see cref="ArgumentAttribute"/>
-        /// integrity.
-        /// </exception>
         /// <param name="options">Extra options for the parser.</param>
         /// <param name="usageGenerator">
         /// Generates help documentation for this parser.
@@ -370,6 +274,25 @@ namespace clipr
                 .ToArray();
         }
 
+        /// <summary>
+        /// Checks the configuration type TConf for any attribute issues.
+        /// </summary>
+        /// <returns></returns>
+        public void EnsureValidAttributeConfig()
+        {
+            var checker = new IntegrityChecker();
+            var errs = checker.EnsureAttributeIntegrity<TConf>(Options)
+                .Concat(checker.EnsureVerbIntegrity<TConf>(Factory))
+                .Concat(checker.EnsureTriggerIntegrity(Triggers))
+                .ToList();
+
+            if (errs.Any())
+            {
+
+                throw new Utils.AggregateException(errs);
+            }
+        }
+
         public IParserConfig BuildConfig()
         {
             if(Config != null)
@@ -397,38 +320,22 @@ namespace clipr
         /// <param name="args">Argument list to parse.</param>
         /// <param name="obj">Object to fill with parsed data.</param>
         /// <returns>The object parsed from the argument list.</returns>
-        public void StrictParse(string[] args, TConf obj)
+        public ParseResult<TConf> StrictParse(string[] args, TConf obj)
         {
-            try
-            {
-                Parse(args, obj);
-                return;
-            }
-            catch (ParseException e)
-            {
-                Console.Error.WriteLine(HelpGenerator.GetUsage(Config));
-                Console.Error.WriteLine(e.Message);
-            }
-            catch (ArgumentIntegrityException e)
-            {
-                Console.Error.WriteLine(HelpGenerator.GetUsage(Config));
-                Console.Error.WriteLine(e.Message);
-            }
-            catch (Utils.AggregateException ex)
-            {
-                Console.Error.WriteLine(HelpGenerator.GetUsage(Config));
-                ex.Handle(e =>
+            var result = Parse(args, obj);
+            return result.Handle(
+                val => result,
+                trig => result,
+                errs =>
                 {
-                    Console.Error.WriteLine(e.Message);
-                    return true;
+                    Console.Error.WriteLine(HelpGenerator.GetUsage(Config));
+                    foreach(var err in errs)
+                    {
+                        Console.Error.WriteLine(err);
+                    }
+                    Environment.Exit(ErrorExitCode);
+                    throw new InvalidOperationException();
                 });
-            }
-            catch (ParserExit e)
-            {
-                Environment.Exit(e.ExitCode);
-            }
-            Environment.Exit(ErrorExitCode);
-            throw new InvalidOperationException();
         }
 
         /// <summary>
@@ -441,15 +348,11 @@ namespace clipr
         /// <returns>True if parsing succeeded.</returns>
         public bool TryParse(string[] args, TConf obj)
         {
-            try
-            {
-                Parse(args, obj);
-                return true;
-            }
-            catch (Exception)
-            {
-                return false;
-            }
+            // TODO should triggers be handled automatically in this case?
+            return Parse(args, obj).Handle(
+                val => true,
+                trig => true,
+                errs => false);
         }
 
         /// <summary>
@@ -464,11 +367,11 @@ namespace clipr
         /// </exception>
         /// <param name="args">Argument list to parse.</param>
         /// <param name="obj">Object to fill with parsed data.</param>
-        public void Parse(string[] args, TConf obj)
+        public ParseResult<TConf> Parse(string[] args, TConf obj)
         {
             var conf = BuildConfig();
             conf.ArgumentPrefix = ArgumentPrefix;
-            new ParsingContext<TConf>(obj, conf).Parse(args);
+            return new ParsingContext<TConf>(obj, conf).Parse(args);
         }
 
         #endregion

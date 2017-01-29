@@ -25,9 +25,11 @@ namespace clipr.UnitTests
         [TestMethod]
         public void Parse_WithSubcommand_InitializedSubcommandObject()
         {
-            var opt = CliParser.Parse<Options>("add file.txt".Split());
-
-            Assert.AreEqual("file.txt", opt.AddInfo.Filename);
+            var result = CliParser.Parse<Options>("add file.txt".Split());
+            result.Handle(
+                opt => Assert.AreEqual("file.txt", opt.AddInfo.Filename),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
 
         public class NamedOptions
@@ -42,25 +44,31 @@ namespace clipr.UnitTests
         [TestMethod]
         public void Parse_WithNamedArgumentAndVerbWithPositionalArgument_ParsesNamedArgumentsForTopLevelOptions()
         {
-            var opt = CliParser.Parse<NamedOptions>("-v add file.txt".Split());
-
-            Assert.IsTrue(opt.Verbose);
+            var result = CliParser.Parse<NamedOptions>("-v add file.txt".Split());
+            result.Handle(
+                opt => Assert.IsTrue(opt.Verbose),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
 
         [TestMethod]
         public void Parse_WithNamedArgumentAndVerbWithNamedArgument_LeavesVerbObjectNull()
         {
-            var opt = CliParser.Parse<NamedOptions>("-v".Split());
-
-            Assert.IsNull(opt.AddInfo);
+            var result = CliParser.Parse<NamedOptions>("-v".Split());
+            result.Handle(
+                opt => Assert.IsNull(opt.AddInfo),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
 
         [TestMethod]
         public void Parse_WithNamedArgumentAndVerbWithPositionalArgument_ParsesNamedArgumentsForVerbOptions()
         {
-            var opt = CliParser.Parse<NamedOptions>("-v add file.txt".Split());
-
-            Assert.AreEqual("file.txt", opt.AddInfo.Filename);
+            var result = CliParser.Parse<NamedOptions>("-v add file.txt".Split());
+            result.Handle(
+                opt => Assert.AreEqual("file.txt", opt.AddInfo.Filename),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
 
         public class PostParseOuter
@@ -123,9 +131,11 @@ namespace clipr.UnitTests
         [TestMethod]
         public void Parse_WithMultiplyNestedVerbs_ParsesAllDepths()
         {
-            var obj = CliParser.Parse<NestedVerb1>("a b Horace".Split());
-
-            Assert.AreEqual("Horace", obj.Verb.Verb.Name);
+            var result = CliParser.Parse<NestedVerb1>("a b Horace".Split());
+            result.Handle(
+                opt => Assert.AreEqual("Horace", opt.Verb.Verb.Name),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
 
         public class VerbOuterWithAliases
@@ -144,17 +154,21 @@ namespace clipr.UnitTests
         [TestMethod]
         public void Parse_WithVerbTaggedWithTwoNamesAndFirstGivenAsArg_ParsesVerb()
         {
-            var opt = CliParser.Parse<VerbOuterWithAliases>("co myRepo".Split());
-
-            Assert.AreEqual("myRepo", opt.Checkout.Repo);
+            var result = CliParser.Parse<VerbOuterWithAliases>("co myRepo".Split());
+            result.Handle(
+                opt => Assert.AreEqual("myRepo", opt.Checkout.Repo),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
 
         [TestMethod]
         public void Parse_WithVerbTaggedWithTwoNamesAndSecondGivenAsArg_ParsesVerb()
         {
-            var opt = CliParser.Parse<VerbOuterWithAliases>("checkout myRepo".Split());
-
-            Assert.AreEqual("myRepo", opt.Checkout.Repo);
+            var result = CliParser.Parse<VerbOuterWithAliases>("checkout myRepo".Split());
+            result.Handle(
+                opt => Assert.AreEqual("myRepo", opt.Checkout.Repo),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
 
 

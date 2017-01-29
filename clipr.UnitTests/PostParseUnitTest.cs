@@ -22,8 +22,11 @@ namespace clipr.UnitTests
         [TestMethod]
         public void PostParse_WithASinglePostParseMethod_RunsTheMethodAfterParsing()
         {
-            var opt = CliParser.Parse<ParserWithPostParse>("nothing".Split());
-            Assert.IsTrue(opt.PostParseRun);
+            var result = CliParser.Parse<ParserWithPostParse>("nothing".Split());
+            result.Handle(
+                opt => Assert.IsTrue(opt.PostParseRun),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
     }
 }

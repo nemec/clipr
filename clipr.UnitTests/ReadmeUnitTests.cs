@@ -31,27 +31,35 @@ namespace clipr.UnitTests
         [TestMethod]
         public void ParseExample_WithMultipleArgumentsAndAttributeConfig_ParsesVerbosity()
         {
-            var opt = CliParser.Parse<Options>(
+            var result = CliParser.Parse<Options>(
                 "-vvv output.txt 1 2 -1 7".Split());
-            Assert.AreEqual(3, opt.Verbosity);
+            result.Handle(
+                opt => Assert.AreEqual(3, opt.Verbosity),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
 
         [TestMethod]
         public void ParseExample_WithMultipleArgumentsAndAttributeConfig_ParsesOutputFile()
         {
-            var opt = CliParser.Parse<Options>(
+            var result = CliParser.Parse<Options>(
                 "-vvv output.txt 1 2 -1 7".Split());
-            Assert.AreEqual("output.txt", opt.OutputFile);
+            result.Handle(
+                opt => Assert.AreEqual("output.txt", opt.OutputFile),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
 
         [TestMethod]
         public void ParseExample_WithMultipleArgumentsAndAttributeConfig_ParsesNumbers()
         {
             var numbers = new[] { 1, 2, -1, 7 };
-            var opt = CliParser.Parse<Options>(
+            var result = CliParser.Parse<Options>(
                 "-vvv output.txt 1 2 -1 7".Split());
-
-            CollectionAssert.AreEqual(numbers, opt.Numbers);
+            result.Handle(
+                opt => CollectionAssert.AreEqual(numbers, opt.Numbers),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
 
         public class FluentOptions
@@ -160,9 +168,12 @@ namespace clipr.UnitTests
         [TestMethod]
         public void Parse_WithStaticEnumeration_ParsesValue()
         {
-            var obj = CliParser.Parse<StaticEnumerationOptions>(
+            var result = CliParser.Parse<StaticEnumerationOptions>(
                 "-e first".Split());
-            Assert.AreSame(SomeEnum.First, obj.Value);
+            result.Handle(
+                opt => Assert.AreSame(SomeEnum.First, opt.Value),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
 
         [TestMethod]

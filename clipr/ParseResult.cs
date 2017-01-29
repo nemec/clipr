@@ -1,47 +1,117 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using clipr.Triggers;
+using System;
 using System.Linq;
-using System.Text;
 
 namespace clipr
 {
     /// <summary>
-    /// Extensions upon ParseResults
-    /// </summary>
-    public static class ParseResult
-    {
-        /// <summary>
-        /// Built-in delegate provided to ParseResult.Handle to indicate
-        /// that errors should be ignored.
-        /// </summary>
-        public static readonly Action<Exception[]> IgnoreErrors = e => { };
-    }
-
-    /// <summary>
-    /// Contains the results of parsing a command, either a value or a list of errors.
+    /// Contains the results of parsing a command, either a success, a trigger, or a list of errors.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class ParseResult<T>
+    public class ParseResultWithTrigger  // TODO Union2, Union3 classes instead?
     {
-        /// <summary>
-        /// Indicates whether this ParseResult was initialized with a value or not.
-        /// </summary>
-        public readonly bool HasValue;
+        public readonly bool IsSuccess;
+
+        private readonly bool HasTrigger;
 
         private static readonly Exception[] EmptyErrors = new Exception[0];
 
-        private readonly T Value;
+        private readonly ITerminatingTrigger Trigger;
 
         private readonly Exception[] Errors;
 
         /// <summary>
-        /// Create a new ParseResult with the specified value.
+        /// A successful result
         /// </summary>
-        /// <param name="value"></param>
-        public ParseResult(T value)
+        internal static readonly ParseResultWithTrigger Success = new ParseResultWithTrigger();
+
+        private ParseResultWithTrigger()
         {
-            Value = value;
-            HasValue = true;
+            IsSuccess = true;
+            Errors = EmptyErrors;
+        }
+
+        /// <summary>
+        /// Create a new ParseResult with the specified Trigger.
+        /// </summary>
+        /// <param name="trigger"></param>
+        public ParseResultWithTrigger(ITerminatingTrigger trigger)
+        {
+            Trigger = trigger;
+            HasTrigger = true;
+            Errors = EmptyErrors;
+        }
+
+        /// <summary>
+        /// Create a new error ParseResult with the specified errors.
+        /// </summary>
+        /// <param name="errors"></param>
+        public ParseResultWithTrigger(params Exception[] errors)
+        {
+            Errors = errors;
+        }
+
+        /// <summary>
+        /// Execute a delegate based on the contents of the result. If it contains
+        /// a value, handleValue is called. If it contains a TerminatingTrigger,
+        /// handleTrigger is called. Otherwise, handleErrors is called.
+        /// </summary>
+        /// <param name="handleValue"></param>
+        /// <param name="handleTrigger"></param>
+        /// <param name="handleErrors"></param>
+        public TRet Handle<TRet>(
+            Func<TRet> handleSuccess,
+            Func<ITerminatingTrigger, TRet> handleTrigger,
+            Func<Exception[], TRet> handleErrors)
+        {
+            if (handleSuccess == null) throw new ArgumentException("handleSuccess cannot be null", "handleSuccess");
+            if (handleTrigger == null) throw new ArgumentException("handleTrigger cannot be null", "handleTrigger");
+            if (handleErrors == null) throw new ArgumentException("handleErrors cannot be null", "handleVErrors");
+
+            if (IsSuccess) return handleSuccess();
+            else if (HasTrigger) return handleTrigger(Trigger);
+            else return handleErrors(Errors);
+        }
+
+        /// <inheritdoc />
+        public override string ToString()
+        {
+            if (IsSuccess)
+            {
+                return "<ParseResult Success>";
+            }
+            if (HasTrigger)
+            {
+                return String.Format("<ParseResult Trigger:{0}>", Trigger);
+            }
+            return String.Format("<ParseResult Errors({0}):{1}>",
+                Errors.Length,
+                String.Join(",", Errors
+                    .Where(e => e != null)
+                    .Select(e => e.GetType().Name)
+                    .Distinct().ToArray()));
+        }
+    }
+    /// <summary>
+    /// Contains the results of parsing a command, either a success, a trigger, or a list of errors.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public class ParseResult
+    {
+        public readonly bool IsSuccess;
+
+        private static readonly Exception[] EmptyErrors = new Exception[0];
+
+        private readonly Exception[] Errors;
+
+        /// <summary>
+        /// A successful result
+        /// </summary>
+        internal static readonly ParseResult Success = new ParseResult();
+
+        private ParseResult()
+        {
+            IsSuccess = true;
             Errors = EmptyErrors;
         }
 
@@ -56,56 +126,132 @@ namespace clipr
 
         /// <summary>
         /// Execute a delegate based on the contents of the result. If it contains
-        /// a value, handleValue is called. Otherwise, handleErrors is called.
+        /// a value, handleValue is called. If it contains a TerminatingTrigger,
+        /// handleTrigger is called. Otherwise, handleErrors is called.
         /// </summary>
         /// <param name="handleValue"></param>
         /// <param name="handleErrors"></param>
-        public void Handle(
-            Action<T> handleValue,
-            Action<Exception[]> handleErrors)
+        public TRet Handle<TRet>(
+            Func<TRet> handleSuccess,
+            Func<Exception[], TRet> handleErrors)
         {
-            if (handleValue == null) throw new ArgumentException("handleValue cannot be null", "handleValue");
+            if (handleSuccess == null) throw new ArgumentException("handleSuccess cannot be null", "handleSuccess");
             if (handleErrors == null) throw new ArgumentException("handleErrors cannot be null", "handleVErrors");
 
-            if (HasValue)
+            if (IsSuccess) return handleSuccess();
+            else return handleErrors(Errors);
+        }
+
+        /// <inheritdoc />
+        public override string ToString()
+        {
+            if (IsSuccess)
             {
-                handleValue(Value);
+                return "<ParseResult Success>";
             }
-            else
-            {
-                handleErrors(Errors);
-            }
+            return String.Format("<ParseResult Errors({0}):{1}>",
+                Errors.Length,
+                String.Join(",", Errors
+                    .Where(e => e != null)
+                    .Select(e => e.GetType().Name)
+                    .Distinct().ToArray()));
+        }
+    }
+
+    /// <summary>
+    /// Contains the results of parsing a command, either a value, a trigger, or a list of errors.
+    /// </summary>
+    /// <typeparam name="T"></typeparam>
+    public class ParseResult<T>
+    {
+        private readonly bool HasValue;
+
+        private readonly bool HasTrigger;
+
+        private static readonly Exception[] EmptyErrors = new Exception[0];
+
+        private readonly T Value;
+
+        private readonly ITerminatingTrigger Trigger;
+
+        private readonly Exception[] Errors;
+
+        internal static readonly ParseResult<T> Empty = new ParseResult<T>(new Exception[0]);
+
+        /// <summary>
+        /// Create a new ParseResult with the specified value.
+        /// </summary>
+        /// <param name="value"></param>
+        public ParseResult(T value)
+        {
+            Value = value;
+            HasValue = true;
+            Errors = EmptyErrors;
+        }
+        
+        /// <summary>
+        /// Create a new ParseResult with the specified Trigger.
+        /// </summary>
+        /// <param name="trigger"></param>
+        public ParseResult(ITerminatingTrigger trigger)
+        {
+            Trigger = trigger;
+            HasTrigger = true;
+            Errors = EmptyErrors;
         }
 
         /// <summary>
-        /// Attempt to append another error to the result. If the original
-        /// result contains a value, it fails as a result cannot contain
-        /// both a value and errors.
+        /// Create a new error ParseResult with the specified errors.
         /// </summary>
-        /// <param name="newResult">
-        /// New result created after appending the new error. If the return
-        /// value is false, newResult is the same instance as the original.
-        /// </param>
-        /// <param name="errors">New errors to append to the result.</param>
-        /// <returns>true if an error was appended, false if the result contains a value.</returns>
-        public bool TryAppendErrors(out ParseResult<T> newResult, params Exception[] errors)
+        /// <param name="errors"></param>
+        public ParseResult(params Exception[] errors)
         {
-            if (HasValue)
-            {
-                newResult = this;
-                return false;
-            }
+            Errors = errors;
+        }
 
-            var eh = Errors;
-            var start = eh.Length;
-            Array.Resize(ref eh, start + errors.Length);
-            var end = errors.Length;
-            for (var i = 0; i < end; ++i)
-            {
-                eh[start + i] = errors[i];
-            }
-            newResult = new ParseResult<T>(eh);
-            return true;
+        /// <summary>
+        /// Execute a delegate based on the contents of the result. If it contains
+        /// a value, handleValue is called. If it contains a TerminatingTrigger,
+        /// handleTrigger is called. Otherwise, handleErrors is called.
+        /// </summary>
+        /// <param name="handleValue"></param>
+        /// <param name="handleTrigger"></param>
+        /// <param name="handleErrors"></param>
+        /// <returns>Transformed result after handling value.</returns>
+        public TRet Handle<TRet>(
+            Func<T, TRet> handleValue,
+            Func<ITerminatingTrigger, TRet> handleTrigger,
+            Func<Exception[], TRet> handleErrors)
+        {
+            if (handleValue == null) throw new ArgumentException("handleValue cannot be null", "handleValue");
+            if (handleTrigger == null) throw new ArgumentException("handleTrigger cannot be null", "handleTrigger");
+            if (handleErrors == null) throw new ArgumentException("handleErrors cannot be null", "handleVErrors");
+
+            if (HasValue) return handleValue(Value);
+            else if (HasTrigger) return handleTrigger(Trigger);
+            else return handleErrors(Errors);
+        }
+
+        /// <summary>
+        /// Execute a delegate based on the contents of the result. If it contains
+        /// a value, handleValue is called. If it contains a TerminatingTrigger,
+        /// handleTrigger is called. Otherwise, handleErrors is called.
+        /// </summary>
+        /// <param name="handleValue"></param>
+        /// <param name="handleTrigger"></param>
+        /// <param name="handleErrors"></param>
+        public void Handle(
+            Action<T> handleValue,
+            Action<ITerminatingTrigger> handleTrigger,
+            Action<Exception[]> handleErrors)
+        {
+            if (handleValue == null) throw new ArgumentException("handleValue cannot be null", "handleValue");
+            if (handleTrigger == null) throw new ArgumentException("handleTrigger cannot be null", "handleTrigger");
+            if (handleErrors == null) throw new ArgumentException("handleErrors cannot be null", "handleVErrors");
+
+            if (HasValue) handleValue(Value);
+            else if (HasTrigger) handleTrigger(Trigger);
+            else handleErrors(Errors);
         }
 
         /// <inheritdoc />
@@ -114,6 +260,10 @@ namespace clipr
             if (HasValue)
             {
                 return String.Format("<ParseResult Value:{0}>", Value);
+            }
+            if (HasTrigger)
+            {
+                return String.Format("<ParseResult Trigger:{0}>", Trigger);
             }
             return String.Format("<ParseResult Errors({0}):{1}>",
                 Errors.Length,

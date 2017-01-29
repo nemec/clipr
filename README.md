@@ -38,27 +38,38 @@ public class Options
 
 static void Main()
 {
-    var opt = CliParser.Parse<Options>(
+    var result = CliParser.Parse<Options>(
         "-vvv output.txt 1 2 -1 7".Split());
-    Console.WriteLine(opt.Verbosity);
-    // >>> 3
+    result.Handle(
+        opt =>
+		{
+			Console.WriteLine(opt.Verbosity);
+			// >>> 3
 
-    Console.WriteLine(opt.OutputFile);
-    // >>> output.txt
+			Console.WriteLine(opt.OutputFile);
+			// >>> output.txt
 
-    var sum = 0;
-    foreach (var number in opt.Numbers)
-    {
-        sum += number;
-    }
-    Console.WriteLine(sum);
-    // >>> 9
+			var sum = 0;
+			foreach (var number in opt.Numbers)
+			{
+				sum += number;
+			}
+			Console.WriteLine(sum);
+			// >>> 9
+		},
+        t => Assert.Fail("Trigger {0} executed.", t),
+        e => Assert.Fail("Error parsing arguments."));
 }
 ```
 
 ##Changelog
 
 ###Master
+
+* Remove exception throwing when an error occurs. (#31)
+* Change parsing return type to a union indicating whether parsing
+	succeeded, a trigger was hit, or an error occurred. (#34)
+
 
 ###2017-01-02 1.6.0
 
@@ -119,6 +130,29 @@ Attributes you place on your options class when the parser is initialized
 a user passes the wrong arguments in to discover that you've defined a
 duplicate argument short name or that the constant values you're storing
 aren't actually convertible to the property type.
+
+In order to use Integrity Checking you must call one of two validation 
+methods:
+
+1. The `ValidateAttributeConfig` method returns an array of Exceptions that
+	list the various Integrity issues with your configuration. You may
+	inspect that collection and handle them accordingly.
+
+    var parser = new CliParser<Options>();
+    var errs = parser.ValidateAttributeConfig();
+	// do something with errors
+
+2. The `EnsureValidAttributeConfig` method throws an AggregateException
+	when any integrity issues are found. The expectation is that this
+	exception remains *unhandled* so that, during development, any
+	configuration issues are immediately found and handled. Since this
+	method does not rely upon runtime input, there is no danger in
+	leaving it in when shipping, but for performance reasons you may
+	wish to exclude the validation from Release builds.
+
+	var parser = new CliParser<Options>();
+    parser.EnsureValidAttributeConfig();
+
 
 #Features
 
@@ -264,7 +298,7 @@ public class Options
 ```
 
 ```csharp
-var opt = CliParser.Parse<Options>(new[] {"-s"});
+var result = CliParser.Parse<Options>(new[] {"-s"});
 ```
 
 ```csharp
@@ -280,7 +314,7 @@ public class OptionsWithPositional
 ```
 
 ```csharp
-var opt = CliParser.Parse<OptionsWithPositional>(new[] {"-s - Nemec"});
+var result = CliParser.Parse<OptionsWithPositional>(new[] {"-s - Nemec"});
 ```
 
 Prints:
@@ -387,9 +421,9 @@ You may also programmatically generate the help and usage for a class:
 var parser = new CliParser<Options>(new Options());
 var help = new AutomaticHelpGenerator<Options>();
 // Gets the usage message, a short summary of available arguments.
-Console.WriteLine(help.GetUsage(parser.Config));
+Console.WriteLine(help.GetUsage(parser.BuildConfig()));
 // Gets the full help message with argument descriptions.
-Console.WriteLine(help.GetHelp(parser.Config));
+Console.WriteLine(help.GetHelp(parser.BuildConfig()));
 ```
 
 Version information is similarly auto-generated from the version string
@@ -501,7 +535,10 @@ public static void Main()
 {
   var obj = CliParser.Parse<StaticEnumerationOptions>(
       "-e first".Split());
-  Assert.AreSame(SomeEnum.First, obj.Value);
+  result.Handle(
+      opt => Assert.AreSame(SomeEnum.First, opt.Value),
+      t => Assert.Fail("Trigger {0} executed.", t),
+      e => Assert.Fail("Error parsing arguments."));
 }
 ```
 
@@ -520,7 +557,7 @@ configuring.
 ```csharp
 var opt = new Options();
 
-new CliParserBuilder<Options>(opt)
+new CliParserBuilder<Options>()
     .HasNamedArgument(o => o.Verbosity)
         .WithShortName('v')
         .CountsInvocations()
@@ -532,7 +569,7 @@ new CliParserBuilder<Options>(opt)
         .HasDescription("These are numbers.")
         .Consumes.AtLeast(1)
 .And.Parser
-    .Parse("-vvv -o out.txt 3 4 5 6".Split());
+    .Parse("-vvv -o out.txt 3 4 5 6".Split(), opt);
 
 Console.WriteLine(opt.Verbosity);
 // >>> 3
@@ -553,7 +590,7 @@ You may also add a Verb to the parser config with this syntax:
 
 ```csharp
 var opt = new Options();
-new CliParserBuilder<Options>(opt)
+new CliParserBuilder<Options>()
     .HasVerb("add", c => c.AddVerb,
               // Note that in the Fluent Interface, you're nesting parsers
               // Theoretically this means you can nest an 
@@ -564,7 +601,7 @@ new CliParserBuilder<Options>(opt)
                   .HasPositionalArgument(c => c.Filename)
                   .And)  // A necessary evil if defining inline.
 .And.Parser
-    .Parse("add myfile.txt");
+    .Parse("add myfile.txt", opt);
 
 Console.WriteLine(opt.AddVerb);
 // myfile.txt
@@ -585,11 +622,11 @@ in Expressions).
 ```csharp
 var key = 1;
 var opt = new Dictionary<int, string>();
-var parser = new CliParser<Dictionary<int, string>>(opt);
+var parser = new CliParser<Dictionary<int, string>>();
 parser.HasNamedArgument(c => c[key])
         .WithShortName('n');
 
-parser.Parse("-n frank".Split());
+parser.Parse("-n frank".Split(), opt);
 
 Console.WriteLine("Parsed Keys:");
 foreach (var kv in opt)

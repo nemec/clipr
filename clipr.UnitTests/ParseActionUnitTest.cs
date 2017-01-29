@@ -23,8 +23,11 @@ namespace clipr.UnitTests
         [TestMethod]
         public void Argument_WithParseActionCount_AccumulatesCount()
         {
-            var opt = CliParser.Parse<NamedArgumentCount>("-v -v -v".Split());
-            Assert.AreEqual(3, opt.Verbosity);
+            var result = CliParser.Parse<NamedArgumentCount>("-v -v -v".Split());
+            result.Handle(
+                opt => Assert.AreEqual(3, opt.Verbosity),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
 
 #endregion
@@ -40,8 +43,11 @@ namespace clipr.UnitTests
         [TestMethod]
         public void Argument_WithStoreTrueAction_StoresBoolAsTrue()
         {
-            var opt = CliParser.Parse<StoreTrueAction>("-b".Split());
-            Assert.IsTrue(opt.IsSet);
+            var result = CliParser.Parse<StoreTrueAction>("-b".Split());
+            result.Handle(
+                opt => Assert.IsTrue(opt.IsSet),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
 
         internal class StoreTrueActionNullable
@@ -53,8 +59,11 @@ namespace clipr.UnitTests
         [TestMethod]
         public void Argument_WithStoreTrueActionAndNullable_StoresBoolAsTrue()
         {
-            var opt = CliParser.Parse<StoreTrueActionNullable>("-b".Split());
-            Assert.IsTrue(opt.IsSet.GetValueOrDefault());
+            var result = CliParser.Parse<StoreTrueActionNullable>("-b".Split());
+            result.Handle(
+                opt => Assert.IsTrue(opt.IsSet.GetValueOrDefault()),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
 
 #endregion
@@ -75,8 +84,11 @@ namespace clipr.UnitTests
         [TestMethod]
         public void Argument_WithStoreFalseAction_StoresBoolAsFalse()
         {
-            var opt = CliParser.Parse<StoreFalseAction>("-b".Split());
-            Assert.IsFalse(opt.IsSet);
+            var result = CliParser.Parse<StoreFalseAction>("-b".Split());
+            result.Handle(
+                opt => Assert.IsFalse(opt.IsSet),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
 
         internal class StoreFalseActionNullable
@@ -88,15 +100,21 @@ namespace clipr.UnitTests
         [TestMethod]
         public void Argument_WithStoreFalseActionAndNullable_StoresBoolAsFalse()
         {
-            var opt = CliParser.Parse<StoreFalseActionNullable>("-b".Split());
-            Assert.IsFalse(opt.IsSet.GetValueOrDefault());
+            var result = CliParser.Parse<StoreFalseActionNullable>("-b".Split());
+            result.Handle(
+                opt => Assert.IsFalse(opt.IsSet.GetValueOrDefault()),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
 
         [TestMethod]
         public void Argument_WithStoreFalseActionAndNullableAndFlagNotProvided_StoresBoolAsNull()
         {
-            var opt = CliParser.Parse<StoreFalseActionNullable>(new string[] { });
-            Assert.IsNull(opt.IsSet);
+            var result = CliParser.Parse<StoreFalseActionNullable>(new string[] { });
+            result.Handle(
+                opt => Assert.IsNull(opt.IsSet),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
 
 #endregion
@@ -112,15 +130,23 @@ namespace clipr.UnitTests
         [TestMethod]
         public void Argument_WithStoreAction_StoresValue()
         {
-            var opt = CliParser.Parse<StoreValue>("-s 10".Split());
-            Assert.AreEqual(10, opt.Value);
+            var result = CliParser.Parse<StoreValue>("-s 10".Split());
+            result.Handle(
+                opt => Assert.AreEqual(10, opt.Value),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
 
         [TestMethod]
         public void Argument_WithStoreActionAndInconvertibleValue_ThrowsException()
         {
-            AssertEx.Throws<ParseException>(() =>
-            CliParser.Parse<StoreValue>("-s bbb".Split()));
+            var result = CliParser.Parse<StoreValue>("-s bbb".Split());
+            result.Handle(
+                opt => Assert.Fail("Parse succeeded but error was expected."),
+                t => Assert.Fail("Trigger initiated, but error was expected."),
+                errs => Assert.IsTrue(errs
+                    .OfType<ParseException>()
+                    .Any()));
         }
 
         internal class StoreBoolActionNullable
@@ -132,25 +158,33 @@ namespace clipr.UnitTests
         [TestMethod]
         public void Argument_WithStoreBoolActionAndNoValue_StoresBoolAsNull()
         {
-            // Named arguments cannot take optional values, as that would make
-            // parsing ambiguous. For example, if `-a` takes an optional argument
-            // and `-b` is another argument, how is `-ab` parsed?
-            AssertEx.Throws<ParseException>(() => 
-                CliParser.Parse<StoreBoolActionNullable>("-b".Split()));
+            var result = CliParser.Parse<StoreBoolActionNullable>("-b".Split());
+            result.Handle(
+                opt => Assert.Fail("Parse succeeded but error was expected."),
+                t => Assert.Fail("Trigger initiated, but error was expected."),
+                errs => Assert.IsTrue(errs
+                    .OfType<ParseException>()
+                    .Any()));
         }
 
         [TestMethod]
         public void Argument_WithStoreBoolActionAndNoValue_StoresBoolAsTrue()
         {
-            var opt = CliParser.Parse<StoreBoolActionNullable>("-b true".Split());
-            Assert.IsTrue(opt.IsSet.Value);
+            var result = CliParser.Parse<StoreBoolActionNullable>("-b true".Split());
+            result.Handle(
+                opt => Assert.IsTrue(opt.IsSet.Value),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
 
         [TestMethod]
         public void Argument_WithStoreBoolActionAndNoValue_StoresBoolAsFalse()
         {
-            var opt = CliParser.Parse<StoreBoolActionNullable>("-b false".Split());
-            Assert.IsFalse(opt.IsSet.Value);
+            var result = CliParser.Parse<StoreBoolActionNullable>("-b false".Split());
+            result.Handle(
+                opt => Assert.IsFalse(opt.IsSet.Value),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
 
 #endregion
@@ -166,8 +200,11 @@ namespace clipr.UnitTests
         [TestMethod]
         public void Argument_WithStoreConstValue_StoresValue()
         {
-            var opt = CliParser.Parse<StoreConst>("-s".Split());
-            Assert.AreEqual(10, opt.Value);
+            var result = CliParser.Parse<StoreConst>("-s".Split());
+            result.Handle(
+                opt => Assert.AreEqual(10, opt.Value),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
 
         internal class StoreConstWrongConstValue
@@ -201,15 +238,24 @@ namespace clipr.UnitTests
         public void Append_WithMultipleOfSameArgument_AppendsValues()
         {
             var expected = new List<int> {1, 2, 3};
-            var opt = CliParser.Parse<Append>("-i1 -i 2 -i 3".Split());
-            CollectionAssert.AreEqual(expected, opt.Values);
+            var result = CliParser.Parse<Append>("-i1 -i 2 -i 3".Split());
+            result.Handle(
+                opt => CollectionAssert.AreEqual(expected, opt.Values),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
 
         [TestMethod]
         public void Append_WithOneValueInconvertible_ThrowsException()
         {
             var expected = new List<int> { 1, 2, 3 };
-            AssertEx.Throws<ParseException>(() => CliParser.Parse<Append>("-i1 -i oops -i 3".Split()));
+            var result = CliParser.Parse<Append>("-i1 -i oops -i 3".Split());
+            result.Handle(
+                opt => Assert.Fail("Parse succeeded but error was expected."),
+                t => Assert.Fail("Trigger initiated, but error was expected."),
+                errs => Assert.IsTrue(errs
+                    .OfType<ParseException>()
+                    .Any()));
         }
 
 #endregion
@@ -226,8 +272,11 @@ namespace clipr.UnitTests
         public void AppendConst_WithMultipleOfSameArgument_AppendsValues()
         {
             var expected = new List<int> { 6, 6, 6 };
-            var opt = CliParser.Parse<AppendConst>("-i -i -i".Split());
-            CollectionAssert.AreEqual(expected, opt.Values);
+            var result = CliParser.Parse<AppendConst>("-i -i -i".Split());
+            result.Handle(
+                opt => CollectionAssert.AreEqual(expected, opt.Values),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
 
 #endregion

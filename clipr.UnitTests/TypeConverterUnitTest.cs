@@ -37,8 +37,11 @@ namespace clipr.UnitTests
         [TestMethod]
         public void CustomTypeConverter_WithPropertyOnBuiltInClass_UsesCustomConverter()
         {
-            var opt = CliParser.Parse<CustomDateTimeOptions>("-d 20140801".Split());
-            Assert.AreEqual(new DateTime(2014, 8, 1), opt.Date);
+            var result = CliParser.Parse<CustomDateTimeOptions>("-d 20140801".Split());
+            result.Handle(
+                opt => Assert.AreEqual(new DateTime(2014, 8, 1), opt.Date),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
 
 
@@ -75,8 +78,11 @@ namespace clipr.UnitTests
         [TestMethod]
         public void CustomTypeConversion_ParseShortArgOnEnum_ConvertsStringArgumentToCustomType()
         {
-            var opt = CliParser.Parse<CustomTypeConversion>("--set=3".Split());
-            Assert.AreEqual(3, opt.Custom.Value);
+            var result = CliParser.Parse<CustomTypeConversion>("--set=3".Split());
+            result.Handle(
+                opt => Assert.AreEqual(3, opt.Custom.Value),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
 
         internal class CustomListInnerTypeConversion
@@ -114,10 +120,15 @@ namespace clipr.UnitTests
         {
             var expected = new[] { 3, 5, 4 };
 
-            var opt = CliParser.Parse<CustomListInnerTypeConversion>("--set 3 5 4".Split());
-            var actual = opt.CustomList.Select(c => c.Value).ToArray();
-
-            CollectionAssert.AreEqual(expected, actual);
+            var result = CliParser.Parse<CustomListInnerTypeConversion>("--set 3 5 4".Split());
+            result.Handle(
+                opt =>
+                {
+                    var actual = opt.CustomList.Select(c => c.Value).ToArray();
+                    CollectionAssert.AreEqual(expected, actual);
+                },
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
 
         internal class ListTypeConversion
@@ -130,8 +141,11 @@ namespace clipr.UnitTests
         public void ListTypeConversion_GivenMultipleIntegers_ConvertsAndAddsToList()
         {
             var expected = new List<int> { 1, 2 };
-            var opt = CliParser.Parse<ListTypeConversion>("--numbers 1 2".Split());
-            CollectionAssert.AreEqual(expected, opt.Numbers);
+            var result = CliParser.Parse<ListTypeConversion>("--numbers 1 2".Split());
+            result.Handle(
+                opt => CollectionAssert.AreEqual(expected, opt.Numbers),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
 
         public enum Color
@@ -171,10 +185,16 @@ namespace clipr.UnitTests
         {
             var expected = new[] { Color.Blue, Color.Red };
 
-            var options = CliParser.Parse<StaticEnumListOptions>("-c Blue Red".Split());
-            var actual = options.Colors.Select(c => c.Value).ToArray();
-
-            CollectionAssert.AreEqual(expected, actual);
+            var result = CliParser.Parse<StaticEnumListOptions>("-c Blue Red".Split());
+            result.Handle(
+                opt =>
+                {
+                    var actual = opt.Colors.Select(c => c.Value).ToArray();
+                    CollectionAssert.AreEqual(expected, actual);
+                },
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
+            
         }
     }
 }

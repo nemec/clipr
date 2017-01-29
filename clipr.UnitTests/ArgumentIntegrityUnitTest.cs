@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-
-using AggregateException = clipr.Utils.AggregateException;
 using System.Linq;
+using System.Text;
 
 // ReSharper disable ObjectCreationAsStatement
 // ReSharper disable UseObjectOrCollectionInitializer
@@ -27,10 +25,28 @@ namespace clipr.UnitTests
         [TestMethod]
         public void ParseArgument_WithArgumentsOfDifferingCaseWhenCaseSensitive_ParsesArguments()
         {
-            var opt = CliParser.Parse<DuplicateArgumentWhenCaseInsensitive>(
+            var result = CliParser.Parse<DuplicateArgumentWhenCaseInsensitive>(
                 "-n tim -N robert".Split());
-            Assert.AreEqual("tim", opt.Name);
-            Assert.AreEqual("robert", opt.Neighbor);
+            result.Handle(
+                opt =>
+                {
+                    Assert.AreEqual("tim", opt.Name);
+                    Assert.AreEqual("robert", opt.Neighbor);
+                },
+                trig =>
+                {
+                    Assert.Fail(trig.ToString());
+                },
+                errs =>
+                {
+                    var sb = new StringBuilder();
+                    foreach (var err in errs)
+                    {
+                        sb.AppendLine(err.ToString());
+                    }
+                    Assert.Fail(sb.ToString());
+                });
+            
         }
 
         [TestMethod]
@@ -467,8 +483,10 @@ namespace clipr.UnitTests
             var help = new Usage.AutomaticHelpGenerator<object>();
             //help.Version.ShortName = '.';
 
-            AssertEx.ThrowsAggregateContaining<ArgumentIntegrityException>(
-                () => new CliParser<object>(help));
+            var errs = new CliParser<object>(help).ValidateAttributeConfig();
+            Assert.IsTrue(errs
+                .OfType<ArgumentIntegrityException>()
+                .Any());
         }
 
         [TestMethod]
@@ -478,10 +496,10 @@ namespace clipr.UnitTests
             var help = new Usage.AutomaticHelpGenerator<object>();
             //help.Version.ShortName = '1';
 
-            AssertEx.ThrowsAggregateContaining<ArgumentIntegrityException>(() =>
-            {
-                new CliParser<object>(help);
-            });
+            var errs = new CliParser<object>(help).ValidateAttributeConfig();
+            Assert.IsTrue(errs
+                .OfType<ArgumentIntegrityException>()
+                .Any());
         }
 
 #endregion
@@ -492,10 +510,13 @@ namespace clipr.UnitTests
         [Ignore]
         public void Version_WithInvalidLongName_ThrowsException()
         {
+            // TODO better way to add/remove triggers
             var help = new Usage.AutomaticHelpGenerator<object>();
             //help.Version.LongName = "no.thing";
-            AssertEx.ThrowsAggregateContaining<ArgumentIntegrityException>(() =>
-            new CliParser<object>(help));
+            var errs = new CliParser<object>(help).ValidateAttributeConfig();
+            Assert.IsTrue(errs
+                .OfType<ArgumentIntegrityException>()
+                .Any());
         }
 
         [TestMethod]
@@ -504,8 +525,10 @@ namespace clipr.UnitTests
         {
             var help = new Usage.AutomaticHelpGenerator<object>();
             //help.Version.LongName = "n";
-            AssertEx.ThrowsAggregateContaining<ArgumentIntegrityException>(() =>
-            new CliParser<object>(help));
+            var errs = new CliParser<object>(help).ValidateAttributeConfig();
+            Assert.IsTrue(errs
+                .OfType<ArgumentIntegrityException>()
+                .Any());
         }
 
         [TestMethod]
@@ -515,8 +538,10 @@ namespace clipr.UnitTests
             var help = new Usage.AutomaticHelpGenerator<object>();
             //help.Version.LongName = "none-";
 
-            AssertEx.ThrowsAggregateContaining<ArgumentIntegrityException>(() =>
-            new CliParser<object>(help));
+            var errs = new CliParser<object>(help).ValidateAttributeConfig();
+            Assert.IsTrue(errs
+                .OfType<ArgumentIntegrityException>()
+                .Any());
         }
 
         [TestMethod]
@@ -526,8 +551,10 @@ namespace clipr.UnitTests
             var help = new Usage.AutomaticHelpGenerator<object>();
             //help.Version.LongName = "1none";
 
-            AssertEx.ThrowsAggregateContaining<ArgumentIntegrityException>(() =>
-            new CliParser<object>(help));
+            var errs = new CliParser<object>(help).ValidateAttributeConfig();
+            Assert.IsTrue(errs
+                .OfType<ArgumentIntegrityException>()
+                .Any());
         }
 
 #endregion

@@ -105,7 +105,6 @@
     <Compile Include="Fluent\PositionalBase.cs" />
     <Compile Include="Fluent\PositionalList.cs" />
     <Compile Include="Core\ParserConfig.cs" />
-    <Compile Include="Core\ParserExit.cs" />
     <Compile Include="Core\ParsingContext.cs" />
     <Compile Include="Triggers\ITerminatingTrigger.cs" />
     <Compile Include="Utils\DotNetCoreExtensions.cs" />

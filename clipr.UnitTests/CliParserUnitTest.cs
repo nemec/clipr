@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using clipr.Core;
+using clipr.Usage;
 
 // ReSharper disable ObjectCreationAsStatement
 
@@ -22,14 +23,23 @@ namespace clipr.UnitTests
         {
             var parser = new CliParser<CaseFoldingOptions>(
                 ParserOptions.CaseInsensitive);
-            parser.Parse("--Name timothy".Split(), new CaseFoldingOptions());
+            var result = parser.Parse("--Name timothy".Split(), new CaseFoldingOptions());
+            result.Handle(
+                opt => Assert.AreEqual("timothy", opt.Name),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
 
         [TestMethod]
         public void CaseFolding_ParseLongArgWithWrongCaseWhenCaseSensitive_ThrowsParseException()
         {
-            AssertEx.Throws<ParseException>(() =>
-                CliParser.Parse<CaseFoldingOptions>("--Name timothy".Split()));
+            var result = CliParser.Parse<CaseFoldingOptions>("--Name timothy".Split());
+            result.Handle(
+                opt => Assert.Fail("Parse succeeded but error was expected."),
+                t => Assert.Fail("Trigger initiated but error was expected."),
+                errs => Assert.IsTrue(errs
+                .OfType<ParseException>()
+                .Any()));
         }
 
         [TestMethod]
@@ -37,14 +47,23 @@ namespace clipr.UnitTests
         {
             var parser = new CliParser<CaseFoldingOptions>(
                 ParserOptions.CaseInsensitive);
-            parser.Parse("-N timothy".Split(), new CaseFoldingOptions());
+            var result = parser.Parse("-N timothy".Split(), new CaseFoldingOptions());
+            result.Handle(
+                opt => Assert.AreEqual("timothy", opt.Name),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
 
         [TestMethod]
         public void CaseFolding_ParseShortArgWithWrongCaseWhenCaseSensitive_ThrowsParseException()
         {
-            AssertEx.Throws<ParseException>(() =>
-            CliParser.Parse<CaseFoldingOptions>("-N timothy".Split()));
+            var result = CliParser.Parse<CaseFoldingOptions>("-N timothy".Split());
+            result.Handle(
+                opt => Assert.Fail("Parse succeeded but error was expected."),
+                t => Assert.Fail("Trigger initiated but error was expected."),
+                errs => Assert.IsTrue(errs
+                .OfType<ParseException>()
+                .Any()));
         }
 
         [TestMethod]
@@ -52,7 +71,11 @@ namespace clipr.UnitTests
         {
             var parser = new CliParser<CaseFoldingOptions>(
                 ParserOptions.NamedPartialMatch);
-            parser.Parse("--na timothy".Split(), new CaseFoldingOptions());
+            var result = parser.Parse("--na timothy".Split(), new CaseFoldingOptions());
+            result.Handle(
+                opt => Assert.AreEqual("timothy", opt.Name),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
 
         [TestMethod]
@@ -60,7 +83,11 @@ namespace clipr.UnitTests
         {
             var parser = new CliParser<CaseFoldingOptions>(
                 ParserOptions.CaseInsensitive | ParserOptions.NamedPartialMatch);
-            parser.Parse("--Na timothy".Split(), new CaseFoldingOptions());
+            var result = parser.Parse("--Na timothy".Split(), new CaseFoldingOptions());
+            result.Handle(
+                opt => Assert.AreEqual("timothy", opt.Name),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
 
         internal class IntTypeConversion
@@ -72,8 +99,11 @@ namespace clipr.UnitTests
         [TestMethod]
         public void IntTypeConversion_ParseShortArgOnInteger_ConvertsStringArgumentToInteger()
         {
-            var opt = CliParser.Parse<IntTypeConversion>("-a 3".Split());
-            Assert.AreEqual(3, opt.Age);
+            var result = CliParser.Parse<IntTypeConversion>("-a 3".Split());
+            result.Handle(
+                opt => Assert.AreEqual(3, opt.Age),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
 
         internal class EnumTypeConversion
@@ -92,8 +122,11 @@ namespace clipr.UnitTests
         [TestMethod]
         public void EnumTypeConversion_ParseShortArgOnEnum_ConvertsStringArgumentToEnum()
         {
-            var opt = CliParser.Parse<EnumTypeConversion>("-s fulltime".Split());
-            Assert.AreEqual(EnumTypeConversion.EmploymentStatus.FullTime, opt.Employment);
+            var result = CliParser.Parse<EnumTypeConversion>("-s fulltime".Split());
+            result.Handle(
+                opt => Assert.AreEqual(EnumTypeConversion.EmploymentStatus.FullTime, opt.Employment),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
 
         public class MixedNamedAndPositional
@@ -108,17 +141,30 @@ namespace clipr.UnitTests
         [TestMethod]
         public void ParseArguments_WithNamedBeforePositional_ParsesBothArguments()
         {
-            var opt = CliParser.Parse<MixedNamedAndPositional>("-n name pos".Split());
-            Assert.AreEqual("name", opt.Named);
-            Assert.AreEqual("pos", opt.Positional);
+            var result = CliParser.Parse<MixedNamedAndPositional>("-n name pos".Split());
+            result.Handle(
+                opt =>
+                {
+                    Assert.AreEqual("name", opt.Named);
+                    Assert.AreEqual("pos", opt.Positional);
+                },
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
+            
         }
 
         [TestMethod]
         public void ParseArguments_WithPositionalBeforeNamed_ParsesBothArguments()
         {
-            var opt = CliParser.Parse<MixedNamedAndPositional>("pos -n name".Split());
-            Assert.AreEqual("name", opt.Named);
-            Assert.AreEqual("pos", opt.Positional);
+            var result = CliParser.Parse<MixedNamedAndPositional>("pos -n name".Split());
+            result.Handle(
+                opt =>
+                {
+                    Assert.AreEqual("name", opt.Named);
+                    Assert.AreEqual("pos", opt.Positional);
+                },
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
 
         internal class NullUsageAndVersion
@@ -139,9 +185,12 @@ namespace clipr.UnitTests
         [TestMethod]
         public void ParseArguments_WithVersionArgument_PrintsVersionAndExits()
         {
-            var opt = new object();
-            AssertEx.Throws<ParserExit>(() =>
-            new CliParser<object>().Parse("--version".Split(), opt));
+            var opts = new object();
+            var result = new CliParser<object>().Parse("--version".Split(), opts);
+            result.Handle(
+                opt => Assert.Fail("Parse succeeded but trigger was expected."),
+                t => Assert.IsInstanceOfType(t, typeof(ExecutingAssemblyVersion)),
+                errs => Assert.Fail("Error occurred but trigger was expected."));
         }
 
         [TestMethod]
@@ -221,9 +270,12 @@ namespace clipr.UnitTests
         [TestMethod]
         public void Parse_WithPositionalAgumentFollowingNamedWithNoLimit_LeavesLastArgumentForPositional()
         {
-            var obj = CliParser.Parse<InfiniteNamedWithPositional>(
+            var result = CliParser.Parse<InfiniteNamedWithPositional>(
                 "-n one two three -- positional".Split());
-            Assert.AreEqual("positional", obj.Positional);
+            result.Handle(
+                opt => Assert.AreEqual("positional", opt.Positional),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
 
         internal class InfiniteNamedWithOtherNamedFollowing
@@ -239,17 +291,23 @@ namespace clipr.UnitTests
         [TestMethod]
         public void Parse_WithLongNamedAgumentFollowingNamedWithNoLimit_StopsParsingAtFirstDash()
         {
-            var obj = CliParser.Parse<InfiniteNamedWithOtherNamedFollowing>(
+            var result = CliParser.Parse<InfiniteNamedWithOtherNamedFollowing>(
                 "-n one two three --other final".Split());
-            Assert.AreEqual("final", obj.Other);
+            result.Handle(
+                opt => Assert.AreEqual("final", opt.Other),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
 
         [TestMethod]
         public void Parse_WithShortNamedAgumentFollowingNamedWithNoLimit_StopsParsingAtFirstDash()
         {
-            var obj = CliParser.Parse<InfiniteNamedWithOtherNamedFollowing>(
+            var result = CliParser.Parse<InfiniteNamedWithOtherNamedFollowing>(
                 "-n one two three -o final".Split());
-            Assert.AreEqual("final", obj.Other);
+            result.Handle(
+                opt => Assert.AreEqual("final", opt.Other),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
 
         internal class EnumerableArguments
@@ -262,9 +320,12 @@ namespace clipr.UnitTests
         [TestMethod]
         public void Parse_WithIEnumerableNamedArgument_ParsesIntoIEnumerable()
         {
-            var obj = CliParser.Parse<EnumerableArguments>(
+            var result = CliParser.Parse<EnumerableArguments>(
                 "-n 1 4 6 8".Split());
-            Assert.AreEqual(4, obj.Numbers.Count());
+            result.Handle(
+                opt => Assert.AreEqual(4, opt.Numbers.Count()),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
 
         [StaticEnumeration]
@@ -283,9 +344,12 @@ namespace clipr.UnitTests
         [TestMethod]
         public void Parse_WithStaticEnumerationDefinedOnClass_ParsesIntoValue()
         {
-            var obj = CliParser.Parse<StaticEnumerationOptions>(
+            var result = CliParser.Parse<StaticEnumerationOptions>(
                 "-e first".Split());
-            Assert.AreSame(SomeEnum.First, obj.Value);
+            result.Handle(
+                opt => Assert.AreSame(SomeEnum.First, opt.Value),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
 
         [StaticEnumeration]
@@ -308,17 +372,23 @@ namespace clipr.UnitTests
         [TestMethod]
         public void Parse_WithStaticEnumerationSubclassCovariantDefinedOnClass_ParsesIntoValue()
         {
-            var obj = CliParser.Parse<StaticEnumerationOptions>(
+            var result = CliParser.Parse<StaticEnumerationOptions>(
                 "-e first".Split());
-            Assert.AreSame(SomeEnum.First, obj.Value);
+            result.Handle(
+                opt => Assert.AreSame(SomeEnum.First, opt.Value),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
 
         [TestMethod]
         public void Parse_WithStaticEnumerationSubclassDefinedOnClass_ParsesIntoValue()
         {
-            var obj = CliParser.Parse<StaticEnumerationOptions>(
+            var result = CliParser.Parse<StaticEnumerationOptions>(
                 "-e second".Split());
-            Assert.AreSame(SomeEnum.Second, obj.Value);
+            result.Handle(
+                opt => Assert.AreSame(SomeEnum.Second, opt.Value),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
 
         internal class SomeEnumNonStatic
@@ -337,9 +407,12 @@ namespace clipr.UnitTests
         [TestMethod]
         public void Parse_WithStaticEnumerationDefinedOnProperty_ParsesIntoValue()
         {
-            var obj = CliParser.Parse<StaticEnumerationOptionsExplicit>(
+            var result = CliParser.Parse<StaticEnumerationOptionsExplicit>(
                 "-e first".Split());
-            Assert.AreSame(SomeEnumNonStatic.First, obj.Value);
+            result.Handle(
+                opt => Assert.AreSame(SomeEnumNonStatic.First, opt.Value),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
 
         private class TraceOptions
@@ -354,8 +427,12 @@ namespace clipr.UnitTests
         [TestMethod]
         public void Parse_WithInvalidEnumValue_ThrowsException()
         {
-            AssertEx.Throws<ParseException>(() =>
-            CliParser.Parse<TraceOptions>("-tX error c:\\file.txt c:\\file2.txt".Split()));
+            CliParser.Parse<TraceOptions>("-tX error c:\\file.txt c:\\file2.txt".Split())
+                .Handle(v => Assert.Fail("Value parsed, but should have thrown exception."),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                errs => Assert.IsTrue(errs
+                .OfType<ParseException>()
+                .Any()));
         }
 
         [StaticEnumeration]
@@ -384,17 +461,21 @@ namespace clipr.UnitTests
         [TestMethod]
         public void Parse_WithOptionalValueAndValueProvided_SetsValue()
         {
-            var obj = CliParser.Parse<OptionsWithOptionalValue>("--server 123".Split());
-
-            Assert.AreEqual(123, obj.Server);
+            var result = CliParser.Parse<OptionsWithOptionalValue>("--server 123".Split());
+            result.Handle(
+                opt => Assert.AreEqual(123, opt.Server),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
 
         [TestMethod]
         public void Parse_WithOptionalValueAndNoValueProvided_SetsConst()
         {
-            var obj = CliParser.Parse<OptionsWithOptionalValue>("--server".Split());
-
-            Assert.AreEqual(1234, obj.Server);
+            var result = CliParser.Parse<OptionsWithOptionalValue>("--server".Split());
+            result.Handle(
+                opt => Assert.AreEqual(1234, opt.Server),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
     }
 }

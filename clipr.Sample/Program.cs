@@ -198,8 +198,11 @@ namespace clipr.Sample
 
         static void CustomDateTime(string[] args)
         {
-            var opt = CliParser.Parse<CustomDateTimeOptions>(args);
-            Console.WriteLine(opt.CurrentDate[1]);
+            var result = CliParser.Parse<CustomDateTimeOptions>(args);
+            result.Handle(
+                opt => Console.WriteLine(opt.CurrentDate[1]),
+                t => { },
+                e => { });
             // >>> 
         }
 
@@ -216,8 +219,11 @@ namespace clipr.Sample
 
         static void ParseRequiredNamedArgument(string[] args)
         {
-            var opt = CliParser.Parse<RequiredNamedArgument>(args);
-            Console.WriteLine(opt.CurrentDate);
+            var result = CliParser.Parse<RequiredNamedArgument>(args);
+            result.Handle(
+                opt => Console.WriteLine(opt.CurrentDate),
+                t => { },
+                e => { });
             // >>> 
         }
 
@@ -289,8 +295,11 @@ namespace clipr.Sample
 
         public static void DoVerb()
         {
-            var opt = CliParser.Parse<OptsWithVerb>("download --delete".Split());
-            Console.WriteLine(opt.Download.Delete);
+            var result = CliParser.Parse<OptsWithVerb>("download --delete".Split());
+            result.Handle(
+                opt => Console.WriteLine(opt.Download.Delete),
+                t => { },
+                e => { });
         }
 
         public class OptsWithPwMasking
@@ -302,8 +311,11 @@ namespace clipr.Sample
 
         public static void DoPwMasking()
         {
-            var opt = CliParser.Parse<OptsWithPwMasking>("-p".Split());
-            Console.WriteLine(opt.Password);
+            var result = CliParser.Parse<OptsWithPwMasking>("-p".Split());
+            result.Handle(
+                opt => Console.WriteLine(opt.Password),
+                t => { },
+                e => { });
         }
 
         public class OptsWithPwMaskingAndPositional
@@ -318,8 +330,11 @@ namespace clipr.Sample
 
         public static void DoPwMaskingAndPositional()
         {
-            var opt = CliParser.Parse<OptsWithPwMaskingAndPositional>("-p - test".Split());
-            Console.WriteLine(opt.Password);
+            var result = CliParser.Parse<OptsWithPwMaskingAndPositional>("-p - test".Split());
+            result.Handle(
+                opt => Console.WriteLine(opt.Password),
+                t => { },
+                e => { });
         }
 
         public enum Color
@@ -360,9 +375,16 @@ namespace clipr.Sample
 
         public static void ParseStaticEnumList()
         {
-            var options = CliParser.Parse<StaticEnumListOptions>("-c Red".Split());
-            foreach (var color in options.Colors)
-                Console.WriteLine("Color: {0}", color);
+            var result = CliParser.Parse<StaticEnumListOptions>("-c Red".Split());
+            result.Handle(
+                opt =>
+                {
+                    foreach (var color in opt.Colors)
+                        Console.WriteLine("Color: {0}", color);
+                },
+                t => { },
+                e => { });
+            
         }
         
 

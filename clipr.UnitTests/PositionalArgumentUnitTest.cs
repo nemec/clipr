@@ -18,50 +18,71 @@ namespace clipr.UnitTests
         [TestMethod]
         public void Positional_WithOnePositionalArgument_ParsesArgument()
         {
-            var opt = CliParser.Parse<OnePositionalArgument>("filename".Split());
-            Assert.AreEqual("filename", opt.Input);
+            var result = CliParser.Parse<OnePositionalArgument>("filename".Split());
+            result.Handle(
+                opt => Assert.AreEqual("filename", opt.Input),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
 
         [TestMethod]
         public void Positional_WithNegativeNumber_ParsesAsNegativeNumber()
         {
-            var opt = CliParser.Parse<OnePositionalArgument>("-1".Split());
-            Assert.AreEqual("-1", opt.Input);
+            var result = CliParser.Parse<OnePositionalArgument>("-1".Split());
+            result.Handle(
+                opt => Assert.AreEqual("-1", opt.Input),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
 
         [TestMethod]
         public void Positional_WithPositionalArgumentAfterDoubleDash_ParsesPositionalArgument()
         {
-            var opt = CliParser.Parse<OnePositionalArgument>("-- filename".Split());
-            Assert.AreEqual("filename", opt.Input);
+            var result = CliParser.Parse<OnePositionalArgument>("-- filename".Split());
+            result.Handle(
+                opt => Assert.AreEqual("filename", opt.Input),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
 
         [TestMethod]
         public void Positional_WithDoubleDashPositionalArgumentAfterDoubleDash_ParsesPositionalArgument()
         {
-            var opt = CliParser.Parse<OnePositionalArgument>("-- --".Split());
-            Assert.AreEqual("--", opt.Input);
+            var result = CliParser.Parse<OnePositionalArgument>("-- --".Split());
+            result.Handle(
+                opt => Assert.AreEqual("--", opt.Input),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
 
         [TestMethod]
         public void Positional_WithPositionalArgumentThatLooksLikeLongNamedArgumentAfterDoubleDash_ParsesPositionalArgument()
         {
-            var opt = CliParser.Parse<OnePositionalArgument>("-- --argument".Split());
-            Assert.AreEqual("--argument", opt.Input);
+            var result = CliParser.Parse<OnePositionalArgument>("-- --argument".Split());
+            result.Handle(
+                opt => Assert.AreEqual("--argument", opt.Input),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
 
         [TestMethod]
         public void Positional_WithPositionalArgumentThatLooksLikeShortNamedArgumentAfterDoubleDash_ParsesPositionalArgument()
         {
-            var opt = CliParser.Parse<OnePositionalArgument>("-- -o".Split());
-            Assert.AreEqual("-o", opt.Input);
+            var result = CliParser.Parse<OnePositionalArgument>("-- -o".Split());
+            result.Handle(
+                opt => Assert.AreEqual("-o", opt.Input),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
 
         [TestMethod]
         public void Positional_WithValueBeginningWithHyphenForced_ParsesValueAsPositional()
         {
-            var opt = CliParser.Parse<OnePositionalArgument>("-- -hyphen".Split());
-            Assert.AreEqual("-hyphen", opt.Input);
+            var result = CliParser.Parse<OnePositionalArgument>("-- -hyphen".Split());
+            result.Handle(
+                opt => Assert.AreEqual("-hyphen", opt.Input),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
         
         public class TwoPositionalArguments
@@ -76,8 +97,11 @@ namespace clipr.UnitTests
         [TestMethod]
         public void Positional_WithTwoPositionalArguments_ParsesArgument()
         {
-            var opt = CliParser.Parse<TwoPositionalArguments>("input.txt output.txt".Split());
-            Assert.IsTrue(opt.Input == "input.txt" && opt.Output == "output.txt");
+            var result = CliParser.Parse<TwoPositionalArguments>("input.txt output.txt".Split());
+            result.Handle(
+                opt => Assert.IsTrue(opt.Input == "input.txt" && opt.Output == "output.txt"),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
 
         #endregion
@@ -121,9 +145,12 @@ namespace clipr.UnitTests
                             "out2.txt"
                         }
             };
-            var opt = CliParser.Parse<VarargsLastPositionalArgument>(
+            var result = CliParser.Parse<VarargsLastPositionalArgument>(
                 "input.txt out1.txt out2.txt".Split());
-            Assert.IsTrue(new VarargsLastPositionalArgument.EqualityComparer().Equals(expected, opt));
+            result.Handle(
+                opt => Assert.IsTrue(new VarargsLastPositionalArgument.EqualityComparer().Equals(expected, opt)),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
 
         #endregion
@@ -140,23 +167,34 @@ namespace clipr.UnitTests
         public void Positional_WithAtMostTwoValuesAndGivenOneValue_AddsValue()
         {
             var expected = new List<string> { "value" };
-            var opt = CliParser.Parse<VarargMaxTwo>("value".Split());
-            CollectionAssert.AreEqual(expected, opt.Args);
+            var result = CliParser.Parse<VarargMaxTwo>("value".Split());
+            result.Handle(
+                opt => CollectionAssert.AreEqual(expected, opt.Args),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
 
         [TestMethod]
         public void Positional_WithAtMostTwoValuesAndGivenTwoValues_AddsValues()
         {
             var expected = new List<string> { "value1", "value2" };
-            var opt = CliParser.Parse<VarargMaxTwo>("value1 value2".Split());
-            CollectionAssert.AreEqual(expected, opt.Args);
+            var result = CliParser.Parse<VarargMaxTwo>("value1 value2".Split());
+            result.Handle(
+                opt => CollectionAssert.AreEqual(expected, opt.Args),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
 
         [TestMethod]
         public void Positional_WithAtMostTwoValuesAndGivenThreeValues_ThrowsException()
         {
-            AssertEx.Throws<ParseException>(() =>
-            CliParser.Parse<VarargMaxTwo>("value1 value2 value3".Split()));
+            var result = CliParser.Parse<VarargMaxTwo>("value1 value2 value3".Split());
+            result.Handle(
+                opt => Assert.Fail("Parse succeeded, but error was expected"),
+                t => Assert.Fail("Trigger initiated, but error was expected."),
+                errs => Assert.IsTrue(errs
+                .OfType<ParseException>()
+                .Any()));
         }
 
         #endregion
@@ -173,22 +211,35 @@ namespace clipr.UnitTests
         public void Positional_WithExactlyTwoValuesAndGivenTwoValues_AddsValues()
         {
             var expected = new List<string> { "value1", "value2" };
-            var opt = CliParser.Parse<VarargExactlyTwo>("value1 value2".Split());
-            CollectionAssert.AreEqual(expected, opt.Args);
+            var result = CliParser.Parse<VarargExactlyTwo>("value1 value2".Split());
+            result.Handle(
+                opt => CollectionAssert.AreEqual(expected, opt.Args),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
 
         [TestMethod]
         public void Positional_WithExactlyTwoValuesAndGivenOneValue_ThrowsException()
         {
-            AssertEx.Throws<ParseException>(() =>
-            CliParser.Parse<VarargExactlyTwo>("value1".Split()));
+            var result = CliParser.Parse<VarargExactlyTwo>("value1".Split());
+            result.Handle(
+                opt => Assert.Fail("Parse succeeded, but error was expected"),
+                t => Assert.Fail("Trigger initiated, but error was expected."),
+                errs => Assert.IsTrue(errs
+                .OfType<ParseException>()
+                .Any()));
         }
 
         [TestMethod]
         public void Positional_WithExactlyTwoValuesAndGivenThreeValues_ThrowsException()
         {
-            AssertEx.Throws<ParseException>(() =>
-            CliParser.Parse<VarargExactlyTwo>("value1 value2 value3".Split()));
+            var result = CliParser.Parse<VarargExactlyTwo>("value1 value2 value3".Split());
+            result.Handle(
+                opt => Assert.Fail("Parse succeeded, but error was expected"),
+                t => Assert.Fail("Trigger initiated, but error was expected."),
+                errs => Assert.IsTrue(errs
+                .OfType<ParseException>()
+                .Any()));
         }
 
         #endregion
@@ -204,32 +255,46 @@ namespace clipr.UnitTests
         [TestMethod]
         public void Positional_WithAtLeastTwoValuesAndGivenOneValue_ThrowsException()
         {
-            AssertEx.Throws<ParseException>(() =>
-            CliParser.Parse<VarargAtLeastTwo>("value1".Split()));
+            var result = CliParser.Parse<VarargAtLeastTwo>("value1".Split());
+            result.Handle(
+                opt => Assert.Fail("Parse succeeded, but error was expected"),
+                t => Assert.Fail("Trigger initiated, but error was expected."),
+                errs => Assert.IsTrue(errs
+                .OfType<ParseException>()
+                .Any()));
         }
 
         [TestMethod]
         public void Positional_WithAtLeastTwoValuesAndGivenTwoValues_AddsValues()
         {
             var expected = new List<string> { "value1", "value2" };
-            var opt = CliParser.Parse<VarargAtLeastTwo>("value1 value2".Split());
-            CollectionAssert.AreEqual(expected, opt.Args);
+            var result = CliParser.Parse<VarargAtLeastTwo>("value1 value2".Split());
+            result.Handle(
+                opt => CollectionAssert.AreEqual(expected, opt.Args),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
 
         [TestMethod]
         public void Positional_WithAtLeastTwoValuesAndGivenThreeValues_AddsValues()
         {
             var expected = new List<string> { "value1", "value2", "value3" };
-            var opt = CliParser.Parse<VarargAtLeastTwo>("value1 value2 value3".Split());
-            CollectionAssert.AreEqual(expected, opt.Args);
+            var result = CliParser.Parse<VarargAtLeastTwo>("value1 value2 value3".Split());
+            result.Handle(
+                opt => CollectionAssert.AreEqual(expected, opt.Args),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
 
         [TestMethod]
         public void Positional_WithAtLeastTwoValuesAndGivenPositionalDelimter_AddsValues()
         {
             var expected = new List<string> { "value1", "--value2", "value3" };
-            var opt = CliParser.Parse<VarargAtLeastTwo>("-- value1 --value2 value3".Split());
-            CollectionAssert.AreEqual(expected, opt.Args);
+            var result = CliParser.Parse<VarargAtLeastTwo>("-- value1 --value2 value3".Split());
+            result.Handle(
+                opt => CollectionAssert.AreEqual(expected, opt.Args),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
         
         #endregion
@@ -250,10 +315,17 @@ namespace clipr.UnitTests
         {
             var expectedVotes = new List<int> {10, 6, 8};
             var expectedNames = new List<string> {"Nancy", "Rick", "Tim"};
-            var opt = CliParser.Parse<PositionalMultipleValues>(
+            var result = CliParser.Parse<PositionalMultipleValues>(
                 "10 6 8 Nancy Rick Tim".Split());
-            CollectionAssert.AreEqual(expectedVotes, opt.Votes);
-            CollectionAssert.AreEqual(expectedNames, opt.Names);
+            result.Handle(
+                opt =>
+                {
+                    CollectionAssert.AreEqual(expectedVotes, opt.Votes);
+                    CollectionAssert.AreEqual(expectedNames, opt.Names);
+                },
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
+
         }
 
         #endregion

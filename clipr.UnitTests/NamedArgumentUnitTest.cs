@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.Linq;
 
 namespace clipr.UnitTests
 {
@@ -15,22 +16,31 @@ namespace clipr.UnitTests
         [TestMethod]
         public void Argument_WithParseActionCount_AccumulatesConsecutiveArguments()
         {
-            var opt = CliParser.Parse<NamedArgumentCount>("-vvv".Split());
-            Assert.AreEqual(3, opt.Verbosity);
+            var result = CliParser.Parse<NamedArgumentCount>("-vvv".Split());
+            result.Handle(
+                opt => Assert.AreEqual(3, opt.Verbosity),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
 
         [TestMethod]
         public void Argument_WithParseActionCount_AccumulatesSeparateArguments()
         {
-            var opt = CliParser.Parse<NamedArgumentCount>("-v -v -v".Split());
-            Assert.AreEqual(3, opt.Verbosity);
+            var result = CliParser.Parse<NamedArgumentCount>("-v -v -v".Split());
+            result.Handle(
+                opt => Assert.AreEqual(3, opt.Verbosity),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
 
         [TestMethod]
         public void Argument_WithParseActionCount_AccumulatesShortAndLongArguments()
         {
-            var opt = CliParser.Parse<NamedArgumentCount>("-v --verbose".Split());
-            Assert.AreEqual(2, opt.Verbosity);
+            var result = CliParser.Parse<NamedArgumentCount>("-v --verbose".Split());
+            result.Handle(
+                opt => Assert.AreEqual(2, opt.Verbosity),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
 
         internal class NamedArgumentWithOption
@@ -42,29 +52,41 @@ namespace clipr.UnitTests
         [TestMethod]
         public void Argument_WithLongOptionAndProvidedWithEqualsSign_StoresValue()
         {
-            var opt = CliParser.Parse<NamedArgumentWithOption>("--name=tim".Split());
-            Assert.AreEqual("tim", opt.Name);
+            var result = CliParser.Parse<NamedArgumentWithOption>("--name=tim".Split());
+            result.Handle(
+                opt => Assert.AreEqual("tim", opt.Name),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
 
         [TestMethod]
         public void Argument_WithLongOption_StoresValue()
         {
-            var opt = CliParser.Parse<NamedArgumentWithOption>("--name tim".Split());
-            Assert.AreEqual("tim", opt.Name);
+            var result = CliParser.Parse<NamedArgumentWithOption>("--name tim".Split());
+            result.Handle(
+                opt => Assert.AreEqual("tim", opt.Name),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
 
         [TestMethod]
         public void Argument_WithShortOption_StoresValue()
         {
-            var opt = CliParser.Parse<NamedArgumentWithOption>("-n tim".Split());
-            Assert.AreEqual("tim", opt.Name);
+            var result = CliParser.Parse<NamedArgumentWithOption>("-n tim".Split());
+            result.Handle(
+                opt => Assert.AreEqual("tim", opt.Name),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
 
         [TestMethod]
         public void Argument_WithShortOptionAndNoSpace_StoresValue()
         {
-            var opt = CliParser.Parse<NamedArgumentWithOption>("-ntim".Split());
-            Assert.AreEqual("tim", opt.Name);
+            var result = CliParser.Parse<NamedArgumentWithOption>("-ntim".Split());
+            result.Handle(
+                opt => Assert.AreEqual("tim", opt.Name),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
 
         internal class OptionGroup
@@ -83,8 +105,11 @@ namespace clipr.UnitTests
         [TestMethod]
         public void Argument_WithOptionGroup_ParsesAllOptions()
         {
-            var opt = CliParser.Parse<OptionGroup>("-abc".Split());
-            Assert.IsTrue(opt.A && opt.B && opt.C);
+            var result = CliParser.Parse<OptionGroup>("-abc".Split());
+            result.Handle(
+                opt => Assert.IsTrue(opt.A && opt.B && opt.C),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
 
         internal class NegativeValue
@@ -96,15 +121,21 @@ namespace clipr.UnitTests
         [TestMethod]
         public void Argument_WithNegativeNumber_ParsesNumberAsValue()
         {
-            var opt = CliParser.Parse<NegativeValue>("-n -1".Split());
-            Assert.AreEqual(-1, opt.Value);
+            var result = CliParser.Parse<NegativeValue>("-n -1".Split());
+            result.Handle(
+                opt => Assert.AreEqual(-1, opt.Value),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
 
         [TestMethod]
         public void Argument_WithNegativeNumberAndNoSpace_ParsesNumberAsValue()
         {
-            var opt = CliParser.Parse<NegativeValue>("-n-1".Split());
-            Assert.AreEqual(-1, opt.Value);
+            var result = CliParser.Parse<NegativeValue>("-n-1".Split());
+            result.Handle(
+                opt => Assert.AreEqual(-1, opt.Value),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
 
         internal class PositionalNegative
@@ -116,8 +147,11 @@ namespace clipr.UnitTests
         [TestMethod]
         public void Argument_WithPositionalNegativeNumber_ParsesNumberAsValue()
         {
-            var opt = CliParser.Parse<PositionalNegative>("-1".Split());
-            Assert.AreEqual(-1, opt.Value);
+            var result = CliParser.Parse<PositionalNegative>("-1".Split());
+            result.Handle(
+                opt => Assert.AreEqual(-1, opt.Value),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
 
         internal class NamedArgumentWithHyphen
@@ -129,8 +163,11 @@ namespace clipr.UnitTests
         [TestMethod]
         public void Argument_WithHyphenInNamedArgument_ParsesArgumentValue()
         {
-            var opt = CliParser.Parse<NamedArgumentWithHyphen>("--full-name tim".Split());
-            Assert.AreEqual("tim", opt.Name);
+            var result = CliParser.Parse<NamedArgumentWithHyphen>("--full-name tim".Split());
+            result.Handle(
+                opt => Assert.AreEqual("tim", opt.Name),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
 
         internal class NamedArgumentWithRequired
@@ -142,22 +179,33 @@ namespace clipr.UnitTests
         [TestMethod]
         public void Argument_WithRequiredLongNamedArgumentProvided_ParsesArgumentValue()
         {
-            var opt = CliParser.Parse<NamedArgumentWithRequired>("--celery puppy".Split());
-            Assert.AreEqual("puppy", opt.Celery);
+            var result = CliParser.Parse<NamedArgumentWithRequired>("--celery puppy".Split());
+            result.Handle(
+                opt => Assert.AreEqual("puppy", opt.Celery),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
 
         [TestMethod]
         public void Argument_WithRequiredShortNamedArgumentProvided_ParsesArgumentValue()
         {
-            var opt = CliParser.Parse<NamedArgumentWithRequired>("-c puppy".Split());
-            Assert.AreEqual("puppy", opt.Celery);
+            var result = CliParser.Parse<NamedArgumentWithRequired>("-c puppy".Split());
+            result.Handle(
+                opt => Assert.AreEqual("puppy", opt.Celery),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
 
         [TestMethod]
         public void Argument_WithRequiredNamedArgumentMissing_ThrowsException()
         {
-            AssertEx.Throws<ParseException>(() =>
-            CliParser.Parse<NamedArgumentWithRequired>(new string[0]));
+            var result = CliParser.Parse<NamedArgumentWithRequired>(new string[0]);
+            result.Handle(
+                opt => Assert.Fail("Parse returned a value when it should have returned an error"),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                errs => Assert.IsTrue(errs
+                    .OfType<ParseException>()
+                    .Any()));
         }
 
         internal class MutuallyExclusive
@@ -177,22 +225,35 @@ namespace clipr.UnitTests
         [TestMethod]
         public void MutuallyExclusive_ArgumentsDoNotViolateExclusivity_ParsesSuccessfully()
         {
-            var opt = CliParser.Parse<MutuallyExclusive>("-a rudolph -c other".Split());
-            Assert.AreEqual("rudolph", opt.A);
+            var result = CliParser.Parse<MutuallyExclusive>("-a rudolph -c other".Split());
+            result.Handle(
+                opt => Assert.AreEqual("rudolph", opt.A),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
 
         [TestMethod]
         public void MutuallyExclusive_ArgumentsViolateExclusivity_ThrowsParseException()
         {
-            AssertEx.Throws<ParseException>(() =>
-            CliParser.Parse<MutuallyExclusive>("-a one -b two -c other".Split()));
+            var result = CliParser.Parse<MutuallyExclusive>("-a one -b two -c other".Split());
+            result.Handle(
+                opt => Assert.Fail("Parse returned a value when it should have returned an error"),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                errs => Assert.IsTrue(errs
+                    .OfType<ParseException>()
+                    .Any()));
         }
 
         [TestMethod]
         public void MutuallyExclusive_ArgumentsDoNotIncludeRequiredGroup_ThrowsParseException()
         {
-            AssertEx.Throws<ParseException>(() =>
-            CliParser.Parse<MutuallyExclusive>("-c three".Split()));
+            var result = CliParser.Parse<MutuallyExclusive>("-c three".Split());
+            result.Handle(
+                opt => Assert.Fail("Parse returned a value when it should have returned an error"),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                errs => Assert.IsTrue(errs
+                    .OfType<ParseException>()
+                    .Any()));
         }
 
         internal class NamedArgumentLowerBoundCountEqualsZero
@@ -225,7 +286,7 @@ namespace clipr.UnitTests
             var arguments = new[] { "-s", "first", "second" };
             var parser = new CliParser<NamedArgumentLowerBoundCountEqualsZero>();
 
-            parser.Parse(arguments, opts);
+            parser.Parse(arguments, opts);  // TODO a factory instead of an instance?
 
             Assert.AreEqual(2, opts.Args.Count);
         }
@@ -250,8 +311,11 @@ namespace clipr.UnitTests
         {
             // TODO inject pw into stdin
             //const string password = "Changeme123";
-            var opt = CliParser.Parse<NamedArgumentWithOption>("--password".Split());
-            Assert.AreEqual("tim", opt.Name);
+            var result = CliParser.Parse<NamedArgumentWithPromptNoMasking>("--password".Split());
+            result.Handle(
+                opt => Assert.AreEqual("Changeme123", opt.Password),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
 
         [Ignore]
@@ -261,8 +325,25 @@ namespace clipr.UnitTests
             // TODO inject pw into stdin
             // TODO verify stdout doesn't contain password?
             //const string password = "Changeme123";
-            var opt = CliParser.Parse<NamedArgumentWithOption>("--name=tim".Split());
-            Assert.AreEqual("tim", opt.Name);
+            var result = CliParser.Parse<NamedArgumentWithPromptWithMasking>("--name=tim".Split());
+            result.Handle(
+                opt => Assert.AreEqual("Changeme123", opt.Password),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
+        }
+
+        [Ignore]
+        [TestMethod]
+        public void Argument_WithLongOptionAndPromptWithMasking_ActuallyMasksDisplay()
+        {
+            // TODO inject pw into stdin
+            // TODO verify stdout doesn't contain password?
+            //const string password = "Changeme123";
+            var result = CliParser.Parse<NamedArgumentWithPromptWithMasking>("--name=tim".Split());
+            result.Handle(
+                opt => Assert.AreEqual("Changeme123", opt.Password),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
         }
     }
 }

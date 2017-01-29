@@ -64,7 +64,7 @@ namespace clipr.Core
             integrityExceptions.Add(LastPositionalArgumentCanTakeMultipleValuesCheck<T>());
             integrityExceptions.Add(PostParseZeroParametersCheck<T>());
             integrityExceptions.Add(ConfigMayNotContainBothPositionalArgumentsAndVerbs<T>());
-            integrityExceptions.Add(ConfigMayNotContainDuplicateArguments<T>(options));
+            integrityExceptions.AddRange(ConfigMayNotContainDuplicateArguments<T>(options));
 
             return integrityExceptions.Where(e => e != null);
         }
@@ -407,7 +407,7 @@ namespace clipr.Core
             return null;
         }
 
-        private static Exception ConfigMayNotContainDuplicateArguments<T>(ParserOptions options)
+        private static IEnumerable<Exception> ConfigMayNotContainDuplicateArguments<T>(ParserOptions options)
         {
             var named = typeof(T)
                 .GetTypeInfo()
@@ -442,11 +442,7 @@ namespace clipr.Core
             {
                 return null;
             }
-            if(errs.Count == 1)
-            {
-                return errs[0];
-            }
-            return new Utils.AggregateException(errs);
+            return errs;
         }
 
         private static Exception VerbMustHaveFactoryDefined(PropertyInfo verbProp, IVerbFactory factory)
