@@ -79,6 +79,9 @@ static void Main()
   so it is no longer writing only to `Console.Error`.
 * Allow each verb to inherit the `--help` trigger so that you can get detailed
   help information for verbs.
+* Remove exception throwing when an error occurs. (#31)
+* Change parsing return type to a union indicating whether parsing
+	succeeded, a trigger was hit, or an error occurred. (#34)
 
 ### 2017-07-13 1.6.0.1
 

@@ -103,7 +103,7 @@ namespace clipr
         private static readonly Exception[] EmptyErrors = new Exception[0];
 
         private readonly Exception[] Errors;
-
+        
         /// <summary>
         /// A successful result
         /// </summary>
@@ -177,7 +177,7 @@ namespace clipr
         private readonly Exception[] Errors;
 
         internal static readonly ParseResult<T> Empty = new ParseResult<T>(new Exception[0]);
-        
+
         /// <summary>
         /// Create a new ParseResult with the specified value.
         /// </summary>
