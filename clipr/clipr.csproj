@@ -130,6 +130,7 @@
     <Compile Include="Utils\PropertyExtensions.cs" />
     <Compile Include="Utils\StringTypeConverter.cs" />
     <Compile Include="Core\IValueStoreDefinition.cs" />
+    <Compile Include="Utils\Tokenizer.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.es.resx">

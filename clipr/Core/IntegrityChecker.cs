@@ -438,10 +438,6 @@ namespace clipr.Core
             {
                 errs.Add(new DuplicateArgumentException(dupe));
             }
-            if(errs.Count == 0)
-            {
-                return null;
-            }
             return errs;
         }
 

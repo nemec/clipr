@@ -69,6 +69,8 @@ static void Main()
 * Remove exception throwing when an error occurs. (#31)
 * Change parsing return type to a union indicating whether parsing
 	succeeded, a trigger was hit, or an error occurred. (#34)
+* Add a "tokenizer" that turns a regular string into a string
+	array similar to that of `Main(string[] args)`.
 
 
 ###2017-01-02 1.6.0

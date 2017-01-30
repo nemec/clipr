@@ -75,6 +75,7 @@
     <Compile Include="HelpGeneratorUnitTest.cs" />
     <Compile Include="ReadmeUnitTests.cs" />
     <Compile Include="LocalizationUnitTest.cs" />
+    <Compile Include="TokenizerUnitTest.cs" />
     <Compile Include="VerbUnitTest.cs" />
     <Compile Include="PostParseUnitTest.cs" />
     <Compile Include="StringExtensionsUnitTest.cs" />

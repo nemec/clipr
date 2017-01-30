@@ -61,7 +61,7 @@ namespace clipr
             var errs = parser.ValidateAttributeConfig();
             if (errs.Any())
             {
-                foreach(var err in errs)
+                foreach (var err in errs)
                 {
                     Console.Error.WriteLine(err);
                 }
@@ -295,7 +295,7 @@ namespace clipr
 
         public IParserConfig BuildConfig()
         {
-            if(Config != null)
+            if (Config != null)
             {
                 return Config;
             }
@@ -329,7 +329,7 @@ namespace clipr
                 errs =>
                 {
                     Console.Error.WriteLine(HelpGenerator.GetUsage(Config));
-                    foreach(var err in errs)
+                    foreach (var err in errs)
                     {
                         Console.Error.WriteLine(err);
                     }
@@ -375,7 +375,5 @@ namespace clipr
         }
 
         #endregion
-
-
     }
 }
