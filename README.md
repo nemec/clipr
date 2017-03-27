@@ -56,11 +56,11 @@ static void Main()
 }
 ```
 
-##Changelog
+## Changelog
 
-###Master
+### Master
 
-###2017-01-02 1.6.0
+### 2017-01-02 1.6.0
 
 * Add ability to mask password.
 * Add "optional" value constraint for reference or nullable types.
@@ -69,7 +69,7 @@ static void Main()
 
 [Full Changelog](CHANGELOG.md)
 
-##CliParser vs. CliParser<>
+## CliParser vs. CliParser<>
 
 If you don't need any special options or custom help generators,
 the static CliParser class is the easiest way to initialize the
@@ -79,7 +79,7 @@ construtor, you don't even need to set up the object first! It can `new()`
 up an object for you and spit it out after parsing is complete, ready to
 be used.
 
-##Parse vs. Tryparse vs. StrictParse
+## Parse vs. Tryparse vs. StrictParse
 
 There are three ways to parse a list of arguments. The former, `Parse()`, will
 attempt to parse the input arguments and throw a ParseException if something
@@ -108,7 +108,7 @@ may happen. Of course, parsing arguments is usually the first thing you do
 in `Main` so it's not usually going to be an issue, but `Environment.Exit`
 is not the cleanest form of flow control so I feel it deserves a mention.
 
-#Integrity Checking
+# Integrity Checking
 
 One of the most important non-functional features of a
 library like this is making sure that you, the developer, don't have to
@@ -120,9 +120,9 @@ a user passes the wrong arguments in to discover that you've defined a
 duplicate argument short name or that the constant values you're storing
 aren't actually convertible to the property type.
 
-#Features
+# Features
 
-##Named and Positional Arguments
+## Named and Positional Arguments
 
 There are two types of arguments that may be defined: Named and Positional
 arguments.
@@ -153,7 +153,7 @@ arguments.
 * Similarly, short arguments *with* values may be input without a space
   between the flag and the first value (`-fmyfilename.txt`).
 
-##Multiple Action Types
+## Multiple Action Types
 
 Storing argument values isn't enough. There are a number of actions that
 can be performed when the user specifies a named argument.
@@ -185,7 +185,7 @@ can be performed when the user specifies a named argument.
   Good for specifying a "level" (like verbosity). There is no way to limit
   the number of times a user specifies the argument.
 
-##Variable/Optional Argument Count
+## Variable/Optional Argument Count
 
 In addition to choosing an action for each argument, you can specify
 *how many* values each argument can consume. The first part is the NumArgs
@@ -210,7 +210,7 @@ delimited in any discernable way only the *last* positional argument,
 by Index, may use the constraints AtLeast or AtMost. All previous positional
 arguments must consume an exact number of values.
 
-##Default Argument Values
+## Default Argument Values
 
 Set default values for a property in the config object's constructor. If a
 value is provided on the command line, it will overwrite the default value.
@@ -230,7 +230,7 @@ public class Options
 ```
     
 
-##Force Positional Argument Parsing
+## Force Positional Argument Parsing
 
 If, for any reason, you want the parser to stop parsing named arguments
 and count the rest as positional arguments, use a `--`. This is useful
@@ -239,7 +239,7 @@ in cases where you want a positional argument that begins with a `-`
 consume your positional arguments as one of its own
 (`./prog.exe --consumes-optional-value -- positional`).
 
-##Password Masking
+## Password Masking
 
 In some cases, it's useful to offer the ability for a user to "mask" their
 password, or provide it separately from the command line in order to
@@ -291,7 +291,7 @@ This feature only applies in a specific set of circumstances:
 * Can only annotate a `NamedArgument` (not a `PositionalArgument`).
 * The `ParseAction` must be `ParseAction.Store` (the default).
 
-##Mutually Exclusive Arguments
+## Mutually Exclusive Arguments
 
 Named arguments can be given a MutuallyExclusiveGroupAttribute. If multiple
 named arguments belong to the same group and the user tries to specify more
@@ -300,7 +300,7 @@ If at least one MutuallyExclusiveGroupAttribute for a group is required and
 the user does *not* provide one of the member arguments, an error is also
 generated.
 
-##Verbs
+## Verbs
 
 Verbs are the name given to a set of initial arguments that conditionally
 parse a set of configuration options based on the given verb. Think
@@ -352,7 +352,7 @@ Some notes on verbs:
     will act like aliases (`svn co` vs. `svn checkout`).
   * PostParse methods 
 
-##Post-Parse Triggers
+## Post-Parse Triggers
 
 Using the PostParseAttribute you can mark parameterless methods to be
 automatically run once parsing is completed. When PostParse methods are
@@ -361,7 +361,7 @@ to outermost, which means that whenever a PostParse method is executed, the
 configuration class *and* all its verbs will be fully initialized by that
 point.
 
-##Generated Help and Version Information
+## Generated Help and Version Information
 
 By default, Reflection is used to generate automatic help and version
 information based on the ArgumentAttributes you apply to the option class.
@@ -398,7 +398,7 @@ will be an easy way to specify the version manually, but until then you'll
 have to implement the `IVersion` interface yourself and replace the `Version`
 property within the `IHelpGenerator`.
 
-##Localization
+## Localization
 
 clipr supports localization, both of the help UI generated by
 `AutomaticHelpGenerator` and the options themselves. Only the description
@@ -433,7 +433,7 @@ public class LocalizationOptions
 }
 ```
 
-##TypeDescriptor / TypeConverter
+## TypeDescriptor / TypeConverter
 
 Custom types may be used as config values, but only if a 
 [TypeConverter](http://msdn.microsoft.com/en-us/library/ayybcxe5.aspx) is
@@ -449,7 +449,7 @@ You may also attach a TypeConverter attribute to a Property on the class,
 which allows targeted conversion. It also allows you to apply custom
 converters to types that you do not own, like built-in classes.
 
-##Static Enumerations
+## Static Enumerations
 
 Sometimes there is a need to add logic to the Enum type. Since .Net enums are
 purely integers, the only alternative is to implement the so-called "Typesafe
@@ -505,7 +505,7 @@ public static void Main()
 }
 ```
 
-##Fluent Interface
+## Fluent Interface
 
 \*\* Alpha Feature \*\*
 
@@ -570,7 +570,7 @@ Console.WriteLine(opt.AddVerb);
 // myfile.txt
 ```
 
-##Dictionary Backend
+## Dictionary Backend
 
 In addition to binding to a class (via properties), it is also possible
 to bind to keys in a dictionary by specifying the indexer (plus key name)
@@ -611,6 +611,6 @@ Notes:
   from a string.
 
 
-##TODO
+## TODO
 
 Render help information for verbs
