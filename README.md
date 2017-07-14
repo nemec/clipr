@@ -1,9 +1,11 @@
 clipr: A Command Line Interface ParseR for .Net 3.5+ and .Net Core
 ===============================================
 
-Created by [Dan Nemec](http://github.com/nemec)
+Created by [Dan Nemec](https://github.com/nemec)
 
-We're on [NuGet](https://nuget.org/packages/clipr)!
+[![NuGet](https://img.shields.io/nuget/dt/clipr.svg)](https://www.nuget.org/packages/clipr/)
+[![NuGet](https://img.shields.io/nuget/v/clipr.svg)](https://www.nuget.org/packages/clipr/)
+[![NuGet](https://img.shields.io/nuget/vpre/clipr.svg)](https://www.nuget.org/packages/clipr/)
 
 This command line parser library is very much inspired by the
 [argparse](http://docs.python.org/2/library/argparse.html) library
