@@ -212,6 +212,26 @@ converted.
 public int? Server { get; set; }
 ```
 
+You may also use Optional arguments to define boolean flags that can easily be scripted (explicitly set to true or false).
+
+```csharp
+private class Options
+{
+	[NamedArgument('f', "flag",
+	   Constraint = NumArgsConstraint.Optional,
+	   Action = ParseAction.Store,
+	   Const = true)]
+	public bool Flag { get; set; }
+
+}
+```
+
+And call it with any of the following:
+
+    -f
+    -f true
+    -f false
+
 Since positional arguments are not
 delimited in any discernable way only the *last* positional argument,
 by Index, may use the constraints AtLeast or AtMost. All previous positional
