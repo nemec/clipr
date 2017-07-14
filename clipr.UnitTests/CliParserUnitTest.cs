@@ -477,5 +477,38 @@ namespace clipr.UnitTests
                 t => Assert.Fail("Trigger {0} executed.", t),
                 e => Assert.Fail("Error parsing arguments."));
         }
+
+        private class OptionsWithMultipleOptionalValues
+        {
+            [NamedArgument('a', "ArgumentA",
+               Constraint = NumArgsConstraint.Optional,
+               Action = ParseAction.Store,
+               Const = "MyConstValueA",
+               Description = "Argument A")]
+            public string A { get; set; }
+
+            [NamedArgument('b', "ArgumentB",
+                Constraint = NumArgsConstraint.Optional,
+                Action = ParseAction.Store,
+                Const = "MyConstValueB",
+                Description = "Argument B")]
+            public string B { get; set; }
+        }
+
+                [TestMethod]
+        public void Parse_WithMultipleOptionalValuesAndNoValueProvided_SetsConstOnBoth()
+        {
+            const string expectedA = "MyConstValueA";
+            const string expectedB = "MyConstValueB";
+            var result = CliParser.Parse<OptionsWithMultipleOptionalValues>("-a -b".Split());
+            result.Handle(
+                opt =>
+                {
+                    Assert.AreEqual(expectedA, opt.A);
+                    Assert.AreEqual(expectedB, opt.B);
+                },
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
+        }
     }
 }

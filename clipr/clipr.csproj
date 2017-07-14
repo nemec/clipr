@@ -63,7 +63,7 @@
     <Compile Include="IOC\SimpleVerbfactory.cs" />
     <Compile Include="ParseResult.cs" />
     <Compile Include="PromptIfValueMissing.cs" />
-	<Compile Include="Properties\Resources.de.Designer.cs">
+	<Compile Include="Properties\Resources.pt-PT.Designer.cs">
       <DependentUpon>Resources.pt-PT.resx</DependentUpon>
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -143,7 +143,7 @@
     <Compile Include="Utils\Tokenizer.cs" />
   </ItemGroup>
   <ItemGroup>
-  <EmbeddedResource Include="Properties\Resources.de.resx">
+  <EmbeddedResource Include="Properties\Resources.pt-PT.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.pt-PT.Designer.cs</LastGenOutput>
     </EmbeddedResource>

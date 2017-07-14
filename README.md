@@ -72,6 +72,10 @@ static void Main()
 * Add a "tokenizer" that turns a regular string into a string
 	array similar to that of `Main(string[] args)`.
 
+### 2017-07-13 1.6.0.1
+
+* Fix a bug in parsing consecutive Optional values.
+
 ### 2017-01-02 1.6.0
 
 * Add ability to mask password.
@@ -132,7 +136,6 @@ a user passes the wrong arguments in to discover that you've defined a
 duplicate argument short name or that the constant values you're storing
 aren't actually convertible to the property type.
 
-<<<<<<< 6b1c9127f5dc294c4fadd57346454f5618427593
 In order to use Integrity Checking you must call one of two validation 
 methods:
 
