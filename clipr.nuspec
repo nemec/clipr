@@ -30,9 +30,17 @@
           target="lib\net35\clipr.dll" />
     <file src="clipr\bin\Release\es\clipr.resources.dll"
           target="lib\net35\es\clipr.resources.dll" />
+    <file src="clipr\bin\Release\de\clipr.resources.dll"
+          target="lib\net35\de\clipr.resources.dll" />
+    <file src="clipr\bin\Release\pt-PT\clipr.resources.dll"
+          target="lib\net35\pt-PT\clipr.resources.dll" />
     <file src="clipr.NetCore\bin\Release\netstandard1.6\clipr.NetCore.dll"
           target="lib\netstandard1.6\clipr.NetCore.dll" />
     <file src="clipr.NetCore\bin\Release\netstandard1.6\es\clipr.NetCore.resources.dll"
           target="lib\netstandard1.6\es\clipr.NetCore.resources.dll" />
+    <file src="clipr.NetCore\bin\Release\netstandard1.6\de\clipr.NetCore.resources.dll"
+          target="lib\netstandard1.6\de\clipr.NetCore.resources.dll" />
+    <file src="clipr.NetCore\bin\Release\netstandard1.6\pt-PT\clipr.NetCore.resources.dll"
+          target="lib\netstandard1.6\pt-PT\clipr.NetCore.resources.dll" />
   </files>
 </package>
