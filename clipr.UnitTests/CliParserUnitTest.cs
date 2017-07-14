@@ -396,5 +396,33 @@ namespace clipr.UnitTests
 
             Assert.AreEqual(1234, obj.Server);
         }
+
+        private class OptionsWithMultipleOptionalValues
+        {
+            [NamedArgument('a', "ArgumentA",
+               Constraint = NumArgsConstraint.Optional,
+               Action = ParseAction.Store,
+               Const = "MyConstValueA",
+               Description = "Argument A")]
+            public string A { get; set; }
+
+            [NamedArgument('b', "ArgumentB",
+                Constraint = NumArgsConstraint.Optional,
+                Action = ParseAction.Store,
+                Const = "MyConstValueB",
+                Description = "Argument B")]
+            public string B { get; set; }
+        }
+
+                [TestMethod]
+        public void Parse_WithMultipleOptionalValuesAndNoValueProvided_SetsConstOnBoth()
+        {
+            const string expectedA = "MyConstValueA";
+            const string expectedB = "MyConstValueB";
+            var obj = CliParser.Parse<OptionsWithMultipleOptionalValues>("-a -b".Split());
+
+            Assert.AreEqual(expectedA, obj.A);
+            Assert.AreEqual(expectedB, obj.B);
+        }
     }
 }

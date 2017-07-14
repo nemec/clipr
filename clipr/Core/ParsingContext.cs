@@ -233,10 +233,22 @@ namespace clipr.Core
 #else
                 .ToString();
 #endif
+            // If next item looks like an 'optional' argument, pretend like the arg list is empty
+            string next = null;
+            if(iter.Any()) next = iter.Peek();
+            if (ParamIsArgument(next)) iter = new Stack<string>();
+
             if (name is char)
                 ParseArgument(prefix + name, arg, iter, positionalDelimiterFound);
             else
                 ParseArgument(prefix + prefix + name, arg, iter, positionalDelimiterFound);
+        }
+
+        private bool ParamIsArgument(string param)
+        {
+            if (param == null || param.Length == 0 || param[0] != Config.ArgumentPrefix) return false;
+            if (param.Length > 1 && Char.IsDigit(param[1])) return false;
+            return true;
         }
 
         private static INamedArgumentBase GetArgument<TS>(

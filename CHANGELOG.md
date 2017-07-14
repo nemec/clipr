@@ -1,3 +1,7 @@
+### 2017-07-13 1.6.0.1
+
+* Fix a bug in parsing consecutive Optional values.
+
 ###2017-01-02 1.6.0
 
 * Add ability to mask password.
