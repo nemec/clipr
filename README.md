@@ -1,9 +1,11 @@
 clipr: A Command Line Interface ParseR for .Net 3.5+ and .Net Core
 ===============================================
 
-Created by [Dan Nemec](http://github.com/nemec)
+Created by [Dan Nemec](https://github.com/nemec)
 
-We're on [NuGet](https://nuget.org/packages/clipr)!
+[![NuGet](https://img.shields.io/nuget/dt/clipr.svg)](https://www.nuget.org/packages/clipr/)
+[![NuGet](https://img.shields.io/nuget/v/clipr.svg)](https://www.nuget.org/packages/clipr/)
+[![NuGet](https://img.shields.io/nuget/vpre/clipr.svg)](https://www.nuget.org/packages/clipr/)
 
 This command line parser library is very much inspired by the
 [argparse](http://docs.python.org/2/library/argparse.html) library
@@ -209,6 +211,26 @@ converted.
 [NamedArgument('s', "server", Constraint = NumArgsConstraint.Optional, Const = 1234)]
 public int? Server { get; set; }
 ```
+
+You may also use Optional arguments to define boolean flags that can easily be scripted (explicitly set to true or false).
+
+```csharp
+private class Options
+{
+	[NamedArgument('f', "flag",
+	   Constraint = NumArgsConstraint.Optional,
+	   Action = ParseAction.Store,
+	   Const = true)]
+	public bool Flag { get; set; }
+
+}
+```
+
+And call it with any of the following:
+
+    -f
+    -f true
+    -f false
 
 Since positional arguments are not
 delimited in any discernable way only the *last* positional argument,
