@@ -67,5 +67,18 @@ namespace clipr.Triggers
         }
 
         public PromptIfValueMissing PromptIfValueMissing { get; set; }
+
+        public override string ToString()
+        {
+            if (ShortName != null && LongName != null)
+            {
+                return "-" + ShortName + "|" + "--" + LongName;
+            }
+            else if (ShortName != null)
+            {
+                return "-" + ShortName;
+            }
+            return "--" + LongName;
+        }
     }
 }

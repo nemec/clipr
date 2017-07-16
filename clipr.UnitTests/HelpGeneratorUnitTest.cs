@@ -130,6 +130,36 @@ Optional Arguments:
             Assert.AreEqual(expected, help);
         }
 
+        internal class OptionsWithRequiredValue
+        {
+            [NamedArgument('a', "optiona", Required = true, Description = "The A option.")]
+            public string Optiona { get; set; }
+
+            [NamedArgument('b', "optionb", Required = false, Description = "The B option.")]
+            public string Optionb { get; set; }
+        }
+
+        [TestMethod]
+        public void Help_WithRequiredNamedArgumentAndValue_PlacesSpaceBetweenArgumentAndMetaVar()
+        {
+            const string expected = @"Usage: clipr [ -h|--help ] [ --version ] -a|--optiona A [ -b|--optionb B ]
+Required Arguments:
+ -a, --optiona  The A option.
+
+Optional Arguments:
+ -b, --optionb  The B option.
+ -h, --help     Display this help document.
+ --version      Displays the version of the current executable.";
+
+            var opt = new OptionsWithRequiredValue();
+            var parser = new CliParser<OptionsWithRequiredValue>(opt);
+            var gen = new AutomaticHelpGenerator<OptionsWithRequiredValue>();
+
+            var help = gen.GetHelp(parser.Config);
+
+            Assert.AreEqual(expected, help);
+        }
+
         // TODO GenerateUsage_WithStaticEnum_ListsEnumValues()
     }
 }

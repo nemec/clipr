@@ -122,65 +122,76 @@ namespace clipr.Usage
             builder.Append(" ");
 
             // TODO list PromptIfValueMissing help message on each argument that can be prompted.
-            foreach (var arg in config.LongNameArguments.Values.Cast<INamedArgument>()
+            var allNamedArgs = config.LongNameArguments.Values.Cast<INamedArgument>()
                 .Concat(config.ShortNameArguments.Values.Cast<INamedArgument>())
-                .Distinct())
+                .Distinct().ToList();
+            for(var i=0; i <allNamedArgs.Count; i++)
             {
+                var arg = allNamedArgs[i];
+                if(i > 0)
+                {
+                    builder.Append(" ");
+                }
                 if (!arg.Required)
                 {
                     builder.Append("[ ");
                 }
                 builder.Append(String.Join("|", GetArgumentNames(arg).ToArray()));
-                if (!arg.Required)
-                {
-                    builder.Append(" ");
-                }
 
                 if (arg.Action.ConsumesArgumentValues())
                 {
                     if (arg.Constraint == NumArgsConstraint.AtMost || 
                         (arg.Constraint == NumArgsConstraint.AtLeast && arg.NumArgs == 0))
                     {
-                        builder.Append("[ ");
+                        builder.Append(" [ ");
                     }
 
-                    for (var i = 0; i < Math.Max(1, arg.NumArgs); i++)
+                    for (var j = Math.Max(1, (int)arg.NumArgs) - 1; j >= 0 ; j--)
                     {
                         if(arg.MetaVar == null) continue;
-                        builder.Append(arg.MetaVar.ToUpperInvariant());
                         builder.Append(" ");
+                        builder.Append(arg.MetaVar.ToUpperInvariant());
                     }
 
                     if (arg.Constraint == NumArgsConstraint.AtLeast)
                     {
-                        builder.Append("... ");
+                        builder.Append(" ...");
                     }
 
                     if (arg.Constraint == NumArgsConstraint.AtMost ||
                         (arg.Constraint == NumArgsConstraint.AtLeast && arg.NumArgs == 0))
                     {
-                        builder.Append("] ");
+                        builder.Append(" ]");
                     }
                 }
                 if (!arg.Required)
                 {
-                    builder.Append("] ");
+                    builder.Append(" ]");
                 }
             }
-
-            foreach (var arg in config.PositionalArguments.OrderBy(p => p.Index))
+            if (config.PositionalArguments.Any())
             {
+                builder.Append(" ");
+            }
+
+            var allPositionalArgs = config.PositionalArguments.OrderBy(p => p.Index).ToList();
+            for(var i = 0; i < allPositionalArgs.Count; i++)
+            {
+                var arg = allPositionalArgs[i];
                 if (arg.Constraint == NumArgsConstraint.AtMost ||
                         (arg.Constraint == NumArgsConstraint.AtLeast && arg.NumArgs == 0))
                 {
                     builder.Append("[ ");
                 }
 
-                for (var i = 0; i < arg.NumArgs; i++)
+                for (var j = 0; j < arg.NumArgs; j++)
                 {
                     if (arg.MetaVar == null) continue;
                     builder.Append(arg.MetaVar.ToUpperInvariant());
-                    builder.Append(" ");
+                    if (i < allPositionalArgs.Count - 1)
+                    {
+                        builder.Append(" ");
+                    }
                 }
 
                 var store = arg.Store;
@@ -204,7 +215,11 @@ namespace clipr.Usage
                 if (arg.Constraint == NumArgsConstraint.AtMost ||
                         (arg.Constraint == NumArgsConstraint.AtLeast && arg.NumArgs == 0))
                 {
-                    builder.Append("] ");
+                    builder.Append("]");
+                    if (i < allPositionalArgs.Count - 1)
+                    {
+                        builder.Append(" ");
+                    }
                 }
             }
 

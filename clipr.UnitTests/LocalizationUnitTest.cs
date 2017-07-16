@@ -190,7 +190,7 @@ namespace clipr.UnitTests
             using (LocalizationExtensions.WithUiCulture(new CultureInfo("en-US")))
             {
                 // Arrange
-                var expected = @"Usage: clipr [ -h|--help ] [ --version ] [ --turnonthepower ] [ -s S ] [ -c C ] FILETOADD 
+                var expected = @"Usage: clipr [ -h|--help ] [ --version ] [ --turnonthepower ] [ -s S ] [ -c C ] FILETOADD
 Positional Arguments:
  FileToAdd         File to add to the thing.
 
@@ -218,7 +218,7 @@ Optional Arguments:
             using (LocalizationExtensions.WithUiCulture(new CultureInfo("es-MX")))
             {
                 // Arrange
-                var expected = @"Forma de uso: clipr [ -h|--help ] [ --version ] [ --turnonthepower ] [ -s S ] [ -c C ] FILETOADD 
+                var expected = @"Forma de uso: clipr [ -h|--help ] [ --version ] [ --turnonthepower ] [ -s S ] [ -c C ] FILETOADD
 Argumentos dependientes de la posición:
  FileToAdd         Archivo para añadir a la cosa.
 

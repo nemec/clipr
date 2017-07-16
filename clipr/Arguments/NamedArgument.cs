@@ -35,5 +35,18 @@ namespace clipr.Arguments
             : base(store)
         {
         }
+
+        public override string ToString()
+        {
+            if(ShortName != null && LongName != null)
+            {
+                return "-" + ShortName + "|" + "--" + LongName;
+            }
+            else if(ShortName != null)
+            {
+                return "-" + ShortName;
+            }
+            return "--" + LongName;
+        }
     }
 }
