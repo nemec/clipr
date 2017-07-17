@@ -73,6 +73,12 @@ static void Main()
 	succeeded, a trigger was hit, or an error occurred. (#34)
 * Add a "tokenizer" that turns a regular string into a string
 	array similar to that of `Main(string[] args)`.
+* Fix minor help page formatting errors.
+* Add Verbs/Commands to help page.
+* Add the ability to configure the TextWriter for help and version output
+  so it is no longer writing only to `Console.Error`.
+* Allow each verb to inherit the `--help` trigger so that you can get detailed
+  help information for verbs.
 
 ### 2017-07-13 1.6.0.1
 

@@ -117,6 +117,9 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="AutomaticHelpGenerator_CommandsTitle" xml:space="preserve">
+    <value>Commands</value>
+  </data>
   <data name="AutomaticHelpGenerator_Description" xml:space="preserve">
     <value>Display this help document.</value>
   </data>
@@ -131,6 +134,9 @@
   </data>
   <data name="AutomaticHelpGenerator_Usage" xml:space="preserve">
     <value>Usage</value>
+  </data>
+  <data name="AutomaticHelpGenerator_Usage_CommandPlaceholder" xml:space="preserve">
+    <value>command</value>
   </data>
   <data name="ExecutingAssemblyVersion_Description" xml:space="preserve">
     <value>Displays the version of the current executable.</value>

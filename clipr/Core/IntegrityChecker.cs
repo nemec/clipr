@@ -416,14 +416,14 @@ namespace clipr.Core
                 .Where(a => a != null);
             var dupes = named
                 .Where(k => k.ShortName.HasValue)
-                .GroupBy(k => options.HasFlag(ParserOptions.CaseInsensitive)
+                .GroupBy(k => options.CaseInsensitive
                     ? k.ShortName.ToString().ToLowerInvariant()
                     : k.ShortName.ToString())
                 .Where(a => a.Count() > 1)
                 .Select(a => a.Key);
             var dupel = named
                 .Where(k => k.LongName != null)
-                .GroupBy(k => options.HasFlag(ParserOptions.CaseInsensitive) 
+                .GroupBy(k => options.CaseInsensitive
                     ? k.LongName.ToLowerInvariant()
                     : k.LongName)
                 .Where(a => a.Count() > 1)

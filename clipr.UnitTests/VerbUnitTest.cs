@@ -234,7 +234,7 @@ namespace clipr.UnitTests
                 { typeof(VerbWithNoDefaultConstructor), () => new VerbWithNoDefaultConstructor("default.txt") }
             };
             var parser = new CliParser<OptionsWithNoDefaultVerbConstructor>(
-                ParserOptions.None, new AutomaticHelpGenerator<OptionsWithNoDefaultVerbConstructor>(), factory);
+                ParserOptions.Default, new AutomaticHelpGenerator<OptionsWithNoDefaultVerbConstructor>(), factory);
 
             parser.Parse("add myfile.txt".Split(), opt);
 
@@ -302,7 +302,7 @@ namespace clipr.UnitTests
                 { typeof(GitCommit), () => new GitCommit("My default message") }
             };
             var parser = new CliParser<OptionsWithGitVerbs>(
-                ParserOptions.None, new AutomaticHelpGenerator<OptionsWithGitVerbs>(), factory);
+                ParserOptions.Default, new AutomaticHelpGenerator<OptionsWithGitVerbs>(), factory);
 
             parser.Parse("add myfile.txt otherfile.txt".Split(), opt);
             var actual = opt.Add.Files.ToList();
@@ -321,7 +321,7 @@ namespace clipr.UnitTests
                 { typeof(GitCommit), () => new GitCommit("My default message") }
             };
             var parser = new CliParser<OptionsWithGitVerbs>(
-                ParserOptions.None, new AutomaticHelpGenerator<OptionsWithGitVerbs>(), factory);
+                ParserOptions.Default, new AutomaticHelpGenerator<OptionsWithGitVerbs>(), factory);
 
             parser.Parse("commit".Split(), opt);
             var actual = opt.Commit.CommitMessage;
@@ -340,7 +340,7 @@ namespace clipr.UnitTests
                 { typeof(GitCommit), () => new GitCommit("My default message") }
             };
             var parser = new CliParser<OptionsWithGitVerbs>(
-                ParserOptions.None, new AutomaticHelpGenerator<OptionsWithGitVerbs>(), factory);
+                ParserOptions.Default, new AutomaticHelpGenerator<OptionsWithGitVerbs>(), factory);
 
             parser.Parse(new[] { "commit", "-m", "My message" }, opt);
             var actual = opt.Commit.CommitMessage;

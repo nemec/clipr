@@ -1,6 +1,7 @@
 ﻿using clipr.Core;
 using clipr.Usage;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using System.IO;
 
 namespace clipr.UnitTests
 {
@@ -29,7 +30,7 @@ namespace clipr.UnitTests
             var args = "--help".Split();
             var opts = new NoDescription();
             var parser = new CliParser<NoDescription>(
-                ParserOptions.None,
+                ParserOptions.Default,
                 new Help());
 
             var result = parser.Parse(args, opts);
@@ -150,14 +151,135 @@ Optional Arguments:
  -b, --optionb  The B option.
  -h, --help     Display this help document.
  --version      Displays the version of the current executable.";
-
-            var opt = new OptionsWithRequiredValue();
-            var parser = new CliParser<OptionsWithRequiredValue>(opt);
+            
+            var parser = new CliParser<OptionsWithRequiredValue>();
             var gen = new AutomaticHelpGenerator<OptionsWithRequiredValue>();
 
-            var help = gen.GetHelp(parser.Config);
+            var help = gen.GetHelp(parser.BuildConfig());
 
             Assert.AreEqual(expected, help);
+        }
+
+        internal class OptionsWithVerbs
+        {
+            [Verb(Description = "A verb for names")]
+            public Verb1 Verb1 { get; set; }
+
+            [Verb(Description = "A verb for ages")]
+            public Verb2 Verb2 { get; set; }
+        }
+
+        internal class Verb1
+        {
+            [NamedArgument('n', "name")]
+            public string Name { get; set; }
+        }
+
+        internal class Verb2
+        {
+            [NamedArgument('a', "age")]
+            public int Age { get; set; }
+        }
+
+        [TestMethod]
+        public void Help_WithVerbs_AddsVerbDescriptionsToHelpOutput()
+        {
+            const string expected = @"Usage: clipr [ -h|--help ] [ --version ] <command>
+Optional Arguments:
+ -h, --help  Display this help document.
+ --version   Displays the version of the current executable.
+
+Commands:
+ verb1       A verb for names
+ verb2       A verb for ages";
+            
+            var parser = new CliParser<OptionsWithVerbs>();
+            var gen = new AutomaticHelpGenerator<OptionsWithVerbs>();
+
+            var help = gen.GetHelp(parser.BuildConfig());
+
+            Assert.AreEqual(expected, help);
+        }
+
+        [TestMethod]
+        public void Help_WithHelpOfVerbCalled_GeneratedHelpOutputForVerb()
+        {
+            const string expected = @"Usage: clipr verb1 [ -n|--name N ] [ -h|--help ]
+Optional Arguments:
+ -h, --help  Display this help document.
+ -n, --name
+";
+
+            var sw = new StringWriter();
+            var opt = new OptionsWithVerbs();
+            var parser = new CliParser<OptionsWithVerbs>(new ParserOptions { OutputWriter = sw });
+
+            parser.Parse("verb1 --help".Split(), opt);
+            var actual = sw.ToString();
+
+            Assert.AreEqual(expected, actual);
+        }
+
+        internal class OptionsWithNestedVerbs
+        {
+            [Verb(Description = "A verb for names")]
+            public Verb1WithNested Verb1 { get; set; }
+        }
+
+        internal class Verb1WithNested
+        {
+            [NamedArgument('n', "name")]
+            public string Name { get; set; }
+
+            [Verb(Description = "A verb for ages")]
+            public Verb2WithNested Verb2 { get; set; }
+        }
+
+        internal class Verb2WithNested
+        {
+            [NamedArgument('a', "age")]
+            public int Age { get; set; }
+        }
+
+        [TestMethod]
+        public void Help_WithNestedHelpOfVerbCalledOnBaseVerb_GeneratedHelpOutputForVerbWithCommands()
+        {
+            const string expected = @"Usage: clipr verb1 [ -n|--name N ] [ -h|--help ] <command>
+Optional Arguments:
+ -h, --help  Display this help document.
+ -n, --name
+
+Commands:
+ verb2       A verb for ages
+";
+
+            var sw = new StringWriter();
+            var opt = new OptionsWithNestedVerbs();
+            var parser = new CliParser<OptionsWithNestedVerbs>(new ParserOptions { OutputWriter = sw });
+
+            parser.Parse("verb1 --help".Split(), opt);
+            var actual = sw.ToString();
+
+            Assert.AreEqual(expected, actual);
+        }
+
+        [TestMethod]
+        public void Help_WithNestedHelpOfVerbCalled_GeneratedHelpOutputForVerb()
+        {
+            const string expected = @"Usage: clipr verb1 verb2 [ -a|--age A ] [ -h|--help ]
+Optional Arguments:
+ -a, --age
+ -h, --help  Display this help document.
+";
+
+            var sw = new StringWriter();
+            var opt = new OptionsWithNestedVerbs();
+            var parser = new CliParser<OptionsWithNestedVerbs>(new ParserOptions { OutputWriter = sw });
+
+            parser.Parse("verb1 verb2 --help".Split(), opt);
+            var actual = sw.ToString();
+
+            Assert.AreEqual(expected, actual);
         }
 
         // TODO GenerateUsage_WithStaticEnum_ListsEnumValues()

@@ -3,6 +3,7 @@ using System.Reflection;
 using clipr.Core;
 using clipr.Triggers;
 using clipr.Utils;
+using System.IO;
 
 namespace clipr.Usage
 {
@@ -15,6 +16,8 @@ namespace clipr.Usage
         public override string Name { get { return "Version"; } }
 
         private readonly string _version;
+
+        private readonly TextWriter DefaultWriter = Console.Error; 
 
         /// <summary>
         /// Version information pulled from the currently executing assembly.
@@ -51,7 +54,8 @@ namespace clipr.Usage
         /// <param name="config"></param>
         public void OnParse(IParserConfig config)
         {
-            Console.Error.WriteLine(GetVersion());
+            (config.Options.OutputWriter
+                ?? DefaultWriter).WriteLine(GetVersion());
         }
 
         /// <inheritdoc/>

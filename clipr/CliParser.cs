@@ -187,7 +187,7 @@ namespace clipr
         /// Create a new parser with the default usage generator.
         /// </summary>
         public CliParser()
-            : this(ParserOptions.None, new AutomaticHelpGenerator<TConf>())
+            : this(ParserOptions.Default, new AutomaticHelpGenerator<TConf>())
         {
         }
 
@@ -208,7 +208,7 @@ namespace clipr
         /// Generates help documentation for this parser.
         /// </param>
         public CliParser(IHelpGenerator usageGenerator)
-            : this(ParserOptions.None, usageGenerator)
+            : this(ParserOptions.Default, usageGenerator)
         {
         }
 

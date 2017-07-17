@@ -4,6 +4,7 @@ using System.Linq;
 using clipr.Triggers;
 using clipr.Utils;
 using clipr.IOC;
+using clipr.Usage;
 #if NETCORE
 using System.Reflection;
 #endif
@@ -116,7 +117,26 @@ namespace clipr.Core
                         .MakeGenericType(new[] {prop.PropertyType});
                     var config = (IVerbParserConfig)Activator.CreateInstance(
                         type:verbConfigWrapperType,
-                        args:new[] {verbParserConfig, new PropertyValueStore(prop), Options, VerbFactory});
+                        args:new[] {verbParserConfig, new PropertyValueStore(prop), Options, VerbFactory, new[] { verbName } });
+
+                    config.Name = verbName;
+                    config.Description = attr.Description;
+                    if (Options.IncludeHelpTriggerInVerbs)
+                    {
+                        var helpWrapperType = typeof(AutomaticHelpGenerator<>)
+                            .GetTypeInfo()
+                            .MakeGenericType(new[] { prop.PropertyType });
+                        var triggers = new[] { (IHelpGenerator)Activator.CreateInstance(
+                            type:helpWrapperType,
+                            args:new object[] { }) };
+                        config.AppendTriggers(triggers);
+                    }
+
+                    // TODO optimize this a bit
+                    foreach(var innerVerb in config.Verbs.Values)
+                    {
+                        innerVerb.PrecursorVerbs = Enumerable.Repeat(verbName, 1).Concat(innerVerb.PrecursorVerbs).ToArray();
+                    }
 
                     Verbs.Add(verbName, config);
                 }

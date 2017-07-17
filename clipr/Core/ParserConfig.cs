@@ -22,7 +22,8 @@ namespace clipr.Core
 
         /// <summary>
         /// The character prefix to use for designating arguments
-        /// (typically a hyphen).
+        /// (typically a hyphen). This is doubled up to designate
+        /// long arguments (e.g. a double hyphen).
         /// </summary>
         char ArgumentPrefix { get; set; }
 
@@ -40,7 +41,7 @@ namespace clipr.Core
         /// <summary>
         /// The list of registered triggers.
         /// </summary>
-        IEnumerable<ITerminatingTrigger> Triggers { get; set; }
+        IEnumerable<ITerminatingTrigger> Triggers { get; }
 
         /// <summary>
         /// The list of short name arguments.
@@ -132,14 +133,15 @@ namespace clipr.Core
 
         public HashSet<string> RequiredNamedArguments { get; protected set; }
 
-        public IEnumerable<ITerminatingTrigger> Triggers { get; set; }
+        private List<ITerminatingTrigger> _triggers = new List<ITerminatingTrigger>();
+        public IEnumerable<ITerminatingTrigger> Triggers { get { return _triggers; } }
 
         protected ParserConfig(ParserOptions options, IEnumerable<ITerminatingTrigger> triggers, IVerbFactory factory)
         {
             Options = options;
             ArgumentPrefix = '-';
 
-            if (options.HasFlag(ParserOptions.CaseInsensitive))
+            if (options.CaseInsensitive)
             {
                 ShortNameArguments = new Dictionary<char, IShortNameArgument>(new CaseInsensitiveCharComparer());
                 LongNameArguments = new Dictionary<string, ILongNameArgument>(
@@ -161,20 +163,19 @@ namespace clipr.Core
             RequiredMutuallyExclusiveArguments = new HashSet<string>();
             RequiredNamedArguments = new HashSet<string>();
 
-            InitializeTriggers(triggers);
+            AppendTriggers(triggers);
 
             VerbFactory = factory;
         }
 
-        public void InitializeTriggers(IEnumerable<ITerminatingTrigger> triggers)
+        public void AppendTriggers(IEnumerable<ITerminatingTrigger> triggers)
         {
-            Triggers = triggers;
             if (triggers == null)
             {
                 return;
             }
 
-            foreach (var trigger in Triggers.Where(p => p != null))
+            foreach (var trigger in triggers.Where(p => p != null))
             {
                 var sn = GetShortName(trigger, String.Format(
                     "Trigger '{0}' argument {1} is not a valid short name. {2}",
@@ -201,6 +202,7 @@ namespace clipr.Core
                     }
                     LongNameArguments.Add(ln, trigger);
                 }
+                _triggers.Add(trigger);
             }
         }
 

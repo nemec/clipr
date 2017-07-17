@@ -22,7 +22,7 @@ namespace clipr.UnitTests
         public void CaseFolding_ParseLongArgWithWrongCaseWhenCaseInsensitive_CorrectlyParsesArgs()
         {
             var parser = new CliParser<CaseFoldingOptions>(
-                ParserOptions.CaseInsensitive);
+                new ParserOptions { CaseInsensitive = true });
             var result = parser.Parse("--Name timothy".Split(), new CaseFoldingOptions());
             result.Handle(
                 opt => Assert.AreEqual("timothy", opt.Name),
@@ -46,7 +46,7 @@ namespace clipr.UnitTests
         public void CaseFolding_ParseShortArgWithWrongCaseWhenCaseInsensitive_CorrectlyParsesArgs()
         {
             var parser = new CliParser<CaseFoldingOptions>(
-                ParserOptions.CaseInsensitive);
+                new ParserOptions { CaseInsensitive = true });
             var result = parser.Parse("-N timothy".Split(), new CaseFoldingOptions());
             result.Handle(
                 opt => Assert.AreEqual("timothy", opt.Name),
@@ -70,7 +70,7 @@ namespace clipr.UnitTests
         public void CaseFolding_ParseLongArgPrefixWithCorrectCaseWhenCaseSensitiveAndPartialMatch_CorrectlyParsesArgs()
         {
             var parser = new CliParser<CaseFoldingOptions>(
-                ParserOptions.NamedPartialMatch);
+                new ParserOptions { NamedPartialMatch = true });
             var result = parser.Parse("--na timothy".Split(), new CaseFoldingOptions());
             result.Handle(
                 opt => Assert.AreEqual("timothy", opt.Name),
@@ -82,7 +82,7 @@ namespace clipr.UnitTests
         public void CaseFolding_ParseLongArgPrefixWithWrongCaseWhenCaseInsensitiveAndPartialMatch_CorrectlyParsesArgs()
         {
             var parser = new CliParser<CaseFoldingOptions>(
-                ParserOptions.CaseInsensitive | ParserOptions.NamedPartialMatch);
+                new ParserOptions { CaseInsensitive = true, NamedPartialMatch = true });
             var result = parser.Parse("--Na timothy".Split(), new CaseFoldingOptions());
             result.Handle(
                 opt => Assert.AreEqual("timothy", opt.Name),
@@ -178,7 +178,7 @@ namespace clipr.UnitTests
         {
             var opt = new NullUsageAndVersion();
             new CliParser<NullUsageAndVersion>(
-                ParserOptions.None, null).Parse("name".Split(), opt);
+                ParserOptions.Default, null).Parse("name".Split(), opt);
             Assert.AreEqual("name", opt.Value);
         }
 
