@@ -39,7 +39,7 @@ namespace clipr.UnitTests
 
             AssertEx.Throws<DuplicateArgumentException>(() => 
                 new CliParser<DuplicateArgumentWhenCaseInsensitive>(
-                    opt, ParserOptions.CaseInsensitive));
+                    opt, new ParserOptions { CaseInsensitive = true }));
         }
 
         internal class DuplicateArguments

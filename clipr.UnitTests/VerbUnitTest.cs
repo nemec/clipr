@@ -213,7 +213,7 @@ namespace clipr.UnitTests
                 { typeof(VerbWithNoDefaultConstructor), () => new VerbWithNoDefaultConstructor("default.txt") }
             };
             var parser = new CliParser<OptionsWithNoDefaultConstructor>(
-                opt, ParserOptions.None, new AutomaticHelpGenerator<OptionsWithNoDefaultConstructor>(), factory);
+                opt, ParserOptions.Default, new AutomaticHelpGenerator<OptionsWithNoDefaultConstructor>(), factory);
 
             parser.Parse("add myfile.txt".Split());
 
@@ -281,7 +281,7 @@ namespace clipr.UnitTests
                 { typeof(GitCommit), () => new GitCommit("My default message") }
             };
             var parser = new CliParser<OptionsWithGitVerbs>(
-                opt, ParserOptions.None, new AutomaticHelpGenerator<OptionsWithGitVerbs>(), factory);
+                opt, ParserOptions.Default, new AutomaticHelpGenerator<OptionsWithGitVerbs>(), factory);
 
             parser.Parse("add myfile.txt otherfile.txt".Split());
             var actual = opt.Add.Files.ToList();
@@ -300,7 +300,7 @@ namespace clipr.UnitTests
                 { typeof(GitCommit), () => new GitCommit("My default message") }
             };
             var parser = new CliParser<OptionsWithGitVerbs>(
-                opt, ParserOptions.None, new AutomaticHelpGenerator<OptionsWithGitVerbs>(), factory);
+                opt, ParserOptions.Default, new AutomaticHelpGenerator<OptionsWithGitVerbs>(), factory);
 
             parser.Parse("commit".Split());
             var actual = opt.Commit.CommitMessage;
@@ -319,7 +319,7 @@ namespace clipr.UnitTests
                 { typeof(GitCommit), () => new GitCommit("My default message") }
             };
             var parser = new CliParser<OptionsWithGitVerbs>(
-                opt, ParserOptions.None, new AutomaticHelpGenerator<OptionsWithGitVerbs>(), factory);
+                opt, ParserOptions.Default, new AutomaticHelpGenerator<OptionsWithGitVerbs>(), factory);
 
             parser.Parse(new[] { "commit", "-m", "My message" });
             var actual = opt.Commit.CommitMessage;

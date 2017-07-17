@@ -67,6 +67,15 @@ namespace clipr.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Commands.
+        /// </summary>
+        internal static string AutomaticHelpGenerator_CommandsTitle {
+            get {
+                return ResourceManager.GetString("AutomaticHelpGenerator_CommandsTitle", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Display this help document..
         /// </summary>
         internal static string AutomaticHelpGenerator_Description {
@@ -108,6 +117,15 @@ namespace clipr.Properties {
         internal static string AutomaticHelpGenerator_Usage {
             get {
                 return ResourceManager.GetString("AutomaticHelpGenerator_Usage", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to command.
+        /// </summary>
+        internal static string AutomaticHelpGenerator_Usage_CommandPlaceholder {
+            get {
+                return ResourceManager.GetString("AutomaticHelpGenerator_Usage_CommandPlaceholder", resourceCulture);
             }
         }
         

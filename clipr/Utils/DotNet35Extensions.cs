@@ -39,23 +39,4 @@ namespace clipr.Utils
             }
         }
     }
-
-#if NET35
-    /// <summary>
-    /// Extensions to convert .Net3.5-compatible code to the .Net4.5 syntax.
-    /// </summary>
-    public static class DotNet35Extensions
-    {
-        /// <summary>
-        /// Checks whether or not the enum has the given flag set.
-        /// </summary>
-        /// <param name="en"></param>
-        /// <param name="cmp"></param>
-        /// <returns></returns>
-        public static bool HasFlag(this ParserOptions en, ParserOptions cmp)
-        {
-            return (en & cmp) != 0;
-        }
-    }
-#endif
 }

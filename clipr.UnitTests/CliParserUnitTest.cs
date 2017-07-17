@@ -21,7 +21,7 @@ namespace clipr.UnitTests
         public void CaseFolding_ParseLongArgWithWrongCaseWhenCaseInsensitive_CorrectlyParsesArgs()
         {
             var parser = new CliParser<CaseFoldingOptions>(
-                new CaseFoldingOptions(), ParserOptions.CaseInsensitive);
+                new CaseFoldingOptions(), new ParserOptions { CaseInsensitive = true });
             parser.Parse("--Name timothy".Split());
         }
 
@@ -36,7 +36,7 @@ namespace clipr.UnitTests
         public void CaseFolding_ParseShortArgWithWrongCaseWhenCaseInsensitive_CorrectlyParsesArgs()
         {
             var parser = new CliParser<CaseFoldingOptions>(
-                new CaseFoldingOptions(), ParserOptions.CaseInsensitive);
+                new CaseFoldingOptions(), new ParserOptions { CaseInsensitive = true });
             parser.Parse("-N timothy".Split());
         }
 
@@ -51,7 +51,7 @@ namespace clipr.UnitTests
         public void CaseFolding_ParseLongArgPrefixWithCorrectCaseWhenCaseSensitiveAndPartialMatch_CorrectlyParsesArgs()
         {
             var parser = new CliParser<CaseFoldingOptions>(
-                new CaseFoldingOptions(), ParserOptions.NamedPartialMatch);
+                new CaseFoldingOptions(), new ParserOptions { NamedPartialMatch = true });
             parser.Parse("--na timothy".Split());
         }
 
@@ -59,7 +59,7 @@ namespace clipr.UnitTests
         public void CaseFolding_ParseLongArgPrefixWithWrongCaseWhenCaseInsensitiveAndPartialMatch_CorrectlyParsesArgs()
         {
             var parser = new CliParser<CaseFoldingOptions>(
-                new CaseFoldingOptions(), ParserOptions.CaseInsensitive | ParserOptions.NamedPartialMatch);
+                new CaseFoldingOptions(), new ParserOptions { CaseInsensitive = true, NamedPartialMatch = true });
             parser.Parse("--Na timothy".Split());
         }
 
@@ -132,7 +132,7 @@ namespace clipr.UnitTests
         {
             var opt = new NullUsageAndVersion();
             new CliParser<NullUsageAndVersion>(
-                opt, ParserOptions.None, null).Parse("name".Split());
+                opt, ParserOptions.Default, null).Parse("name".Split());
             Assert.AreEqual("name", opt.Value);
         }
 

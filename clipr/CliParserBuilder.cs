@@ -23,7 +23,7 @@ namespace clipr
 
         public CliParserBuilder(TConf obj)
         {
-            FluentConfig = new FluentParserConfig<TConf>(ParserOptions.None, 
+            FluentConfig = new FluentParserConfig<TConf>(ParserOptions.Default, 
                 Enumerable.Empty<ITerminatingTrigger>(), new ParameterlessVerbFactory());
             Object = obj;
         } 
@@ -152,7 +152,7 @@ namespace clipr
 
             // TODO do away with subBuilder and multiple VerbFactories?
             FluentConfig.Verbs.Add(verbName,
-                new VerbParserConfig<TArg>(subConfig, GetDefinitionFromExpression(expr), Options, subConfig.VerbFactory ?? FluentConfig.VerbFactory));
+                new VerbParserConfig<TArg>(subConfig, GetDefinitionFromExpression(expr), Options, subConfig.VerbFactory ?? FluentConfig.VerbFactory, null));
 
             return new Verb<TConf>(this);
         }

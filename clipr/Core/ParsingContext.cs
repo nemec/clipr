@@ -256,14 +256,14 @@ namespace clipr.Core
             Dictionary<TS, INamedArgumentBase> argDict,
             ParserOptions options)
         {
-            if (options.HasFlag(ParserOptions.NamedPartialMatch))
+            if (options.NamedPartialMatch)
             {
                 var nameSearch = name.ToString();
                 var nameLen = nameSearch.Length;
                 Func<string, string> trim = s => 
                     s.Length < nameLen ? s : s.Substring(0, nameLen);
                 INamedArgumentBase foundKey = null;
-                var cmp = options.HasFlag(ParserOptions.CaseInsensitive)
+                var cmp = options.CaseInsensitive
                     ? StringComparer.CurrentCultureIgnoreCase
                     : StringComparer.CurrentCulture;
                 foreach (var key in argDict.Keys)

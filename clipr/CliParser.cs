@@ -236,7 +236,7 @@ namespace clipr
         /// </exception>
         /// <param name="obj">Store parsed values in this object.</param>
         public CliParser(TConf obj)
-            : this(obj, ParserOptions.None, new AutomaticHelpGenerator<TConf>())
+            : this(obj, ParserOptions.Default, new AutomaticHelpGenerator<TConf>())
         {
         }
 
@@ -283,7 +283,7 @@ namespace clipr
         /// Generates help documentation for this parser.
         /// </param>
         public CliParser(TConf obj, IHelpGenerator usageGenerator)
-            : this(obj, ParserOptions.None, usageGenerator)
+            : this(obj, ParserOptions.Default, usageGenerator)
         {
         }
 

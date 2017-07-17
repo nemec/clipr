@@ -62,6 +62,22 @@ namespace clipr.Usage
             get { return I18N._("AutomaticHelpGenerator_NamedRequiredArgumentsTitle"); }
         }
 
+        /// <summary>
+        /// Title of the Verbs section
+        /// </summary>
+        protected virtual string CommandsTitle
+        {
+            get { return I18N._("AutomaticHelpGenerator_CommandsTitle"); }
+        }
+
+        /// <summary>
+        /// Title of the Verbs section
+        /// </summary>
+        protected virtual string CommandsUsagePlaceholder
+        {
+            get { return I18N._("AutomaticHelpGenerator_Usage_CommandPlaceholder"); }
+        }
+
         private readonly Func<IPositionalArgument, int> _argumentIndex =
             p => p.Index;
 
@@ -99,6 +115,8 @@ namespace clipr.Usage
             }
         }
 
+        public readonly TextWriter DefaultHelpWriter = Console.Error;
+
         /// <summary>
         /// Create a new generator.
         /// </summary>
@@ -119,6 +137,18 @@ namespace clipr.Usage
             builder.Append(": ");
             builder.Append(Path.GetFileNameWithoutExtension(assembly != null ?
                 assembly.Location : typeof(AutomaticHelpGenerator<T>).GetTypeInfo().Assembly.CodeBase));
+
+            // Append the verbs in case 
+            var verbConfig = config as IVerbParserConfig;
+            if(verbConfig != null && verbConfig.PrecursorVerbs != null)
+            {
+                foreach(var pre in verbConfig.PrecursorVerbs)
+                {
+                    builder.Append(" ");
+                    builder.Append(pre);
+                }
+            }
+
             builder.Append(" ");
 
             // TODO list PromptIfValueMissing help message on each argument that can be prompted.
@@ -136,7 +166,7 @@ namespace clipr.Usage
                 {
                     builder.Append("[ ");
                 }
-                builder.Append(String.Join("|", GetArgumentNames(arg).ToArray()));
+                builder.Append(String.Join("|", GetArgumentNames(arg, config).ToArray()));
 
                 if (arg.Action.ConsumesArgumentValues())
                 {
@@ -169,11 +199,11 @@ namespace clipr.Usage
                     builder.Append(" ]");
                 }
             }
+
             if (config.PositionalArguments.Any())
             {
                 builder.Append(" ");
             }
-
             var allPositionalArgs = config.PositionalArguments.OrderBy(p => p.Index).ToList();
             for(var i = 0; i < allPositionalArgs.Count; i++)
             {
@@ -223,6 +253,13 @@ namespace clipr.Usage
                 }
             }
 
+            if (config.Verbs.Any())
+            {
+                builder.Append(" <");
+                builder.Append(CommandsUsagePlaceholder);
+                builder.Append(">");
+            }
+
             return builder.ToString();
         }
 
@@ -246,11 +283,11 @@ namespace clipr.Usage
 
             var namedRequiredDisplay = namedRequiredArgs
                 .OrderBy(_argumentDisplayName)
-                .Select(GetArgumentsForDisplay).ToList();
+                .Select(r => GetArgumentsForDisplay(r, config)).ToList();
 
             var namedOptionalDisplay = namedOptionalArgs
                 .OrderBy(_argumentDisplayName)
-                .Select(GetArgumentsForDisplay).ToList();
+                .Select(o => GetArgumentsForDisplay(o, config)).ToList();
 
             var tabstop = positionalDisplay
                 .Concat(namedRequiredDisplay)
@@ -280,6 +317,12 @@ namespace clipr.Usage
             foreach (var arg in positionalDisplay)
             {
                 helpDataBuilder.Append(Indent);
+                // No padding needed if there is no description
+                if (String.IsNullOrEmpty(arg.Description))
+                {
+                    helpDataBuilder.AppendLine(arg.ArgumentNames);
+                    continue;
+                }
                 helpDataBuilder.Append(arg.ArgumentNames.PadRight(
                     tabstop - Indent.Length));
                 if (tabstop + arg.Description.Length < lineWidth)
@@ -307,6 +350,43 @@ namespace clipr.Usage
             prevSection |= namedRequiredDisplay.Any();
             AppendNamedArgumentList(helpDataBuilder, OptionalNamedArgumentsTitle, namedOptionalDisplay, tabstop, lineWidth, prevSection);
 
+            if (config.Verbs.Any())
+            {
+                helpDataBuilder.AppendLine();
+                helpDataBuilder.Append(CommandsTitle);
+                helpDataBuilder.AppendLine(":");
+            }
+            foreach(var verb in config.Verbs.Values.OrderBy(v => v.Name))
+            {
+                helpDataBuilder.Append(Indent);
+                // No padding needed if there is no description
+                if (String.IsNullOrEmpty(verb.Description))
+                {
+                    helpDataBuilder.AppendLine(verb.Name);
+                    continue;
+                }
+                helpDataBuilder.Append(verb.Name.PadRight(
+                    tabstop - Indent.Length));
+                if (tabstop + verb.Description.Length < lineWidth)
+                {
+                    helpDataBuilder.AppendLine(verb.Description);
+                }
+                else
+                {
+                    var iter = verb.Description.ReflowWords(
+                        lineWidth - tabstop).GetEnumerator();
+                    iter.MoveNext();
+                    helpDataBuilder.AppendLine(iter.Current);
+                    while (iter.MoveNext())
+                    {
+                        if (iter.Current == null) continue;
+
+                        helpDataBuilder.AppendLine(
+                            iter.Current.PadLeft(lineWidth));
+                    }
+                }
+            }
+
             return helpDataBuilder.ToString().TrimEnd();
         }
 
@@ -323,6 +403,13 @@ namespace clipr.Usage
             foreach (var arg in args)
             {
                 helpDataBuilder.Append(Indent);
+                // No padding needed if there is no description
+                if (String.IsNullOrEmpty(arg.Description))
+                {
+                    helpDataBuilder.AppendLine(arg.ArgumentNames);
+                    continue;
+                }
+
                 helpDataBuilder.Append(arg.ArgumentNames.PadRight(
                     tabstop - Indent.Length));
                 if (tabstop + arg.Description.Length < lineWidth)
@@ -351,9 +438,9 @@ namespace clipr.Usage
             return GetArgumentsForDisplay(names, arg);
         }
 
-        private static ArgumentDisplay GetArgumentsForDisplay(INamedArgument attr)
+        private static ArgumentDisplay GetArgumentsForDisplay(INamedArgument attr, IParserConfig config)
         {
-            var names = GetArgumentNames(attr);
+            var names = GetArgumentNames(attr, config);
             return GetArgumentsForDisplay(names, attr);
         }
 
@@ -376,16 +463,16 @@ namespace clipr.Usage
             };
         }
 
-        private static List<string> GetArgumentNames(INamedArgument attr)
+        private static List<string> GetArgumentNames(INamedArgument attr, IParserConfig config)
         {
             var ret = new List<string>();
             if (attr.ShortName != null)
             {
-                ret.Add("-" + attr.ShortName);
+                ret.Add(""+ config.ArgumentPrefix + attr.ShortName);
             }
             if (attr.LongName != null)
             {
-                ret.Add("--" + attr.LongName);
+                ret.Add("" + config.ArgumentPrefix + config.ArgumentPrefix + attr.LongName);
             }
             return ret;
         }
@@ -411,7 +498,8 @@ namespace clipr.Usage
         /// <param name="config"></param>
         public void OnParse(IParserConfig config)
         {
-            Console.Error.WriteLine(GetHelp(config));
+            (config.Options.OutputWriter 
+                ?? DefaultHelpWriter).WriteLine(GetHelp(config));
         }
     }
 }
