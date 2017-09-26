@@ -1,0 +1,7 @@
+#recipe Docs
+
+// Customize your settings and add new ones here
+Settings[Keys.Host] = "host.com";
+Settings[DocsKeys.Title] = "My Docs";
+
+// Add any pipeline customizations here
