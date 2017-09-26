@@ -2,9 +2,9 @@
 <feed xmlns="http://www.w3.org/2005/Atom">
 	<link rel="self" href="http://blog.nem.ec/clipr" />
 	<id>http://blog.nem.ec/clipr</id>
-	<title>My Docs</title>
+	<title>clipr</title>
 	<rights>2017</rights>
-	<updated>2017-09-26T05:06:08Z</updated>
+	<updated>2017-09-26T07:19:15Z</updated>
 	<entry>
 		<author>
 			<name>me</name>

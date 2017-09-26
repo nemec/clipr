@@ -8,7 +8,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="shortcut icon" href="/clipr/assets/img/favicon.ico" type="image/x-icon">
         <link rel="icon" href="/clipr/assets/img/favicon.ico" type="image/x-icon">
-        <title>My Docs - Command Line</title>
+        <title>clipr - Variable Argument Counts</title>
         <link href="/clipr/assets/css/mermaid.css" rel="stylesheet">
         <link href="/clipr/assets/css/highlight.css" rel="stylesheet">
         <link href="/clipr/assets/css/bootstrap/bootstrap.css" rel="stylesheet" />
@@ -38,7 +38,7 @@
             <header class="main-header">   
                      
                 <a href="/clipr/" class="logo">
-                            <span>My Docs</span>
+                            <span>clipr</span>
                 </a>   
                          
                 <nav class="navbar navbar-static-top" role="navigation">
@@ -59,7 +59,8 @@
                     <div class="collapse navbar-collapse pull-left" id="navbar-collapse">
                         <ul class="nav navbar-nav">                            
                                     <li><a href="/clipr/about">About This Project</a></li>
-        <li class="active"><a href="/clipr/docs">Docs</a></li>
+        <li><a href="/clipr/api-reference">Api Reference</a></li>
+        <li class="active"><a href="/clipr/tutorials">Tutorials</a></li>
         <li><a href="/clipr/blog">Blog</a></li>
  
                         </ul>       
@@ -82,8 +83,21 @@
 
                     <ul class="sidebar-menu">
                         
-                <li class="selected"><a href="/clipr/docs/command-line">Command Line</a></li>
-                <li><a href="/clipr/docs/usage">Usage</a></li>
+                <li><a href="/clipr/tutorials/04-action-types">Action Types</a></li>
+                <li><a href="/clipr/tutorials/01-creating-the-parser">Creating the Parser</a></li>
+                <li><a href="/clipr/tutorials/14-custom-parsing">Custom Value Parsing</a></li>
+                <li><a href="/clipr/tutorials/06-default-arguments">Default Argument Values</a></li>
+                <li><a href="/clipr/tutorials/07-forced-positional-arguments">Force Positional Argument Parsing</a></li>
+                <li><a href="/clipr/tutorials/12-help-and-version">Help and Version Information</a></li>
+                <li><a href="/clipr/tutorials/13-localization">Localizing Your Options</a></li>
+                <li><a href="/clipr/tutorials/09-mutually-exclusive">Mutually Exclusive Arguments</a></li>
+                <li><a href="/clipr/tutorials/03-named-and-positional">Named and Positional Arguments</a></li>
+                <li><a href="/clipr/tutorials/08-password-masking">Password Masking</a></li>
+                <li><a href="/clipr/tutorials/11-post-parse-triggers">Post-Parse Methods</a></li>
+                <li><a href="/clipr/tutorials/15-static-enums">Static Enumerations</a></li>
+                <li><a href="/clipr/tutorials/02-configuration-validation">Validating Configuration</a></li>
+                <li class="selected"><a href="/clipr/tutorials/05-variable-arguments">Variable Argument Counts</a></li>
+                <li><a href="/clipr/tutorials/10-verbs">Verbs</a></li>
 
                     </ul>
                 </section>                
@@ -96,10 +110,44 @@
 
 
 	<section class="content-header">
-		<h1>Command Line</h1>
+		<h1>Variable Argument Counts</h1>
 	</section>
 	<section class="content">
-		<p>Here are some instructions on how to use the command line.</p>
+		<p>In addition to choosing an action for each argument, you can specify
+<em>how many</em> values each argument can consume. The first part is the NumArgs
+property, which gives the value limit for the argument. The second part,
+constraints, comes in four flavors: Exact, AtLeast, AtMost, and Optional. Any
+named argument may take exactly the number of values specified or use that as
+the minimum or maximum number consumed. The final constraint, Optional, can be
+set on a reference type or Nullable property and it indicates that a value
+for the argument can be provided or left off. If the argument is given without
+a value, the value will be copied from the <code>Const</code> property on the argument.
+For more complex types, <code>Const</code> may be set to a string and the value will be
+converted to the destination type in the same way other argument values are
+converted.</p>
+<pre><code class="language-csharp">[NamedArgument('s', &quot;server&quot;, Constraint = NumArgsConstraint.Optional, Const = 1234)]
+public int? Server { get; set; }
+</code></pre>
+<p>You may also use Optional arguments to define boolean flags that can easily be scripted (explicitly set to true or false).</p>
+<pre><code class="language-csharp">private class Options
+{
+	[NamedArgument('f', &quot;flag&quot;,
+	   Constraint = NumArgsConstraint.Optional,
+	   Action = ParseAction.Store,
+	   Const = true)]
+	public bool Flag { get; set; }
+
+}
+</code></pre>
+<p>And call it with any of the following:</p>
+<pre><code>-f
+-f true
+-f false
+</code></pre>
+<p>Since positional arguments are not
+delimited in any discernable way only the <em>last</em> positional argument,
+by Index, may use the constraints AtLeast or AtMost. All previous positional
+arguments must consume an exact number of values.</p>
 
 	</section>
                 

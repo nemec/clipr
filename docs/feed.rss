@@ -1,12 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <rss xmlns:content="http://purl.org/rss/1.0/modules/content/" version="2.0">
 	<channel>
-		<title>My Docs</title>
+		<title>clipr</title>
 		<link>http://blog.nem.ec/clipr</link>
 		<description />
 		<copyright>2017</copyright>
-		<pubDate>Tue, 26 Sep 2017 05:06:08 GMT</pubDate>
-		<lastBuildDate>Tue, 26 Sep 2017 05:06:08 GMT</lastBuildDate>
+		<pubDate>Tue, 26 Sep 2017 07:19:15 GMT</pubDate>
+		<lastBuildDate>Tue, 26 Sep 2017 07:19:15 GMT</lastBuildDate>
 		<item>
 			<title>New Release</title>
 			<link>http://blog.nem.ec/clipr/blog/new-release</link>

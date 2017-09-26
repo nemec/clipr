@@ -8,7 +8,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="shortcut icon" href="/clipr/assets/img/favicon.ico" type="image/x-icon">
         <link rel="icon" href="/clipr/assets/img/favicon.ico" type="image/x-icon">
-        <title>clipr - clipr</title>
+        <title>clipr - Post-Parse Methods</title>
         <link href="/clipr/assets/css/mermaid.css" rel="stylesheet">
         <link href="/clipr/assets/css/highlight.css" rel="stylesheet">
         <link href="/clipr/assets/css/bootstrap/bootstrap.css" rel="stylesheet" />
@@ -31,7 +31,7 @@
 
         
     </head>
-    <body class="hold-transition wyam layout-boxed layout-top-nav ">    
+    <body class="hold-transition wyam layout-boxed  ">    
         <div class="top-banner"></div>
         <div class="wrapper with-container">
             <!-- Header -->
@@ -43,6 +43,10 @@
                          
                 <nav class="navbar navbar-static-top" role="navigation">
                     <!-- Sidebar toggle button-->
+                        <a href="#" class="sidebar-toggle visible-xs-block" data-toggle="offcanvas" role="button">
+                            <span class="sr-only">Toggle side menu</span>
+                            <i class="fa fa-chevron-circle-right"></i>
+                        </a>
                                         
                     <div class="navbar-header">
                         <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar-collapse">
@@ -56,7 +60,7 @@
                         <ul class="nav navbar-nav">                            
                                     <li><a href="/clipr/about">About This Project</a></li>
         <li><a href="/clipr/api-reference">Api Reference</a></li>
-        <li><a href="/clipr/tutorials">Tutorials</a></li>
+        <li class="active"><a href="/clipr/tutorials">Tutorials</a></li>
         <li><a href="/clipr/blog">Blog</a></li>
  
                         </ul>       
@@ -68,7 +72,7 @@
             </header>
             
             <!-- Left side column. contains the logo and sidebar -->
-            <aside class="main-sidebar hidden">
+            <aside class="main-sidebar ">
                 <section class="infobar" data-spy="affix" data-offset-top="60" data-offset-bottom="200"> 
                     	
     <div id="infobar-headings"></div>
@@ -79,6 +83,21 @@
 
                     <ul class="sidebar-menu">
                         
+                <li><a href="/clipr/tutorials/04-action-types">Action Types</a></li>
+                <li><a href="/clipr/tutorials/01-creating-the-parser">Creating the Parser</a></li>
+                <li><a href="/clipr/tutorials/14-custom-parsing">Custom Value Parsing</a></li>
+                <li><a href="/clipr/tutorials/06-default-arguments">Default Argument Values</a></li>
+                <li><a href="/clipr/tutorials/07-forced-positional-arguments">Force Positional Argument Parsing</a></li>
+                <li><a href="/clipr/tutorials/12-help-and-version">Help and Version Information</a></li>
+                <li><a href="/clipr/tutorials/13-localization">Localizing Your Options</a></li>
+                <li><a href="/clipr/tutorials/09-mutually-exclusive">Mutually Exclusive Arguments</a></li>
+                <li><a href="/clipr/tutorials/03-named-and-positional">Named and Positional Arguments</a></li>
+                <li><a href="/clipr/tutorials/08-password-masking">Password Masking</a></li>
+                <li class="selected"><a href="/clipr/tutorials/11-post-parse-triggers">Post-Parse Methods</a></li>
+                <li><a href="/clipr/tutorials/15-static-enums">Static Enumerations</a></li>
+                <li><a href="/clipr/tutorials/02-configuration-validation">Validating Configuration</a></li>
+                <li><a href="/clipr/tutorials/05-variable-arguments">Variable Argument Counts</a></li>
+                <li><a href="/clipr/tutorials/10-verbs">Verbs</a></li>
 
                     </ul>
                 </section>                
@@ -91,59 +110,43 @@
 
 
 	<section class="content-header">
-		<h1>clipr</h1>
+		<h1>Post-Parse Methods</h1>
 	</section>
 	<section class="content">
-		<h2>A Command Line Interface ParseR for .Net 3.5+ and .Net Core</h2>
-
-<p>Created by <a href="https://github.com/nemec">Dan Nemec</a></p>
-<p><a href="https://www.nuget.org/packages/clipr/"><img src="https://camo.githubusercontent.com/6ec11c1cf2ff21764c27abf24943fb948d8203d7/68747470733a2f2f696d672e736869656c64732e696f2f6e756765742f64742f636c6970722e737667" alt="NuGet" data-canonical-src="https://img.shields.io/nuget/dt/clipr.svg" style="max-width:100%;"></a>
-<a href="https://www.nuget.org/packages/clipr/"><img src="https://camo.githubusercontent.com/85c724afa45c865bf146bf291d10565bfc8d8653/68747470733a2f2f696d672e736869656c64732e696f2f6e756765742f762f636c6970722e737667" alt="NuGet" data-canonical-src="https://img.shields.io/nuget/v/clipr.svg" style="max-width:100%;"></a>
-<a href="https://www.nuget.org/packages/clipr/"><img src="https://camo.githubusercontent.com/24bd7358f422b1032506aa7cf7c734327f06df73/68747470733a2f2f696d672e736869656c64732e696f2f6e756765742f767072652f636c6970722e737667" alt="NuGet" data-canonical-src="https://img.shields.io/nuget/vpre/clipr.svg" style="max-width:100%;"></a></p>
-
-<p>Here's a quick but powerful example of the objects this library enables you to build:</p>
-
-<pre>
-<code class="language-csharp hljs">[ApplicationInfo(Description = <span class="hljs-string">"This is a set of options."</span>)]
-<span class="hljs-keyword">public</span> <span class="hljs-keyword">class</span> <span class="hljs-title">Options</span>
+		<p>Generally, the bulk of your application code is executed once
+parsing has completely finished - usually within your <code>Main</code> method.
+This ensures that all of the tasks that are part of parsing have
+finished and your &quot;Options&quot; class is fully built. For example:</p>
+<pre><code class="language-csharp">var options = CliParser.Parse&lt;MyOptions&gt;(args);
+RunApplication(options);
+</code></pre>
+<p>However, using the <code>PostParseAttribute</code> you can also mark parameterless
+methods that will run
+automatically once parsing is completed. When PostParse methods are
+nested within Verbs, they will be executed in order from innermost class
+to outermost, which means that whenever a PostParse method is executed, the
+configuration class <em>and</em> all its verbs will be fully initialized by that
+point.</p>
+<p>This can offer a sort of Inversion of Control - if you set up your application's
+execution context inside one of these parse methods, clipr will launch your
+application as soon as parsing is complete with the fully-hydrated Options
+class injected as <code>this</code>.</p>
+<pre><code class="language-csharp">internal class ParserWithPostParse
 {
-    [NamedArgument(<span class="hljs-string">'v'</span>, <span class="hljs-string">"verbose"</span>, Action = ParseAction.Count,
-        Description = <span class="hljs-string">"Increase the verbosity of the output."</span>)]
-    <span class="hljs-keyword">public</span> <span class="hljs-keyword">int</span> Verbosity { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">set</span>; }
+    [PositionalArgument(0)]
+    public string Arg { get; set; }
 
-    [PositionalArgument(<span class="hljs-number">0</span>, MetaVar = <span class="hljs-string">"OUT"</span>,
-        Description = <span class="hljs-string">"Output file."</span>)]
-    <span class="hljs-keyword">public</span> <span class="hljs-keyword">string</span> OutputFile { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">set</span>; }
-
-    [PositionalArgument(<span class="hljs-number">1</span>, MetaVar = <span class="hljs-string">"N"</span>,
-        NumArgs = <span class="hljs-number">1</span>,
-        Constraint = NumArgsConstraint.AtLeast,
-        Description = <span class="hljs-string">"Numbers to sum."</span>)]
-    <span class="hljs-keyword">public</span> List&lt;<span class="hljs-keyword">int</span>&gt; Numbers { <span class="hljs-keyword">get</span>; <span class="hljs-keyword">set</span>; } 
-}
-
-<span class="hljs-function"><span class="hljs-keyword">static</span> <span class="hljs-keyword">void</span> <span class="hljs-title">Main</span>(<span class="hljs-params"></span>)
-</span>{
-    <span class="hljs-keyword">var</span> opt = CliParser.Parse&lt;Options&gt;(
-        <span class="hljs-string">"-vvv output.txt 1 2 -1 7"</span>.Split());
-    Console.WriteLine(opt.Verbosity);
-    <span class="hljs-comment">// &gt;&gt;&gt; 3</span>
-
-    Console.WriteLine(opt.OutputFile);
-    <span class="hljs-comment">// &gt;&gt;&gt; output.txt</span>
-
-    <span class="hljs-keyword">var</span> sum = <span class="hljs-number">0</span>;
-    <span class="hljs-keyword">foreach</span> (<span class="hljs-keyword">var</span> number <span class="hljs-keyword">in</span> opt.Numbers)
+    [PostParse]
+    public void SetPostParse()
     {
-        sum += number;
+        // You can access all arguments here
+        RunApplication(this);
     }
-    Console.WriteLine(sum);
-    <span class="hljs-comment">// &gt;&gt;&gt; 9</span>
 }
-</code>
-</pre>
+</code></pre>
+<pre><code class="language-csharp">CliParser.Parse&lt;ParserWithPostParse&gt;(&quot;argument&quot;.Split());
+</code></pre>
 
-<p>You can explore additional documentation by selecting sections from the navigation bar at the top of the page.</p>
 	</section>
                 
             </div>           
