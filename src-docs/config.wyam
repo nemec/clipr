@@ -1,7 +1,8 @@
 #recipe Docs
 
 // Customize your settings and add new ones here
-Settings[Keys.Host] = "host.com";
+Settings[Keys.Host] = "blog.nem.ec";
+Settings[Keys.LinkRoot] = "/clipr";
 Settings[DocsKeys.Title] = "My Docs";
 
 // Add any pipeline customizations here
