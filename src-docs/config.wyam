@@ -3,6 +3,6 @@
 // Customize your settings and add new ones here
 Settings[Keys.Host] = "blog.nem.ec";
 Settings[Keys.LinkRoot] = "/clipr";
-Settings[DocsKeys.Title] = "My Docs";
+Settings[DocsKeys.Title] = "clipr";
 
 // Add any pipeline customizations here

@@ -8,7 +8,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="shortcut icon" href="/clipr/assets/img/favicon.ico" type="image/x-icon">
         <link rel="icon" href="/clipr/assets/img/favicon.ico" type="image/x-icon">
-        <title>My Docs - About This Project</title>
+        <title>clipr - About This Project</title>
         <link href="/clipr/assets/css/mermaid.css" rel="stylesheet">
         <link href="/clipr/assets/css/highlight.css" rel="stylesheet">
         <link href="/clipr/assets/css/bootstrap/bootstrap.css" rel="stylesheet" />
@@ -38,7 +38,7 @@
             <header class="main-header">   
                      
                 <a href="/clipr/" class="logo">
-                            <span>My Docs</span>
+                            <span>clipr</span>
                 </a>   
                          
                 <nav class="navbar navbar-static-top" role="navigation">
@@ -55,7 +55,8 @@
                     <div class="collapse navbar-collapse pull-left" id="navbar-collapse">
                         <ul class="nav navbar-nav">                            
                                     <li class="active"><a href="/clipr/about">About This Project</a></li>
-        <li><a href="/clipr/docs">Docs</a></li>
+        <li><a href="/clipr/api-reference">Api Reference</a></li>
+        <li><a href="/clipr/tutorials">Tutorials</a></li>
         <li><a href="/clipr/blog">Blog</a></li>
  
                         </ul>       
@@ -93,7 +94,45 @@
 		<h1>About This Project</h1>
 	</section>
 	<section class="content">
-		<p>This project is awesome!</p>
+		<p>This command line parser library is very much inspired by the
+<a href="http://docs.python.org/2/library/argparse.html">argparse</a> library
+for Python. It's one of the easiest parser libraries I've used while
+still offering a comprehensive set of powerful features.</p>
+<p>I've borrowed and ported many of its features to C# taking advantage of
+C#'s static typing features where it makes sense. Thanks to the powerful
+nature of the Reflection and TypeDescriptor assemblies, it's quite easy
+to take the arguments already sent to any Console project and fill a
+class with those values, even if they contain custom Types.</p>
+<h2 id="why-another-command-line-parser">Why another command line parser?</h2>
+<p>As of the time of this writing, clipr has been in development
+off and on for almost five years, so it's not exactly a newcomer
+to the ecosystem. I began development due to a change in direction
+of another prominent command line parsing library that I had been
+using. I was new to C#, but had extentive experience with Python
+and the Python library <code>argparse</code> so I decided to bring a piece of
+Python over to .NET. Beyond the API design choices, I believe
+clipr offers a superior feature set vs. other libraries while
+maintaining a high level of usability.</p>
+<h2 id="what-does-clipr-do-better">What does clipr do better?</h2>
+<ul>
+<li>It offers a high amount of flexibility for consumers of your application,
+allowing them to freely intermix named parameters with positionals and
+bunch up switches to reduce typing (e.g. <code>-bme</code> vs. <code>-b -m -e</code>).</li>
+<li>An extensive set of actions lets you fine-tune how values are stored in
+your Options class' properties. Supports lists of values and storing
+constants <em>or</em> the parsed values.</li>
+<li>Built-in support for password masking to keep secrets out of your
+users' terminal history.</li>
+<li>Customizable Verbs that support arbitrary nesting and non-standard
+constructors via the (optional) use of Factories.</li>
+<li>Comprehensive automatic Help and Version information with localization
+support.</li>
+<li>Support for a form of the <a href="https://lostechies.com/jimmybogard/2008/08/12/enumeration-classes/">type safe enum</a>
+pattern in addition to regular enums for &quot;constrained values&quot;.</li>
+<li>Flexible <code>TypeConverter</code> support that allows you to provide custom parsing
+for any type, even built-ins, with minimal fuss. You can even parse
+two arguments of the same type with different converters of you wanted to.</li>
+</ul>
 
 	</section>
                 

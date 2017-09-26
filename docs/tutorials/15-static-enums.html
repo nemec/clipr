@@ -8,7 +8,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="shortcut icon" href="/clipr/assets/img/favicon.ico" type="image/x-icon">
         <link rel="icon" href="/clipr/assets/img/favicon.ico" type="image/x-icon">
-        <title>My Docs - Usage</title>
+        <title>clipr - Static Enumerations</title>
         <link href="/clipr/assets/css/mermaid.css" rel="stylesheet">
         <link href="/clipr/assets/css/highlight.css" rel="stylesheet">
         <link href="/clipr/assets/css/bootstrap/bootstrap.css" rel="stylesheet" />
@@ -38,7 +38,7 @@
             <header class="main-header">   
                      
                 <a href="/clipr/" class="logo">
-                            <span>My Docs</span>
+                            <span>clipr</span>
                 </a>   
                          
                 <nav class="navbar navbar-static-top" role="navigation">
@@ -59,7 +59,8 @@
                     <div class="collapse navbar-collapse pull-left" id="navbar-collapse">
                         <ul class="nav navbar-nav">                            
                                     <li><a href="/clipr/about">About This Project</a></li>
-        <li class="active"><a href="/clipr/docs">Docs</a></li>
+        <li><a href="/clipr/api-reference">Api Reference</a></li>
+        <li class="active"><a href="/clipr/tutorials">Tutorials</a></li>
         <li><a href="/clipr/blog">Blog</a></li>
  
                         </ul>       
@@ -82,8 +83,21 @@
 
                     <ul class="sidebar-menu">
                         
-                <li><a href="/clipr/docs/command-line">Command Line</a></li>
-                <li class="selected"><a href="/clipr/docs/usage">Usage</a></li>
+                <li><a href="/clipr/tutorials/04-action-types">Action Types</a></li>
+                <li><a href="/clipr/tutorials/01-creating-the-parser">Creating the Parser</a></li>
+                <li><a href="/clipr/tutorials/14-custom-parsing">Custom Value Parsing</a></li>
+                <li><a href="/clipr/tutorials/06-default-arguments">Default Argument Values</a></li>
+                <li><a href="/clipr/tutorials/07-forced-positional-arguments">Force Positional Argument Parsing</a></li>
+                <li><a href="/clipr/tutorials/12-help-and-version">Help and Version Information</a></li>
+                <li><a href="/clipr/tutorials/13-localization">Localizing Your Options</a></li>
+                <li><a href="/clipr/tutorials/09-mutually-exclusive">Mutually Exclusive Arguments</a></li>
+                <li><a href="/clipr/tutorials/03-named-and-positional">Named and Positional Arguments</a></li>
+                <li><a href="/clipr/tutorials/08-password-masking">Password Masking</a></li>
+                <li><a href="/clipr/tutorials/11-post-parse-triggers">Post-Parse Methods</a></li>
+                <li class="selected"><a href="/clipr/tutorials/15-static-enums">Static Enumerations</a></li>
+                <li><a href="/clipr/tutorials/02-configuration-validation">Validating Configuration</a></li>
+                <li><a href="/clipr/tutorials/05-variable-arguments">Variable Argument Counts</a></li>
+                <li><a href="/clipr/tutorials/10-verbs">Verbs</a></li>
 
                     </ul>
                 </section>                
@@ -96,10 +110,59 @@
 
 
 	<section class="content-header">
-		<h1>Usage</h1>
+		<h1>Static Enumerations</h1>
 	</section>
 	<section class="content">
-		<p>To use this library, take these steps...</p>
+		<p>Sometimes there is a need to add logic to the Enum type. Since .Net enums are
+purely integers, the only alternative is to implement the so-called &quot;Typesafe
+Enum&quot; pattern by creating a class with fields for each enum value, possibly
+with subclasses defining value-specific behavior.</p>
+<p>Since clipr cannot rely on a specific typesafe enum implementation, it defines
+a common set of criteria for identifying and parsing them.</p>
+<ol>
+<li>Enum values must be <code>public</code>, <code>static</code>, and <code>readonly</code> fields of a class.</li>
+<li>Fields must be the same type as the underlying enum or a subclass.</li>
+<li>Static enums may only be parsed by name: the name of the field. Parsing
+is case insensitive (using the Invariant culture).</li>
+<li>The class must be tagged with the <code>clipr.StaticEnumerationAttribute</code>
+attribute. If the attribute cannot be added to the class directly (such as
+third party types), but the class follows (1) and (2), the attribute may also
+be applied to the option property.</li>
+</ol>
+<p>Sample:</p>
+<pre><code class="language-csharp">[StaticEnumeration]
+internal abstract class SomeEnum
+{
+    public static readonly SomeEnum First = new EnumSubclass();
+
+    public abstract void DoSomeWork();
+
+    public class EnumSubclass : SomeEnum
+    {
+        public override void DoSomeWork() { }
+    }
+}
+
+internal class StaticEnumerationOptions
+{
+    [NamedArgument('e')]
+    public SomeEnum Value { get; set; } 
+}
+
+internal class StaticEnumerationExplicitOptions
+{
+    [NamedArgument('e')]
+    [StaticEnumeration]  // Allowed in case attr is not defined on SomeEnum
+    public SomeEnum Value { get; set; } 
+}
+
+public static void Main()
+{
+  var obj = CliParser.Parse&lt;StaticEnumerationOptions&gt;(
+      &quot;-e first&quot;.Split());
+  Assert.AreSame(SomeEnum.First, obj.Value);
+}
+</code></pre>
 
 	</section>
                 
