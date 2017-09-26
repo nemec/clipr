@@ -116,3 +116,8 @@ clipr.sln.ide/
 
 *.DotSettings
 .vs
+
+
+# Wyam
+packages.xml
+src-docs/*.dll
