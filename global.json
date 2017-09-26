@@ -1,6 +1,9 @@
 {
-    "projects": [
-        "clipr.NetCore",
-        "clipr.UnitTests"
-    ]
+  "sdk": {
+    "version": "1.0.0-preview2-003131"
+  },
+  "projects": [
+    "clipr.NetCore",
+    "clipr.UnitTests"
+  ]
 }
