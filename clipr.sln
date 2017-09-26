@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
 VisualStudioVersion = 14.0.25420.1
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "clipr", "clipr\clipr.csproj", "{63FEC7E8-FAB5-47D7-8BB6-490725659889}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "clipr", "src\clipr\clipr.csproj", "{63FEC7E8-FAB5-47D7-8BB6-490725659889}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "clipr.Sample", "clipr.Sample\clipr.Sample.csproj", "{68F2DE76-31F6-4FA6-B30B-BD4DE49A411C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "clipr.Sample", "src\clipr.Sample\clipr.Sample.csproj", "{68F2DE76-31F6-4FA6-B30B-BD4DE49A411C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "clipr.UnitTests", "clipr.UnitTests\clipr.UnitTests.csproj", "{8D16FF01-C8B5-47BB-951C-931DD217736A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "clipr.UnitTests", "src\clipr.UnitTests\clipr.UnitTests.csproj", "{8D16FF01-C8B5-47BB-951C-931DD217736A}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{441776CA-10A6-468F-A91A-BAC8C33F8B30}"
 	ProjectSection(SolutionItems) = preProject
@@ -17,7 +17,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "docs", "docs", "{441776CA-1
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "clipr.NetCore", "clipr.NetCore\clipr.NetCore.xproj", "{0A03AA03-F459-457F-892A-1F9D5EE3446B}"
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "clipr.NetCore", "src\clipr.NetCore\clipr.NetCore.xproj", "{0A03AA03-F459-457F-892A-1F9D5EE3446B}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -46,6 +46,6 @@ Global
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(MonoDevelopProperties) = preSolution
-		StartupItem = clipr.Sample\clipr.Sample.csproj
+		StartupItem = src\clipr.Sample\clipr.Sample.csproj
 	EndGlobalSection
 EndGlobal
