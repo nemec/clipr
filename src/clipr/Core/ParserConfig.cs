@@ -143,22 +143,25 @@ namespace clipr.Core
 
             if (options.CaseInsensitive)
             {
-                ShortNameArguments = new Dictionary<char, IShortNameArgument>(new CaseInsensitiveCharComparer());
-                LongNameArguments = new Dictionary<string, ILongNameArgument>(
+                var comparer = 
 #if NET35
-                    StringComparer.InvariantCultureIgnoreCase);
+                    StringComparer.InvariantCultureIgnoreCase;
 #else
-                    StringComparer.OrdinalIgnoreCase);
+                    StringComparer.OrdinalIgnoreCase;
 #endif
+                
+                ShortNameArguments = new Dictionary<char, IShortNameArgument>(new CaseInsensitiveCharComparer());
+                LongNameArguments = new Dictionary<string, ILongNameArgument>(comparer);
+                Verbs = new Dictionary<string, IVerbParserConfig>(comparer);
             }
             else
             {
                 ShortNameArguments = new Dictionary<char, IShortNameArgument>();
                 LongNameArguments = new Dictionary<string, ILongNameArgument>();
+                Verbs = new Dictionary<string, IVerbParserConfig>();
             }
 
-            PositionalArguments = new List<IPositionalArgument>();
-            Verbs = new Dictionary<string, IVerbParserConfig>();
+            PositionalArguments = new List<IPositionalArgument>();           
             PostParseMethods = new List<MethodInfo>();
             RequiredMutuallyExclusiveArguments = new HashSet<string>();
             RequiredNamedArguments = new HashSet<string>();
