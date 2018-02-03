@@ -386,6 +386,45 @@ namespace clipr.Sample
                 e => { });
             
         }
+
+        public class OrderedArgs
+        {
+            [NamedArgument('f', "foo", Action = ParseAction.StoreTrue)]
+            public bool Foo { get; set; }
+
+            [NamedArgument('b', "bar")]
+            public string Bar { get; set; }
+
+            [NamedArgument("function", Action = ParseAction.StoreTrue)]
+            public bool Function { get; set; }
+        }
+
+        public static void ParseArgsWithEvent()
+        {
+            var cfg = new ParserOptions();
+            cfg.OnParseArgument += (ctx, args) =>
+            {
+                switch (args.ArgumentName)
+                {
+                    case "Foo":
+                        Console.WriteLine("foo");
+                        break;
+                    case "Bar":
+                        Console.WriteLine("bar " + args.Value.ToString());
+                        break;
+                    case "Function":
+                        Console.WriteLine("function");
+                        break;
+                }
+            };
+
+            var parser = new CliParser<OrderedArgs>(cfg);
+            parser.Parse("--foo --bar 5 --function".Split(), new OrderedArgs());
+
+            Console.WriteLine("--- Next ---");
+
+            parser.Parse("--bar 3 --function --foo".Split(), new OrderedArgs());
+        }
         
 
         static void Main()
@@ -396,7 +435,8 @@ namespace clipr.Sample
             //CustomDateTime("-d 20140730 2013-09-10".Split());
             //ParseRequiredNamedArgument("-c -d 10/13/2010".Split());
             //DoPwMaskingAndPositional();
-            ParseStaticEnumList();
+            //ParseStaticEnumList();
+            ParseArgsWithEvent();
         }
     }
 }

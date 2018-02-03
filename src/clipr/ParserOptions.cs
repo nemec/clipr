@@ -1,4 +1,6 @@
-﻿using System;
+﻿using clipr.Core;
+using clipr.Triggers;
+using System;
 using System.IO;
 
 namespace clipr
@@ -32,6 +34,32 @@ namespace clipr
         /// Include the help trigger automatically in verbs.
         /// </summary>
         public bool IncludeHelpTriggerInVerbs { get; set; }
+
+        /// <summary>
+        /// An event that is fired every time an argument is parsed, just
+        /// after it is added to the Options object.
+        /// </summary>
+        public event Action<object, ParseEventArgs> OnParseArgument;
+
+        /// <summary>
+        /// Events may only be sent by the class they're defined on,
+        /// so use this class as a springboard.
+        /// </summary>
+        /// <param name="ctx">Used to disambiguate between multiple calls to ParseArguments</param>
+        /// <param name="name"></param>
+        /// <param name="value"></param>
+        /// <returns></returns>
+        internal ITerminatingTrigger SendArgument(IParsingContext ctx, string name, object value)
+        {
+            var hnd = OnParseArgument;
+            if(hnd != null)
+            {
+                var arg = new ParseEventArgs(name, value);
+                hnd.Invoke(ctx, arg);
+                return arg.StopParsing;
+            }
+            return null;
+        }
 
         /// <summary>
         /// The text writer where extension or trigger output should

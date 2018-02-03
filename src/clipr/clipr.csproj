@@ -61,6 +61,7 @@
     <Compile Include="IOC\ParameterlessVerbFactory.cs" />
     <Compile Include="IOC\IVerbFactory.cs" />
     <Compile Include="IOC\SimpleVerbfactory.cs" />
+    <Compile Include="ParseEventArgs.cs" />
     <Compile Include="ParseResult.cs" />
     <Compile Include="PromptIfValueMissing.cs" />
     <Compile Include="Properties\Resources.pt-PT.Designer.cs">

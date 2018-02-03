@@ -406,6 +406,7 @@ namespace clipr.Core
                                     if (TryConvertFrom(store, defaultValue, out converted))
                                     {
                                         store.SetValue(Object, converted);
+                                        Config.Options.SendArgument(this, store.Name, converted);
                                     }
                                     else
                                     {
@@ -433,6 +434,7 @@ namespace clipr.Core
                                         if (TryConvertFrom(store, value, out converted))
                                         {
                                             store.SetValue(Object, converted);
+                                            Config.Options.SendArgument(this, store.Name, converted);
                                         }
                                         else
                                         {
@@ -464,6 +466,7 @@ namespace clipr.Core
                                     if (TryConvertFrom(store, value, out converted))
                                     {
                                         store.SetValue(Object, converted);
+                                        Config.Options.SendArgument(this, store.Name, converted);
                                     }
                                     else
                                     {
@@ -491,6 +494,7 @@ namespace clipr.Core
                                 if (TryConvertFrom(store, stringValue, out converted))
                                 {
                                     store.SetValue(Object, converted);
+                                    Config.Options.SendArgument(this, store.Name, converted);
                                 }
                                 else
                                 {
@@ -521,19 +525,23 @@ namespace clipr.Core
                                 return result;
                             }
                             store.SetValue(Object, backingList);
+                            Config.Options.SendArgument(this, store.Name, backingList);
                         }
                         break;
                     }
                 case ParseAction.StoreConst:
                     store.SetValue(Object, arg.Const);
+                    Config.Options.SendArgument(this, store.Name, arg.Const);
                     break;
 
                 case ParseAction.StoreTrue:
                     store.SetValue(Object, true);
+                    Config.Options.SendArgument(this, store.Name, true);
                     break;
 
                 case ParseAction.StoreFalse:
                     store.SetValue(Object, false);
+                    Config.Options.SendArgument(this, store.Name, false);
                     break;
 
                 case ParseAction.Append:
@@ -582,6 +590,7 @@ namespace clipr.Core
                             }
                         }
                         store.SetValue(Object, backingList);
+                        Config.Options.SendArgument(this, store.Name, backingList);
                         break;
                     }
                 case ParseAction.AppendConst:
@@ -590,11 +599,13 @@ namespace clipr.Core
                         var backingList = CreateGenericList(store, existing);
                         backingList.Add(arg.Const);
                         store.SetValue(Object, backingList);
+                        Config.Options.SendArgument(this, store.Name, backingList);
                         break;
                     }
                 case ParseAction.Count:
-                    var cnt = (int)store.GetValue(Object);
-                    store.SetValue(Object, cnt + 1);
+                    var cnt = (int)store.GetValue(Object) + 1;
+                    store.SetValue(Object, cnt);
+                    Config.Options.SendArgument(this, store.Name, cnt);
                     break;
             }
             return ParseResult.Success;
