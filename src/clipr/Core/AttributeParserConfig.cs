@@ -21,16 +21,6 @@ namespace clipr.Core
             InitializePostParseMethods();
             InitializePositionalArguments();
             InitializeRequiredNamedArguments();
-            InitializeRequiredMutuallyExclusiveArguments();
-        }
-
-        private void InitializeRequiredMutuallyExclusiveArguments()
-        {
-            RequiredMutuallyExclusiveArguments.UnionWith(
-                typeof(T).GetTypeInfo().GetProperties()
-                    .SelectMany(p => p.GetCustomAttributes<MutuallyExclusiveGroupAttribute>()
-                    .Where(a => a.Required)
-                    .Select(a => a.Name)));
         }
 
         private void InitializeRequiredNamedArguments()

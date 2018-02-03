@@ -102,7 +102,6 @@ namespace clipr.Utils
         public static INamedArgument ToNamedArgument(this PropertyInfo prop)
         {
             var attr = prop.GetCustomAttribute<NamedArgumentAttribute>();
-            attr.MutuallyExclusiveGroups = prop.GetMutuallyExclusiveGroups();
             attr.Name = prop.Name;
             attr.LocalizationInfo = GetLocalizationInfo(prop);
 

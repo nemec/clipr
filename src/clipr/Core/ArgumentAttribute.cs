@@ -13,9 +13,6 @@ namespace clipr.Core
         /// <inheritdoc/>
         public string Name { get; internal set; }
 
-        /// <inheritdoc/>
-        public List<string> MutuallyExclusiveGroups { get; set; }
-
         /// <summary>
         /// Description of the argument value. Used when
         /// generating usage documentation.

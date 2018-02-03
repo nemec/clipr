@@ -60,13 +60,6 @@ namespace clipr.Arguments
         /// </summary>
         bool ConsumesMultipleArgs { get; }
 
-        /// <summary>
-        /// List of mutually exclusive groups the argument has joined.
-        /// Only one argument in a group may be specified on the command
-        /// line at a time.
-        /// </summary>
-        List<string> MutuallyExclusiveGroups { get; }
-
 
         LocalizationInfo LocalizationInfo { get; }
 

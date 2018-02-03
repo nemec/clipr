@@ -47,7 +47,6 @@ namespace clipr.Core
             PositionalArguments = InternalParserConfig.PositionalArguments;
             Verbs = InternalParserConfig.Verbs;
             PostParseMethods = InternalParserConfig.PostParseMethods;
-            RequiredMutuallyExclusiveArguments = InternalParserConfig.RequiredMutuallyExclusiveArguments;
             RequiredNamedArguments = InternalParserConfig.RequiredNamedArguments;
             PrecursorVerbs = precursorVerbs;
         }

@@ -7,3 +7,4 @@
 * Configuration is now accessed by method `parser.BuildConfig()` rather than the `Config` property.
 * Parse method no longer returns the object, it now returns a ParseResult containing either
 	a value, trigger, or list of errors.
+* The `MutuallyExclusiveGroupAttribute` has been removed due to significant confusion about how it works.

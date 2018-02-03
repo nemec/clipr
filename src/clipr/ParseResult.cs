@@ -1,4 +1,5 @@
 ﻿using clipr.Triggers;
+using clipr.Utils;
 using System;
 using System.Linq;
 
@@ -8,7 +9,7 @@ namespace clipr
     /// Contains the results of parsing a command, either a success, a trigger, or a list of errors.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class ParseResultWithTrigger  // TODO Union2, Union3 classes instead?
+    internal class ParseResultWithTrigger  // TODO Union2, Union3 classes instead?
     {
         public readonly bool IsSuccess;
 
@@ -96,7 +97,7 @@ namespace clipr
     /// Contains the results of parsing a command, either a success, a trigger, or a list of errors.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class ParseResult
+    internal class ParseResult
     {
         public readonly bool IsSuccess;
 
@@ -136,7 +137,7 @@ namespace clipr
             Func<Exception[], TRet> handleErrors)
         {
             if (handleSuccess == null) throw new ArgumentException("handleSuccess cannot be null", "handleSuccess");
-            if (handleErrors == null) throw new ArgumentException("handleErrors cannot be null", "handleVErrors");
+            if (handleErrors == null) throw new ArgumentException("handleErrors cannot be null", "handleErrors");
 
             if (IsSuccess) return handleSuccess();
             else return handleErrors(Errors);
@@ -252,6 +253,27 @@ namespace clipr
             if (HasValue) handleValue(Value);
             else if (HasTrigger) handleTrigger(Trigger);
             else handleErrors(Errors);
+        }
+
+        /// <summary>
+        /// Get the parsed value or throw an exception.
+        /// </summary>
+        /// <exception cref="TriggerException">Thrown if parsing exited due to a trigger being tagged.</exception>
+        /// <exception cref="AggregateException">
+        /// Thrown if other errors (such as invalid input) occur during parsing. The aggregate
+        /// contains the list errors found.
+        /// </exception>
+        /// <returns></returns>
+        public T GetValueOrThrow()
+        {
+            if (HasValue) return Value;
+
+            if (HasTrigger)
+            {
+                throw new TriggerException(Trigger);
+            }
+
+            throw new AggregateException(Errors);
         }
 
         /// <inheritdoc />

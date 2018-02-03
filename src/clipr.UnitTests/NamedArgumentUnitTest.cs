@@ -208,54 +208,6 @@ namespace clipr.UnitTests
                     .Any()));
         }
 
-        internal class MutuallyExclusive
-        {
-            [NamedArgument('a')]
-            [MutuallyExclusiveGroup("something", Required = true)]
-            public string A { get; set; }
-
-            [NamedArgument('b')]
-            [MutuallyExclusiveGroup("something")]
-            public string B { get; set; }
-
-            [NamedArgument('c')]
-            public string C { get; set; }
-        }
-
-        [TestMethod]
-        public void MutuallyExclusive_ArgumentsDoNotViolateExclusivity_ParsesSuccessfully()
-        {
-            var result = CliParser.Parse<MutuallyExclusive>("-a rudolph -c other".Split());
-            result.Handle(
-                opt => Assert.AreEqual("rudolph", opt.A),
-                t => Assert.Fail("Trigger {0} executed.", t),
-                e => Assert.Fail("Error parsing arguments."));
-        }
-
-        [TestMethod]
-        public void MutuallyExclusive_ArgumentsViolateExclusivity_ThrowsParseException()
-        {
-            var result = CliParser.Parse<MutuallyExclusive>("-a one -b two -c other".Split());
-            result.Handle(
-                opt => Assert.Fail("Parse returned a value when it should have returned an error"),
-                t => Assert.Fail("Trigger {0} executed.", t),
-                errs => Assert.IsTrue(errs
-                    .OfType<ParseException>()
-                    .Any()));
-        }
-
-        [TestMethod]
-        public void MutuallyExclusive_ArgumentsDoNotIncludeRequiredGroup_ThrowsParseException()
-        {
-            var result = CliParser.Parse<MutuallyExclusive>("-c three".Split());
-            result.Handle(
-                opt => Assert.Fail("Parse returned a value when it should have returned an error"),
-                t => Assert.Fail("Trigger {0} executed.", t),
-                errs => Assert.IsTrue(errs
-                    .OfType<ParseException>()
-                    .Any()));
-        }
-
         internal class NamedArgumentLowerBoundCountEqualsZero
         {
             public NamedArgumentLowerBoundCountEqualsZero()

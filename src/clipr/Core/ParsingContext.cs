@@ -265,20 +265,6 @@ namespace clipr.Core
 
                     _parsedNamedArguments.Add(arg.Name);
 
-                    if (arg.MutuallyExclusiveGroups != null)
-                    {
-                        foreach (var group in arg.MutuallyExclusiveGroups)
-                        {
-                            if (!_parsedMutuallyExclusiveGroups.Add(group))
-                            {
-                                return new ParseResultWithTrigger(
-                                    new ParseException(name.ToString(), String.Format(
-                                        @"Mutually exclusive group ""{0}"" violated.",
-                                        group)));
-                            }
-                        }
-                    }
-
                     if (iter == null && arg.Action.ConsumesArgumentValues())
                     {
                         return new ParseResultWithTrigger(
@@ -704,18 +690,6 @@ namespace clipr.Core
 
         private ParseResult ParsingCleanup()
         {
-            var missingRequiredMutexGroups = Config
-                .RequiredMutuallyExclusiveArguments
-                .Except(_parsedMutuallyExclusiveGroups).ToArray();
-            if (missingRequiredMutexGroups.Any())
-            {
-                return new ParseResult(
-                    new ParseException(null, String.Format(
-                        @"Required mutually exclusive group(s) ""{0}"" were " +
-                        "not provided.",
-                        String.Join(", ", missingRequiredMutexGroups))));
-            }
-
             var missingRequiredNamedArguments = Config
                 .RequiredNamedArguments
                 .Except(_parsedNamedArguments).ToArray();

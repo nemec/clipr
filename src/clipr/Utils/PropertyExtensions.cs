@@ -49,12 +49,5 @@ namespace clipr.Utils
                 t.GetTypeInfo().GetGenericArguments().First() == obj.GetType() ||
                 TypeDescriptor.GetConverter(t).IsValid(obj);
         }
-
-        internal static List<string> GetMutuallyExclusiveGroups(this PropertyInfo prop)
-        {
-            return prop.GetCustomAttributes<MutuallyExclusiveGroupAttribute>()
-                .Select(a => a.Name)
-                .ToList();
-        }
     }
 }

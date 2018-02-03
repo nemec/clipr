@@ -83,6 +83,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Resources.resx</DependentUpon>
     </Compile>
+    <Compile Include="TriggerException.cs" />
     <Compile Include="Usage\DisplayWidth.cs" />
     <Compile Include="Usage\EnumerationDescriptionAttribute.cs" />
     <Compile Include="Utils\AttributeConverter.cs" />
@@ -103,7 +104,6 @@
     <Compile Include="Attributes\ApplicationInfoAttribute.cs" />
     <Compile Include="Utils\DotNet35Extensions.cs" />
     <Compile Include="Utils\DotNet40Extensions.cs" />
-    <Compile Include="Attributes\MutuallyExclusiveGroupAttribute.cs" />
     <Compile Include="Fluent\ArgumentBase.cs" />
     <Compile Include="Fluent\Consumes.cs" />
     <Compile Include="Fluent\FluentExtensions.cs" />

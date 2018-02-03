@@ -99,11 +99,6 @@ namespace clipr.Core
         List<MethodInfo> PostParseMethods { get; }
 
         /// <summary>
-        /// List of mutually exclusive groups that are required.
-        /// </summary>
-        HashSet<string> RequiredMutuallyExclusiveArguments { get; }
-
-        /// <summary>
         /// List of named arguments that are required.
         /// </summary>
         HashSet<string> RequiredNamedArguments { get; }
@@ -128,8 +123,6 @@ namespace clipr.Core
         public Dictionary<string, IVerbParserConfig> Verbs { get; protected set; }
 
         public List<MethodInfo> PostParseMethods { get; protected set; }
-
-        public HashSet<string> RequiredMutuallyExclusiveArguments { get; protected set; }
 
         public HashSet<string> RequiredNamedArguments { get; protected set; }
 
@@ -163,7 +156,6 @@ namespace clipr.Core
 
             PositionalArguments = new List<IPositionalArgument>();           
             PostParseMethods = new List<MethodInfo>();
-            RequiredMutuallyExclusiveArguments = new HashSet<string>();
             RequiredNamedArguments = new HashSet<string>();
 
             AppendTriggers(triggers);
