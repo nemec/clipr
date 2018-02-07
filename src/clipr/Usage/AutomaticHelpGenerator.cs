@@ -131,16 +131,27 @@ namespace clipr.Usage
         /// <inheritdoc/>
         public string GetUsage(IParserConfig config)
         {
-            var assembly = Assembly.GetEntryAssembly();
             var builder = new StringBuilder();
             builder.Append(UsageTitle);
             builder.Append(": ");
-            builder.Append(Path.GetFileNameWithoutExtension(assembly != null ?
-                assembly.Location : typeof(AutomaticHelpGenerator<T>).GetTypeInfo().Assembly.CodeBase));
 
-            // Append the verbs in case 
+            var metadata = config.OptionType.GetTypeInfo().GetCustomAttribute<ApplicationInfoAttribute>();
+            if (metadata != null && metadata.Name != null)
+            {
+                // Dev has overridden the program name
+                builder.Append(metadata.Name);
+            }
+            else
+            {
+                // Use the assembly name as the program name
+                var assembly = Assembly.GetEntryAssembly();
+                builder.Append(Path.GetFileNameWithoutExtension(assembly != null ?
+                    assembly.Location : typeof(AutomaticHelpGenerator<T>).GetTypeInfo().Assembly.CodeBase));
+            }
+
+            // Append the verbs in case
             var verbConfig = config as IVerbParserConfig;
-            if(verbConfig != null && verbConfig.PrecursorVerbs != null)
+            if (verbConfig != null && verbConfig.PrecursorVerbs != null)
             {
                 foreach(var pre in verbConfig.PrecursorVerbs)
                 {

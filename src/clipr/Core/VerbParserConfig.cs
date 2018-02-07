@@ -1,6 +1,7 @@
 ﻿
 using clipr.IOC;
 using clipr.Triggers;
+using System;
 using System.Collections.Generic;
 
 namespace clipr.Core
@@ -30,14 +31,20 @@ namespace clipr.Core
         /// The verbs leading up to this config (used mostly for help generation)
         /// </summary>
         string[] PrecursorVerbs { get; set; }
-
+        
         void AppendTriggers(IEnumerable<ITerminatingTrigger> triggers);
     }
 
     internal class VerbParserConfig<TVerb> : ParserConfig<TVerb>, IVerbParserConfig where TVerb : class 
     {
-        public VerbParserConfig(IParserConfig internalParserConfig, IValueStoreDefinition store, ParserOptions options, IVerbFactory factory, string[] precursorVerbs) 
-            : base(options, null, factory)
+        public VerbParserConfig(
+                Type optionType,
+                IParserConfig internalParserConfig,
+                IValueStoreDefinition store,
+                ParserOptions options,
+                IVerbFactory factory,
+                string[] precursorVerbs)
+            : base(optionType, options, null, factory)
         {
             InternalParserConfig = internalParserConfig;
             Store = store;

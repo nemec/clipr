@@ -101,7 +101,7 @@ Nullam condimentum consectetur interdum.")]
             Assert.AreEqual(expected, help[3]);
         }
 
-        [ApplicationInfo(Description = "This is a set of options.")]
+        [ApplicationInfo(Description = "This is a set of options.", Name = "clipr")]
         public class RequiredNamedOptions
         {
             [NamedArgument('c', "confirm", Action = ParseAction.StoreTrue, Required = true,
@@ -131,6 +131,7 @@ Optional Arguments:
             Assert.AreEqual(expected, help);
         }
 
+        [ApplicationInfo(Name = "clipr")]
         internal class OptionsWithRequiredValue
         {
             [NamedArgument('a', "optiona", Required = true, Description = "The A option.")]
@@ -160,6 +161,7 @@ Optional Arguments:
             Assert.AreEqual(expected, help);
         }
 
+        [ApplicationInfo(Name ="clipr")]
         internal class OptionsWithVerbs
         {
             [Verb(Description = "A verb for names")]
@@ -200,6 +202,7 @@ Commands:
 
             Assert.AreEqual(expected, help);
         }
+
         [TestMethod]
         public void Help_WithHelpOfVerbCalled_GeneratedHelpOutputForVerb()
         {
@@ -219,6 +222,7 @@ Optional Arguments:
             Assert.AreEqual(expected, actual);
         }
 
+        [ApplicationInfo(Name = "clipr")]
         internal class OptionsWithNestedVerbs
         {
             [Verb(Description = "A verb for names")]

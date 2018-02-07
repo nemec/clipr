@@ -2,7 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-#if NETCORE
+#if NETCORE || NET45
 using System.Reflection;
 #endif
 

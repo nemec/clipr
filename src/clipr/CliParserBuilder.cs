@@ -21,13 +21,13 @@ namespace clipr
 
         public CliParserBuilder()
         {
-            FluentConfig = new FluentParserConfig<TConf>(ParserOptions.Default, 
+            FluentConfig = new FluentParserConfig<TConf>(typeof(TConf), ParserOptions.Default, 
                 Enumerable.Empty<ITerminatingTrigger>(), new ParameterlessVerbFactory());
         } 
 
         public CliParserBuilder(ParserOptions options, IEnumerable<ITerminatingTrigger> triggers)
         {
-            FluentConfig = new FluentParserConfig<TConf>(options, triggers, new ParameterlessVerbFactory());
+            FluentConfig = new FluentParserConfig<TConf>(typeof(TConf), options, triggers, new ParameterlessVerbFactory());
             Options = options;
         }
 
@@ -141,12 +141,12 @@ namespace clipr
             }
             else
             {
-                subConfig = new AttributeParserConfig<TArg>(Options, null /* TODO process triggers in verb */, FluentConfig.VerbFactory);
+                subConfig = new AttributeParserConfig<TArg>(typeof(TConf), Options, null /* TODO process triggers in verb */, FluentConfig.VerbFactory);
             }
 
             // TODO do away with subBuilder and multiple VerbFactories?
             FluentConfig.Verbs.Add(verbName,
-                new VerbParserConfig<TArg>(subConfig, GetDefinitionFromExpression(expr), Options, subConfig.VerbFactory ?? FluentConfig.VerbFactory, null));
+                new VerbParserConfig<TArg>(typeof(TConf), subConfig, GetDefinitionFromExpression(expr), Options, subConfig.VerbFactory ?? FluentConfig.VerbFactory, null));
 
             return new Verb<TConf>(this);
         }

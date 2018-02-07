@@ -289,7 +289,7 @@ namespace clipr
             if (errs.Any())
             {
 
-                throw new Utils.AggregateException(errs);
+                throw new AggregateException(errs);
             }
         }
 
@@ -299,7 +299,7 @@ namespace clipr
             {
                 return Config;
             }
-            return Config = new AttributeParserConfig<TConf>(Options, Triggers, Factory);
+            return Config = new AttributeParserConfig<TConf>(typeof(TConf), Options, Triggers, Factory);
         }
 
         #region Public Parsing Methods
@@ -375,6 +375,6 @@ namespace clipr
         }
 
         #endregion
-        
+
     }
 }

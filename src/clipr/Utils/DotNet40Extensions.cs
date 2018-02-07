@@ -5,7 +5,7 @@ using System.Reflection;
 
 namespace clipr.Utils
 {
-#if NET35
+#if NET40
     /// <summary>
     /// Extensions to convert .Net4.0-compatible code to the .Net4.5 syntax.
     /// </summary>

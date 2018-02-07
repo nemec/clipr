@@ -7,7 +7,7 @@ using System.Linq;
 using clipr.Arguments;
 using clipr.Triggers;
 using clipr.Utils;
-#if NETCORE
+#if NETCORE || NET45
 using System.Reflection;
 #endif
 

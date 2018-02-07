@@ -45,6 +45,7 @@ namespace clipr.UnitTests
     public class LocalizationUnitTest
     {
         [Localize(ResourceType = typeof(Properties.Resources))]
+        [ApplicationInfo(Name = "clipr")]
         public class LocalizationOptions
         {
             [Localize]

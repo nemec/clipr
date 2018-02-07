@@ -39,6 +39,11 @@ namespace clipr.Core
         ParserOptions Options { get; }
 
         /// <summary>
+        /// The root type of the Options class
+        /// </summary>
+        Type OptionType { get; }
+
+        /// <summary>
         /// The list of registered triggers.
         /// </summary>
         IEnumerable<ITerminatingTrigger> Triggers { get; }
@@ -114,6 +119,8 @@ namespace clipr.Core
 
         public ParserOptions Options { get; private set; }
 
+        public Type OptionType { get; protected set; }
+
         public Dictionary<char, IShortNameArgument> ShortNameArguments { get; protected set; }
 
         public Dictionary<string, ILongNameArgument> LongNameArguments { get; protected set; }
@@ -129,8 +136,9 @@ namespace clipr.Core
         private List<ITerminatingTrigger> _triggers = new List<ITerminatingTrigger>();
         public IEnumerable<ITerminatingTrigger> Triggers { get { return _triggers; } }
 
-        protected ParserConfig(ParserOptions options, IEnumerable<ITerminatingTrigger> triggers, IVerbFactory factory)
+        protected ParserConfig(Type optionType, ParserOptions options, IEnumerable<ITerminatingTrigger> triggers, IVerbFactory factory)
         {
+            OptionType = optionType;
             Options = options;
             ArgumentPrefix = '-';
 

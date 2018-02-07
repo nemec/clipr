@@ -5,7 +5,7 @@ using clipr.Triggers;
 using clipr.Utils;
 using clipr.IOC;
 using clipr.Usage;
-#if NETCORE
+#if NETCORE || NET45
 using System.Reflection;
 #endif
 
@@ -13,8 +13,8 @@ namespace clipr.Core
 {
     internal class AttributeParserConfig<T> : ParserConfig<T> where T : class
     {
-        public AttributeParserConfig(ParserOptions options, IEnumerable<ITerminatingTrigger> triggers, IVerbFactory factory)
-            : base(options, triggers, factory)
+        public AttributeParserConfig(Type optionType, ParserOptions options, IEnumerable<ITerminatingTrigger> triggers, IVerbFactory factory)
+            : base(optionType, options, triggers, factory)
         {
             InitializeVerbs();
             InitializeNamedArguments();
@@ -100,14 +100,14 @@ namespace clipr.Core
                         .MakeGenericType(new[] {prop.PropertyType});
                     var verbParserConfig = Activator.CreateInstance(
                         type:parserConfigType,
-                        args:new object[] {Options, null /* TODO add triggers inside verb configs */, VerbFactory});
+                        args:new object[] { OptionType, Options, null /* TODO add triggers inside verb configs */, VerbFactory});
 
                     var verbConfigWrapperType = typeof (VerbParserConfig<>)
                         .GetTypeInfo()
                         .MakeGenericType(new[] {prop.PropertyType});
                     var config = (IVerbParserConfig)Activator.CreateInstance(
                         type:verbConfigWrapperType,
-                        args:new[] {verbParserConfig, new PropertyValueStore(prop), Options, VerbFactory, new[] { verbName } });
+                        args:new[] { OptionType, verbParserConfig, new PropertyValueStore(prop), Options, VerbFactory, new[] { verbName } });
 
                     config.Name = verbName;
                     config.Description = attr.Description;

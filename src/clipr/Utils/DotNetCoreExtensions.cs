@@ -3,7 +3,7 @@
 
 namespace clipr.Utils
 {
-#if NET35
+#if NET40
     internal static class DotNetCoreExtensions
     {
         public static Type GetTypeInfo(this Type t)

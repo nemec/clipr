@@ -363,14 +363,14 @@ This feature only applies in a specific set of circumstances:
 * Can only annotate a `NamedArgument` (not a `PositionalArgument`).
 * The `ParseAction` must be `ParseAction.Store` (the default).
 
-## Mutually Exclusive Arguments
+## Parsed Argument Event
 
-Named arguments can be given a MutuallyExclusiveGroupAttribute. If multiple
-named arguments belong to the same group and the user tries to specify more
-than one, a parser error is generated. Groups can also be marked as Required.
-If at least one MutuallyExclusiveGroupAttribute for a group is required and
-the user does *not* provide one of the member arguments, an error is also
-generated.
+Inside the `ParserOptions` used to configure the parser, there is an event
+named `OnParseArgument`. This event is fired after each argument is parsed
+and contains the parsed value and name of the Property that the value was
+stored in. Generally this event should not be needed, but there are some
+cases where it is helpful to know the order in which arguments are parsed,
+and this will allow the developer to access that order.
 
 ## Verbs
 
