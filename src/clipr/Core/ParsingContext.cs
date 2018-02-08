@@ -7,6 +7,7 @@ using System.Linq;
 using clipr.Arguments;
 using clipr.Triggers;
 using clipr.Utils;
+using clipr.Validation;
 #if NETCORE || NET45
 using System.Reflection;
 #endif
@@ -27,7 +28,7 @@ namespace clipr.Core
                         .MakeGenericType(new[] { optionType });
             return (IParsingContext)Activator.CreateInstance(
                 type:contextType,
-                args:new[] { options, parserConfig });
+                args:new[] { options, parserConfig, null /* Verbs do not need a validator, should be handled at root */ });
         }
     }
 
@@ -37,16 +38,16 @@ namespace clipr.Core
 
         private T Object { get; set; }
 
-        private readonly HashSet<string> _parsedMutuallyExclusiveGroups;
+        private IParseValidator<T> Validator { get; set; }
 
         private readonly HashSet<string> _parsedNamedArguments;
 
-        public ParsingContext(T obj, IParserConfig config)
+        public ParsingContext(T obj, IParserConfig config, IParseValidator<T> validator)
         {
             Object = obj;
             Config = config;
+            Validator = validator;
 
-            _parsedMutuallyExclusiveGroups = new HashSet<string>();
             _parsedNamedArguments = new HashSet<string>();
         }
 
@@ -711,6 +712,15 @@ namespace clipr.Core
                         @"Required named argument(s) ""{0}"" were " +
                         "not provided.",
                         String.Join(", ", missingRequiredNamedArguments))));
+            }
+
+            if(Validator != null)
+            {
+                var result = Validator.Validate(Object);
+                if(!result.IsValid)
+                {
+                    return new ParseResult(result.Errors.ToArray());
+                }
             }
 
             foreach (var method in Config.PostParseMethods)

@@ -6,6 +6,7 @@ using clipr.Usage;
 using clipr.Utils;
 using clipr.IOC;
 using System.Linq;
+using clipr.Validation;
 
 namespace clipr
 {
@@ -162,6 +163,8 @@ namespace clipr
             }
         }
         private char _argumentPrefix = '-';
+
+        public IParseValidator<TConf> Validator { get; set; }
 
         #endregion
 
@@ -371,7 +374,7 @@ namespace clipr
         {
             var conf = BuildConfig();
             conf.ArgumentPrefix = ArgumentPrefix;
-            return new ParsingContext<TConf>(obj, conf).Parse(args);
+            return new ParsingContext<TConf>(obj, conf, Validator).Parse(args);
         }
 
         #endregion

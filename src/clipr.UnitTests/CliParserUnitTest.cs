@@ -4,6 +4,7 @@ using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using clipr.Core;
 using clipr.Usage;
+using clipr.Validation;
 
 // ReSharper disable ObjectCreationAsStatement
 
@@ -150,7 +151,7 @@ namespace clipr.UnitTests
                 },
                 t => Assert.Fail("Trigger {0} executed.", t),
                 e => Assert.Fail("Error parsing arguments."));
-            
+
         }
 
         [TestMethod]
@@ -259,7 +260,7 @@ namespace clipr.UnitTests
 
         internal class InfiniteNamedWithPositional
         {
-            [NamedArgument('n', 
+            [NamedArgument('n',
                 Constraint = NumArgsConstraint.AtLeast, NumArgs = 1)]
             public List<string> NamedArgs { get; set; }
 
@@ -314,7 +315,7 @@ namespace clipr.UnitTests
         {
             [NamedArgument('n',
                 Constraint = NumArgsConstraint.AtLeast, NumArgs = 1)]
-            public IEnumerable<int> Numbers { get; set; } 
+            public IEnumerable<int> Numbers { get; set; }
         }
 
         [TestMethod]
@@ -388,7 +389,7 @@ namespace clipr.UnitTests
         internal class StaticEnumerationOptions
         {
             [NamedArgument('e')]
-            public SomeEnum Value { get; set; } 
+            public SomeEnum Value { get; set; }
         }
 
         [TestMethod]
@@ -408,7 +409,7 @@ namespace clipr.UnitTests
             public static readonly SomeEnumWithSubclass First = new EnumSubclass();
             public static readonly EnumSubclass Second = new EnumSubclass();
 
-            public class EnumSubclass : SomeEnumWithSubclass 
+            public class EnumSubclass : SomeEnumWithSubclass
             {
             }
         }
@@ -416,7 +417,7 @@ namespace clipr.UnitTests
         internal class StaticEnumerationWithSubclassOptions
         {
             [NamedArgument('e')]
-            public SomeEnum Value { get; set; } 
+            public SomeEnum Value { get; set; }
         }
 
         [TestMethod]
@@ -451,7 +452,7 @@ namespace clipr.UnitTests
         {
             [StaticEnumeration]
             [NamedArgument('e')]
-            public SomeEnumNonStatic Value { get; set; } 
+            public SomeEnumNonStatic Value { get; set; }
         }
 
         [TestMethod]
@@ -545,7 +546,7 @@ namespace clipr.UnitTests
             public string B { get; set; }
         }
 
-                [TestMethod]
+        [TestMethod]
         public void Parse_WithMultipleOptionalValuesAndNoValueProvided_SetsConstOnBoth()
         {
             const string expectedA = "MyConstValueA";
@@ -559,6 +560,256 @@ namespace clipr.UnitTests
                 },
                 t => Assert.Fail("Trigger {0} executed.", t),
                 e => Assert.Fail("Error parsing arguments."));
+        }
+
+        internal class ValidationWithFlagRule
+        {
+            [NamedArgument('r')]
+            public bool Recursive { get; set; }
+
+            [NamedArgument('f')]
+            public bool Force { get; set; }
+
+            [NamedArgument("no-preserve-root")]
+            public bool NoPreserveRoot { get; set; }
+
+            [PositionalArgument(0)]
+            public IList<string> Filenames { get; set; }
+        }
+
+        internal class ValidationWithFlagRuleComparer : IEqualityComparer<ValidationWithFlagRule>
+        {
+            public bool Equals(ValidationWithFlagRule x, ValidationWithFlagRule y)
+            {
+                if (x == null || y == null) return ReferenceEquals(x, y);
+
+                if (x.Force != y.Force ||
+                    x.NoPreserveRoot != y.NoPreserveRoot ||
+                    x.Recursive != y.Recursive)
+                {
+                    return false;
+                }
+
+                return x.Filenames.SequenceEqual(y.Filenames);
+            }
+
+            public int GetHashCode(ValidationWithFlagRule obj)
+            {
+                var seed = (obj.Force ? 3 : 0) ^
+                    (obj.NoPreserveRoot ? 5 : 0) ^
+                    (obj.Recursive ? 7 : 0);
+                if (obj.Filenames == null) return seed;
+                return obj.Filenames.Aggregate(seed, (prior, next) => prior ^ next.GetHashCode());
+            }
+        }
+
+        [TestMethod]
+        public void Validate_WithMissingFlag_ThrowsError()
+        {
+            var expected = new ValidationFailure(
+                "Filenames",
+                "When deleting the root directory '/' you must pass the parameter --no-preserve-root");
+
+            var validator = new BasicParseValidator<ValidationWithFlagRule>();
+            validator.AddRule(o =>
+                    o.Filenames.Any(f => f == "/") && !o.NoPreserveRoot
+                ? expected
+                : null);
+
+            var parser = new CliParser<ValidationWithFlagRule>();
+            parser.Validator = validator;
+            var obj = new ValidationWithFlagRule();
+
+
+            var result = parser.Parse("-rf / bin".Split(), obj);
+
+            result.Handle(
+                opt => Assert.Fail("Parsing validation should throw an error."),
+                trigger => Assert.Fail("No triggers should be thrown"),
+                err => Assert.AreEqual(expected, err.FirstOrDefault())
+            );
+        }
+
+        [TestMethod]
+        public void Validate_WithFlag_ReturnsSuccess()
+        {
+            var expected = new ValidationWithFlagRule
+            {
+                Filenames = new List<string> { "/", "bin" },
+                NoPreserveRoot = true,
+                Recursive = true,
+                Force = true
+            };
+
+            var validator = new BasicParseValidator<ValidationWithFlagRule>();
+            validator.AddRule(o =>
+                    o.Filenames.Any(f => f == "/") && !o.NoPreserveRoot
+                ? new ValidationFailure(
+                    "Filenames",
+                    "When deleting the root directory '/' you must pass the parameter --no-preserve-root")
+                : null);
+
+            var parser = new CliParser<ValidationWithFlagRule>();
+            parser.Validator = validator;
+            var obj = new ValidationWithFlagRule();
+
+
+            var result = parser.Parse("-rf --no-preserve-root / bin".Split(), obj);
+
+            result.Handle(
+                opt => Assert.IsTrue(new ValidationWithFlagRuleComparer().Equals(expected, opt)),
+                trigger => Assert.Fail("No triggers should be thrown"),
+                err => Assert.Fail("Validation should succeed")
+            );
+        }
+
+        internal class ValidationMutuallyExclusive
+        {
+            [NamedArgument('a', "ServerAddress")]
+            public string ServerAddress { get; set; }
+
+            [NamedArgument('u', "Username")]
+            public string Username { get; set; }
+
+            [NamedArgument('p', "Password")]
+            public string Password { get; set; }
+
+            [NamedArgument('f', "File", Constraint = NumArgsConstraint.Optional, Const = "settings.json")]
+            public string SettingsFile { get; set; }
+        }
+
+        internal class ExclusiveValidator : IParseValidator<ValidationMutuallyExclusive>
+        {
+            public ValidationResult Validate(ValidationMutuallyExclusive obj)
+            {
+                var errs = new List<ValidationFailure>();
+                if (obj.SettingsFile != null)
+                {
+                    if (obj.ServerAddress != null)
+                    {
+                        errs.Add(new ValidationFailure(
+                            nameof(ValidationMutuallyExclusive.ServerAddress),
+                            "Must be null if a settings file is provided."));
+                    }
+                    if (obj.Username != null)
+                    {
+                        errs.Add(new ValidationFailure(
+                            nameof(ValidationMutuallyExclusive.Username),
+                            "Must be null if a settings file is provided."));
+                    }
+                    if (obj.Password != null)
+                    {
+                        errs.Add(new ValidationFailure(
+                            nameof(ValidationMutuallyExclusive.Password),
+                            "Must be null if a settings file is provided."));
+                    }
+                }
+                else
+                {
+                    if (obj.ServerAddress == null)
+                    {
+                        errs.Add(new ValidationFailure(
+                            nameof(ValidationMutuallyExclusive.ServerAddress),
+                            "Server address must be provided."));
+                    }
+                    if (obj.Username == null)
+                    {
+                        errs.Add(new ValidationFailure(
+                            nameof(ValidationMutuallyExclusive.Username),
+                            "Username must be provided."));
+                    }
+                    if (obj.Password == null)
+                    {
+                        errs.Add(new ValidationFailure(
+                            nameof(ValidationMutuallyExclusive.Password),
+                            "Password must be provided."));
+                    }
+                }
+                return new ValidationResult(errs);
+            }
+        }
+
+        [TestMethod]
+        public void Validate_WithMutuallyExclusiveOptionsViolateSettings_FailsValidation()
+        {
+            var expected = "Must be null if a settings file is provided.";
+
+            var parser = new CliParser<ValidationMutuallyExclusive>();
+            parser.Validator = new ExclusiveValidator();
+            var obj = new ValidationMutuallyExclusive();
+
+            var actual = parser.Parse(@"-f c:\myfile.conf -a 127.0.0.1".Split(), obj);
+
+            actual.Handle(
+                opt => Assert.Fail("Parsing should fail validation"),
+                trigger => Assert.Fail("No triggers should be launched"),
+                errs => Assert.AreEqual(
+                    (errs.First() as ValidationFailure).ErrorMessage,
+                    expected)
+            );
+        }
+
+        [TestMethod]
+        public void Validate_WithMutuallyExclusiveOptionsMissingRequired_FailsValidation()
+        {
+            var expected = "Password must be provided.";
+
+            var parser = new CliParser<ValidationMutuallyExclusive>();
+            parser.Validator = new ExclusiveValidator();
+            var obj = new ValidationMutuallyExclusive();
+
+            var actual = parser.Parse(@"-a 127.0.0.1 -u frankie".Split(), obj);
+
+            actual.Handle(
+                opt => Assert.Fail("Parsing should fail validation"),
+                trigger => Assert.Fail("No triggers should be launched"),
+                errs => Assert.AreEqual(
+                    (errs.First() as ValidationFailure).ErrorMessage,
+                    expected)
+            );
+        }
+
+        [TestMethod]
+        public void Validate_WithMutuallyExclusiveOptionsAndSettingsFile_PassesValidation()
+        {
+            var expected = @"c:\myfile.conf";
+
+            var parser = new CliParser<ValidationMutuallyExclusive>();
+            parser.Validator = new ExclusiveValidator();
+            var obj = new ValidationMutuallyExclusive();
+
+            var actual = parser.Parse(@"-f c:\myfile.conf".Split(), obj);
+
+            actual.Handle(
+                opt => Assert.AreEqual(expected, opt.SettingsFile),
+                trigger => Assert.Fail("No triggers should be launched"),
+                errs => Assert.Fail(errs.First().ToString())
+            );
+        }
+
+        [TestMethod]
+        public void Validate_WithMutuallyExclusiveOptionsAndCliSettings_PassesValidation()
+        {
+            var expectedAddr = "127.0.0.1";
+            var expectedUser = "frankie";
+            var expectedPass = "love123";
+
+            var parser = new CliParser<ValidationMutuallyExclusive>();
+            parser.Validator = new ExclusiveValidator();
+            var obj = new ValidationMutuallyExclusive();
+
+            var actual = parser.Parse(@"-a 127.0.0.1 -u frankie -plove123".Split(), obj);
+
+            actual.Handle(
+                opt =>
+                {
+                    Assert.AreEqual(expectedAddr, opt.ServerAddress);
+                    Assert.AreEqual(expectedUser, opt.Username);
+                    Assert.AreEqual(expectedPass, opt.Password);
+                },
+                trigger => Assert.Fail("No triggers should be launched"),
+                errs => Assert.Fail(errs.First().ToString())
+            );
         }
     }
 }

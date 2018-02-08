@@ -2,6 +2,7 @@
 using clipr.Triggers;
 using System;
 using System.IO;
+using clipr.Validation;
 
 namespace clipr
 {
