@@ -86,17 +86,45 @@ namespace clipr.Utils
             };
         }
 
+        private static readonly Lazy<Type[]> _listBases = new Lazy<Type[]>(() => 
+                    typeof(IList<>)
+                        .GetInterfaces()
+                        .Where(i => i.IsGenericType)
+                        .Select(i => i.GetGenericTypeDefinition()).ToArray());
+
         private static void SetDefaults(ArgumentAttribute attr)
         {
-            // If appending and didn't explicitly set the constraint,
-            // the sane default is to accept AtLeast N parameters.
-            if(!attr.ExplicitlySetConstraint && 
-               (attr.Action == ParseAction.Append || attr.Action == ParseAction.AppendConst))
+            if(!attr.ExplicitlySetConstraint)
             {
-                attr.Constraint = NumArgsConstraint.AtLeast;
+                // If appending and didn't explicitly set the constraint,
+                // the sane default is to accept AtLeast N parameters.
+                if(attr.Action == ParseAction.Append || attr.Action == ParseAction.AppendConst)
+                {
+                    attr.Constraint = NumArgsConstraint.AtLeast;
+                }
+
+                // If IList is assignable to property and didn't explicitly set the constraint,
+                // the sane default is to accept AtLeast N parameters.
+                var typ = attr.Store.Type;
+                if(typ.IsGenericType)
+                {
+                    var gen = typ.GetGenericTypeDefinition();
+                    if(typeof(IList<>) == gen || _listBases.Value.Any(i => i == gen))
+                    {
+                        attr.Constraint = NumArgsConstraint.AtLeast;
+                    }
+                }
             }
 
-            // TODO evaluate setting "StoreTrue" as the default for boolean arguments
+            if(!attr.ExplicitlySetAction)
+            {
+                // Set "StoreTrue" as the default action for
+                // boolean arguments if not explicitly set.
+                if(attr.Store.Type == typeof(bool))
+                {
+                    attr.Action = ParseAction.StoreTrue;
+                }
+            }
         }
 
         public static INamedArgument ToNamedArgument(this PropertyInfo prop)

@@ -121,3 +121,5 @@ clipr.sln.ide/
 # Wyam
 packages.xml
 src-docs/*.dll
+
+.vscode

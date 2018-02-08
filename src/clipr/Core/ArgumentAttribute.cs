@@ -63,10 +63,21 @@ namespace clipr.Core
         /// </summary>
         public object Const { get; set; }
 
+        public bool ExplicitlySetAction { get; private set; }
+        private ParseAction _action;
+
         /// <summary>
         /// Action to perform when parsing this parameter.
         /// </summary>
-        public ParseAction Action { get; set; }
+        public ParseAction Action
+        {
+            get { return _action; }
+            set
+            {
+                ExplicitlySetAction = true;
+                _action = value;
+            }
+        }
 
         /// <summary>
         /// Whether or not the argument can handle a
