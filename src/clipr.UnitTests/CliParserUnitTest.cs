@@ -328,6 +328,23 @@ namespace clipr.UnitTests
                 e => Assert.Fail("Error parsing arguments."));
         }
 
+        internal class EnumerableArgumentsDefaultConstraint
+        {
+            [NamedArgument('n')]
+            public IEnumerable<int> Numbers { get; set; }
+        }
+
+        [TestMethod]
+        public void Parse_WithIEnumerableNamedArgumentDefaultConstraint_ParsesIntoIEnumerable()
+        {
+            var result = CliParser.Parse<EnumerableArgumentsDefaultConstraint>(
+                "-n 1 4 6 8".Split());
+            result.Handle(
+                opt => Assert.AreEqual(4, opt.Numbers.Count()),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments: {0}", e));
+        }
+
         [StaticEnumeration]
         internal class SomeEnum
         {

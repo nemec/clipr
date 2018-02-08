@@ -23,7 +23,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\clipr.NetStandard\clipr.csproj" />
     <ProjectReference Include="..\clipr\clipr.csproj" />
   </ItemGroup>
 

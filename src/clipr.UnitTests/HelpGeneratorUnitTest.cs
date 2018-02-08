@@ -2,6 +2,7 @@
 using clipr.Usage;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.IO;
+using System;
 
 namespace clipr.UnitTests
 {
@@ -70,7 +71,7 @@ Nullam condimentum consectetur interdum.")]
         [TestMethod]
         public void Help_With80CharacterDisplayWidth_PrintsUpTo80Characters()
         {
-            const string expected = " -n, --name  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec eget\r";
+            const string expected = " -n, --name  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec eget";
             
             var parser = new CliParser<OptionsWithLongDescription>();
             var gen = new AutomaticHelpGenerator<OptionsWithLongDescription>
@@ -79,7 +80,7 @@ Nullam condimentum consectetur interdum.")]
             };
 
 
-            var help = gen.GetHelp(parser.BuildConfig()).Split('\n');
+            var help = gen.GetHelp(parser.BuildConfig()).Split(new []{"\n", "\r\n"}, StringSplitOptions.RemoveEmptyEntries);
 
             Assert.AreEqual(expected, help[3]);
         }
@@ -87,7 +88,7 @@ Nullam condimentum consectetur interdum.")]
         [TestMethod]
         public void Help_With40CharacterDisplayWidth_PrintsUpTo40Characters()
         {
-            const string expected = " -n, --name  Lorem ipsum dolor sit amet,\r";
+            const string expected = " -n, --name  Lorem ipsum dolor sit amet,";
             
             var parser = new CliParser<OptionsWithLongDescription>();
             var gen = new AutomaticHelpGenerator<OptionsWithLongDescription>
@@ -96,7 +97,7 @@ Nullam condimentum consectetur interdum.")]
             };
 
 
-            var help = gen.GetHelp(parser.BuildConfig()).Split('\n');
+            var help = gen.GetHelp(parser.BuildConfig()).Split(new []{"\n", "\r\n"}, StringSplitOptions.RemoveEmptyEntries);
 
             Assert.AreEqual(expected, help[3]);
         }
