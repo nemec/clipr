@@ -70,11 +70,7 @@ namespace clipr.Utils
                 .Where(f => f.IsInitOnly &&  // readonly
                             typeInfo.IsAssignableFrom(f.FieldType))  // same type as class, or subclass
                 .ToDictionary(k => k.Name,
-#if NET35
-                    StringComparer.InvariantCultureIgnoreCase);
-#else
                     StringComparer.OrdinalIgnoreCase);
-#endif
             if (!fields.Any())
             {
                 return Enumerable.Empty<TypeConverter>();

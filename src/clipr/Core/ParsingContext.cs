@@ -272,12 +272,8 @@ namespace clipr.Core
                             new ParseException(name.ToString(),
                                 "Arguments that consume values cannot be grouped."));
                     }
-                    var prefix = Config.ArgumentPrefix
-#if NET35
-                .ToString(CultureInfo.CurrentCulture);
-#else
-                .ToString();
-#endif
+                    var prefix = Config.ArgumentPrefix.ToString();
+
                     // If next item looks like an 'optional' argument, pretend like the arg list is empty
                     string next = null;
                     if (iter.Any()) next = iter.Peek();
@@ -648,11 +644,7 @@ namespace clipr.Core
                 if (!positionalDelimiterFound &&
                     stringValue != null &&
                     stringValue.StartsWith(Config.ArgumentPrefix
-#if NET35
-                        .ToString(CultureInfo.InvariantCulture)) &&
-#else
                         .ToString()) &&
-#endif
                     (stringValue.Length > 1 && !Char.IsDigit(stringValue[1])))
                 {
                     args.Push(stringValue);
@@ -811,11 +803,8 @@ namespace clipr.Core
 
         private static bool TryConvertFromGeneric(IValueStoreDefinition store, string value, out object obj)
         {
-#if NET35
-            var innerType = store.Type.GetGenericArguments().First();
-#else
             var innerType = store.Type.GetTypeInfo().GetGenericArguments().First();
-#endif
+
             var tempStore = new DummyValueStore
             {
                 Name = store.Name,
@@ -859,11 +848,7 @@ namespace clipr.Core
 
         private static IList CreateGenericList(IValueStoreDefinition store, IEnumerable initial)
         {
-#if NET35
-            var type = store.Type.GetGenericArguments();
-#else
             var type = store.Type.GetTypeInfo().GetGenericArguments();
-#endif
             if (!type.Any())
             {
                 return null;

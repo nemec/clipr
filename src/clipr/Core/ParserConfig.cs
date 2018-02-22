@@ -144,12 +144,7 @@ namespace clipr.Core
 
             if (options.CaseInsensitive)
             {
-                var comparer = 
-#if NET35
-                    StringComparer.InvariantCultureIgnoreCase;
-#else
-                    StringComparer.OrdinalIgnoreCase;
-#endif
+                var comparer = StringComparer.OrdinalIgnoreCase;
                 
                 ShortNameArguments = new Dictionary<char, IShortNameArgument>(new CaseInsensitiveCharComparer());
                 LongNameArguments = new Dictionary<string, ILongNameArgument>(comparer);

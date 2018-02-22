@@ -3,10 +3,6 @@ using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Linq;
 
-#if NET35
-using AggregateException = clipr.Utils.AggregateException;
-#endif
-
 namespace clipr.UnitTests
 {
     [TestClass]

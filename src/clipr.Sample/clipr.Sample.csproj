@@ -59,16 +59,16 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\clipr\clipr.csproj">
-      <Project>{63FEC7E8-FAB5-47D7-8BB6-490725659889}</Project>
-      <Name>clipr</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\clipr\clipr.csproj">
+      <Project>{5b56c459-e807-4a0f-8499-7bf82d50af38}</Project>
+      <Name>clipr</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
