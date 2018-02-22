@@ -81,7 +81,7 @@ namespace clipr.Utils
                 new StaticEnumerationConverter(type, fields)
             };
         }
-
+        
         private static readonly Lazy<Type[]> _listBases = new Lazy<Type[]>(() => 
                     typeof(IList<>)
                         .GetInterfaces()
@@ -111,7 +111,7 @@ namespace clipr.Utils
                     }
                 }
             }
-
+            
             if(!attr.ExplicitlySetAction)
             {
                 // Set "StoreTrue" as the default action for
