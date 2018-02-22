@@ -137,7 +137,6 @@ namespace clipr
     /// <typeparam name="TConf">Object type being deserialized.</typeparam>
     public class CliParser<TConf> where TConf : class
     {
-
         public IParseValidator<TConf> Validator { get; set; }
 
         internal const int ErrorExitCode = 2;
@@ -202,7 +201,6 @@ namespace clipr
             var errs = ValidateAttributeConfig();
             if (errs.Any())
             {
-
                 throw new AggregateException(errs);
             }
         }

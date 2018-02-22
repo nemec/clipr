@@ -350,6 +350,8 @@ namespace clipr.Sample
         {
             public static readonly ColorEnum Red = new EnumValue(Color.Red);
 
+            public static readonly ColorEnum Blue = new EnumValue(Color.Blue);
+
 
             public class EnumValue : ColorEnum
             {
@@ -369,13 +371,13 @@ namespace clipr.Sample
 
         internal class StaticEnumListOptions
         {
-            [NamedArgument('c', "colors", Action = ParseAction.Append, Constraint = NumArgsConstraint.AtLeast, Const = 1)]
+            [NamedArgument('c', "colors", Action = ParseAction.Append)]
             public IList<ColorEnum> Colors { get; set; }
         }
 
         public static void ParseStaticEnumList()
         {
-            var result = CliParser.Parse<StaticEnumListOptions>("-c Red".Split());
+            var result = CliParser.Parse<StaticEnumListOptions>("-c Red -c blue".Split());
             result.Handle(
                 opt =>
                 {
@@ -436,8 +438,8 @@ namespace clipr.Sample
             //CustomDateTime("-d 20140730 2013-09-10".Split());
             //ParseRequiredNamedArgument("-c -d 10/13/2010".Split());
             //DoPwMaskingAndPositional();
-            //ParseStaticEnumList();
-            ParseArgsWithEvent();
+            ParseStaticEnumList();
+            //ParseArgsWithEvent();
         }
     }
 }
