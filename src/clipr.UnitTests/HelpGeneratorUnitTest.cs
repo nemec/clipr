@@ -30,9 +30,9 @@ namespace clipr.UnitTests
 
             var args = "--help".Split();
             var opts = new NoDescription();
-            var parser = new CliParser<NoDescription>(
-                ParserOptions.Default,
-                new Help());
+            var conf = new ParserSettings<NoDescription>();
+            conf.HelpGenerator = new Help();
+            var parser = new CliParser<NoDescription>(conf);
 
             var result = parser.Parse(args, opts);
             result.Handle(
@@ -215,7 +215,8 @@ Optional Arguments:
 
             var sw = new StringWriter();
             var opt = new OptionsWithVerbs();
-            var parser = new CliParser<OptionsWithVerbs>(new ParserOptions { OutputWriter = sw });
+            var parser = new CliParser<OptionsWithVerbs>(
+                new ParserSettings<OptionsWithVerbs> { OutputWriter = sw });
 
             parser.Parse("verb1 --help".Split(), opt);
             var actual = sw.ToString();
@@ -259,7 +260,8 @@ Commands:
 
             var sw = new StringWriter();
             var opt = new OptionsWithNestedVerbs();
-            var parser = new CliParser<OptionsWithNestedVerbs>(new ParserOptions { OutputWriter = sw });
+            var parser = new CliParser<OptionsWithNestedVerbs>(
+                new ParserSettings<OptionsWithNestedVerbs> { OutputWriter = sw });
 
             parser.Parse("verb1 --help".Split(), opt);
             var actual = sw.ToString();
@@ -278,7 +280,8 @@ Optional Arguments:
 
             var sw = new StringWriter();
             var opt = new OptionsWithNestedVerbs();
-            var parser = new CliParser<OptionsWithNestedVerbs>(new ParserOptions { OutputWriter = sw });
+            var parser = new CliParser<OptionsWithNestedVerbs>(
+                new ParserSettings<OptionsWithNestedVerbs> { OutputWriter = sw });
 
             parser.Parse("verb1 verb2 --help".Split(), opt);
             var actual = sw.ToString();

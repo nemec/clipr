@@ -479,11 +479,11 @@ namespace clipr.Usage
             var ret = new List<string>();
             if (attr.ShortName != null)
             {
-                ret.Add(""+ config.ArgumentPrefix + attr.ShortName);
+                ret.Add(""+ config.Options.ArgumentPrefix + attr.ShortName);
             }
             if (attr.LongName != null)
             {
-                ret.Add("" + config.ArgumentPrefix + config.ArgumentPrefix + attr.LongName);
+                ret.Add("" + config.Options.ArgumentPrefix + config.Options.ArgumentPrefix + attr.LongName);
             }
             return ret;
         }

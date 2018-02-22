@@ -53,7 +53,7 @@ namespace clipr.UnitTests
         public void ParseArgument_WithArgumentsOfDifferingCaseWhenCaseInsensitive_ThrowsException()
         {
             var parser = new CliParser<DuplicateArgumentWhenCaseInsensitive>(
-                new ParserOptions { CaseInsensitive = true });
+                new ParserSettings<DuplicateArgumentWhenCaseInsensitive> { CaseInsensitive = true });
             var errs = parser.ValidateAttributeConfig();
             
             Assert.IsTrue(errs

@@ -229,12 +229,14 @@ namespace clipr.UnitTests
         {
             const string expected = "myfile.txt";
             var opt = new OptionsWithNoDefaultVerbConstructor();
-            var factory = new SimpleVerbfactory
+            var opts = new ParserSettings<OptionsWithNoDefaultVerbConstructor>
             {
-                { typeof(VerbWithNoDefaultConstructor), () => new VerbWithNoDefaultConstructor("default.txt") }
+                VerbFactory = new SimpleVerbfactory
+                {
+                    { typeof(VerbWithNoDefaultConstructor), () => new VerbWithNoDefaultConstructor("default.txt") }
+                }
             };
-            var parser = new CliParser<OptionsWithNoDefaultVerbConstructor>(
-                ParserOptions.Default, new AutomaticHelpGenerator<OptionsWithNoDefaultVerbConstructor>(), factory);
+            var parser = new CliParser<OptionsWithNoDefaultVerbConstructor>(opts);
 
             parser.Parse("add myfile.txt".Split(), opt);
 
@@ -296,13 +298,15 @@ namespace clipr.UnitTests
         {
             string[] expected = { "myfile.txt", "otherfile.txt" };
             var opt = new OptionsWithGitVerbs();
-            var factory = new SimpleVerbfactory
+            var opts = new ParserSettings<OptionsWithGitVerbs>
             {
-                { () => new GitAdd() },
-                { typeof(GitCommit), () => new GitCommit("My default message") }
+                VerbFactory = new SimpleVerbfactory
+                {
+                    { () => new GitAdd() },
+                    { typeof(GitCommit), () => new GitCommit("My default message") }
+                }
             };
-            var parser = new CliParser<OptionsWithGitVerbs>(
-                ParserOptions.Default, new AutomaticHelpGenerator<OptionsWithGitVerbs>(), factory);
+            var parser = new CliParser<OptionsWithGitVerbs>(opts);
 
             parser.Parse("add myfile.txt otherfile.txt".Split(), opt);
             var actual = opt.Add.Files.ToList();
@@ -315,13 +319,15 @@ namespace clipr.UnitTests
         {
             const string expected = "My default message";
             var opt = new OptionsWithGitVerbs();
-            var factory = new SimpleVerbfactory
+            var opts = new ParserSettings<OptionsWithGitVerbs>
             {
-                { () => new GitAdd() },
-                { typeof(GitCommit), () => new GitCommit("My default message") }
+                VerbFactory = new SimpleVerbfactory
+                {
+                    { () => new GitAdd() },
+                    { typeof(GitCommit), () => new GitCommit("My default message") }
+                }
             };
-            var parser = new CliParser<OptionsWithGitVerbs>(
-                ParserOptions.Default, new AutomaticHelpGenerator<OptionsWithGitVerbs>(), factory);
+            var parser = new CliParser<OptionsWithGitVerbs>(opts);
 
             parser.Parse("commit".Split(), opt);
             var actual = opt.Commit.CommitMessage;
@@ -334,13 +340,15 @@ namespace clipr.UnitTests
         {
             const string expected = "My message";
             var opt = new OptionsWithGitVerbs();
-            var factory = new SimpleVerbfactory
+            var opts = new ParserSettings<OptionsWithGitVerbs>
             {
-                { () => new GitAdd() },
-                { typeof(GitCommit), () => new GitCommit("My default message") }
+                VerbFactory = new SimpleVerbfactory
+                {
+                    { () => new GitAdd() },
+                    { typeof(GitCommit), () => new GitCommit("My default message") }
+                }
             };
-            var parser = new CliParser<OptionsWithGitVerbs>(
-                ParserOptions.Default, new AutomaticHelpGenerator<OptionsWithGitVerbs>(), factory);
+            var parser = new CliParser<OptionsWithGitVerbs>(opts);
 
             parser.Parse(new[] { "commit", "-m", "My message" }, opt);
             var actual = opt.Commit.CommitMessage;

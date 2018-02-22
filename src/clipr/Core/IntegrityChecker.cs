@@ -6,6 +6,7 @@ using clipr.Arguments;
 using clipr.Triggers;
 using clipr.Utils;
 using clipr.IOC;
+using clipr.Usage;
 
 namespace clipr.Core
 {
@@ -28,7 +29,7 @@ namespace clipr.Core
         /// <typeparam name="T">
         /// Perform integrity check on this type.
         /// </typeparam>
-        internal IEnumerable<Exception> EnsureAttributeIntegrity<T>(ParserOptions options)
+        internal IEnumerable<Exception> EnsureAttributeIntegrity<T>(IParserSettings options)
         {
             var integrityExceptions = new List<Exception>();
 
@@ -85,10 +86,12 @@ namespace clipr.Core
             return integrityExceptions.Where(e => e != null);
         }
 
-        internal IEnumerable<Exception> EnsureTriggerIntegrity(IEnumerable<ITerminatingTrigger> triggers)
+        internal IEnumerable<Exception> EnsureTriggerIntegrity(IHelpGenerator help, IVersion version, IEnumerable<ITerminatingTrigger> triggers)
         {
             var integrityExceptions = new List<Exception>();
 
+            integrityExceptions.AddRange(GetIntegrityExceptionsForArgument(help));
+            integrityExceptions.AddRange(GetIntegrityExceptionsForArgument(version));
             foreach (var trigger in triggers.Where(t => t != null))
             {
                 integrityExceptions.AddRange(
@@ -100,6 +103,8 @@ namespace clipr.Core
 
         private IEnumerable<Exception> GetIntegrityExceptionsForArgument(IArgument attr)
         {
+            if (attr == null) return Enumerable.Empty<Exception>();
+
             // TODO check variable type (IEnumerable, IList) with definition of Constraint=Exact & NumArgs=1
             return new[]
                 {
@@ -407,7 +412,7 @@ namespace clipr.Core
             return null;
         }
 
-        private static IEnumerable<Exception> ConfigMayNotContainDuplicateArguments<T>(ParserOptions options)
+        private static IEnumerable<Exception> ConfigMayNotContainDuplicateArguments<T>(IParserSettings options)
         {
             var named = typeof(T)
                 .GetTypeInfo()

@@ -11,10 +11,10 @@ using System.Reflection;
 
 namespace clipr.Core
 {
-    internal class AttributeParserConfig<T> : ParserConfig<T> where T : class
+    internal class AttributeParserConfig<T> : ParserConfig
     {
-        public AttributeParserConfig(Type optionType, ParserOptions options, IEnumerable<ITerminatingTrigger> triggers, IVerbFactory factory)
-            : base(optionType, options, triggers, factory)
+        public AttributeParserConfig(Type optionType, IParserSettings options, IEnumerable<ITerminatingTrigger> triggers)
+            : base(optionType, options, triggers)
         {
             InitializeVerbs();
             InitializeNamedArguments();
@@ -83,11 +83,11 @@ namespace clipr.Core
                     // TODO deduplicate this Verb Name generation logic
                     var verbName = attr.Name ?? prop.Name.ToLowerInvariant();
                     if (verbName.StartsWith(
-                        ArgumentPrefix.ToString()))
+                        Options.ArgumentPrefix.ToString()))
                     {
                         throw new ArgumentIntegrityException(String.Format(
                             "Verb {0} cannot begin with {1}",
-                            verbName, ArgumentPrefix));
+                            verbName, Options.ArgumentPrefix));
                     }
                     if (Verbs.ContainsKey(verbName))
                     {
@@ -100,14 +100,14 @@ namespace clipr.Core
                         .MakeGenericType(new[] {prop.PropertyType});
                     var verbParserConfig = Activator.CreateInstance(
                         type:parserConfigType,
-                        args:new object[] { OptionType, Options, null /* TODO add triggers inside verb configs */, VerbFactory});
+                        args:new object[] { OptionType, Options, null /* TODO add triggers inside verb configs */});
 
                     var verbConfigWrapperType = typeof (VerbParserConfig<>)
                         .GetTypeInfo()
                         .MakeGenericType(new[] {prop.PropertyType});
                     var config = (IVerbParserConfig)Activator.CreateInstance(
                         type:verbConfigWrapperType,
-                        args:new[] { OptionType, verbParserConfig, new PropertyValueStore(prop), Options, VerbFactory, new[] { verbName } });
+                        args:new[] { OptionType, verbParserConfig, new PropertyValueStore(prop), Options, new[] { verbName } });
 
                     config.Name = verbName;
                     config.Description = attr.Description;

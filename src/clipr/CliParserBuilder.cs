@@ -17,17 +17,17 @@ namespace clipr
     {
         private FluentParserConfig<TConf> FluentConfig { get; set; }
 
-        private ParserOptions Options { get; set; }
+        private ParserSettings<TConf> Options { get; set; }
 
         public CliParserBuilder()
         {
-            FluentConfig = new FluentParserConfig<TConf>(typeof(TConf), ParserOptions.Default, 
-                Enumerable.Empty<ITerminatingTrigger>(), new ParameterlessVerbFactory());
+            FluentConfig = new FluentParserConfig<TConf>(typeof(TConf), ParserSettings<TConf>.Default, 
+                Enumerable.Empty<ITerminatingTrigger>());
         } 
 
-        public CliParserBuilder(ParserOptions options, IEnumerable<ITerminatingTrigger> triggers)
+        public CliParserBuilder(ParserSettings<TConf> options, IEnumerable<ITerminatingTrigger> triggers)
         {
-            FluentConfig = new FluentParserConfig<TConf>(typeof(TConf), options, triggers, new ParameterlessVerbFactory());
+            FluentConfig = new FluentParserConfig<TConf>(typeof(TConf), options, triggers);
             Options = options;
         }
 
@@ -49,7 +49,7 @@ namespace clipr
         /// <returns></returns>
         public CliParserBuilder<TConf> HasVerbFactory(IVerbFactory factory)
         {
-            FluentConfig.VerbFactory = factory;
+            Options.VerbFactory = factory;
             return this;
         }
 
@@ -133,7 +133,7 @@ namespace clipr
             string verbName, Expression<Func<TConf, TArg>> expr, CliParserBuilder<TArg> subBuilder)
             where TArg : class
         {
-            ParserConfig<TArg> subConfig;
+            ParserConfig subConfig;
             if (subBuilder.FluentConfig != null)
             {
                 subBuilder.FluentConfig.ProcessArguments();
@@ -141,12 +141,11 @@ namespace clipr
             }
             else
             {
-                subConfig = new AttributeParserConfig<TArg>(typeof(TConf), Options, null /* TODO process triggers in verb */, FluentConfig.VerbFactory);
+                subConfig = new AttributeParserConfig<TArg>(typeof(TConf), Options, null /* TODO process triggers in verb */);
             }
-
-            // TODO do away with subBuilder and multiple VerbFactories?
+            
             FluentConfig.Verbs.Add(verbName,
-                new VerbParserConfig<TArg>(typeof(TConf), subConfig, GetDefinitionFromExpression(expr), Options, subConfig.VerbFactory ?? FluentConfig.VerbFactory, null));
+                new VerbParserConfig<TArg>(typeof(TConf), subConfig, GetDefinitionFromExpression(expr), Options, null));
 
             return new Verb<TConf>(this);
         }

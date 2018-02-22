@@ -35,16 +35,15 @@ namespace clipr.Core
         void AppendTriggers(IEnumerable<ITerminatingTrigger> triggers);
     }
 
-    internal class VerbParserConfig<TVerb> : ParserConfig<TVerb>, IVerbParserConfig where TVerb : class 
+    internal class VerbParserConfig<TVerb> : ParserConfig, IVerbParserConfig where TVerb : class 
     {
         public VerbParserConfig(
                 Type optionType,
                 IParserConfig internalParserConfig,
                 IValueStoreDefinition store,
-                ParserOptions options,
-                IVerbFactory factory,
+                IParserSettings options,
                 string[] precursorVerbs)
-            : base(optionType, options, null, factory)
+            : base(optionType, options, null)
         {
             InternalParserConfig = internalParserConfig;
             Store = store;

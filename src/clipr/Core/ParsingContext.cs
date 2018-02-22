@@ -16,7 +16,7 @@ namespace clipr.Core
 {
     internal interface IParsingContext
     {
-        ParseResultWithTrigger Parse(string[] args);
+        ParseResult Parse(string[] args);
     }
 
     internal static class ParsingContextFactory
@@ -51,12 +51,12 @@ namespace clipr.Core
             _parsedNamedArguments = new HashSet<string>();
         }
 
-        ParseResultWithTrigger IParsingContext.Parse(string[] args)
+        ParseResult IParsingContext.Parse(string[] args)
         {
             return Parse(args).Handle(
-                obj => ParseResultWithTrigger.Success,
-                trig => new ParseResultWithTrigger(trig),
-                errs => new ParseResultWithTrigger(errs));
+                obj => ParseResult.Success,
+                trig => new ParseResult(trig),
+                errs => new ParseResult(errs));
         }
 
         /// <summary>
@@ -72,7 +72,7 @@ namespace clipr.Core
         /// <param name="args">Argument list to parse.</param>
         public ParseResult<T> Parse(string[] args)
         {
-            var positionalDelimiter = "" + Config.ArgumentPrefix + Config.ArgumentPrefix;
+            var positionalDelimiter = "" + Config.Options.ArgumentPrefix + Config.Options.ArgumentPrefix;
             var values = new Stack<string>(args.Reverse());
             var positionalArgumentStore = new List<string>();
             var positionalDelimiterFound = false;
@@ -95,7 +95,7 @@ namespace clipr.Core
                     break;
                 }
 
-                if (arg[0] == Config.ArgumentPrefix)
+                if (arg[0] == Config.Options.ArgumentPrefix)
                 {
                     if (arg.Length == 1)  // myprog.exe -
                     {
@@ -103,9 +103,9 @@ namespace clipr.Core
                             @"Cannot use argument prefix ""{0}"" as " +
                             @"argument unless forced into positional " +
                             @"mode using ""{1}"".",
-                            Config.ArgumentPrefix, positionalDelimiter)));
+                            Config.Options.ArgumentPrefix, positionalDelimiter)));
                     }
-                    if (arg[1] == Config.ArgumentPrefix)  // myprog.exe --arg
+                    if (arg[1] == Config.Options.ArgumentPrefix)  // myprog.exe --arg
                     {
                         var partition = arg.Substring(2).Split(
                             new []{Config.LongOptionSeparator}, 2);
@@ -189,7 +189,7 @@ namespace clipr.Core
                     Config.Verbs.ContainsKey(arg))
                 {
                     var verbConfig = Config.Verbs[arg];
-                    var verbObj = Config.VerbFactory.GetVerb(verbConfig.Store.Type);
+                    var verbObj = Config.Options.VerbFactory.GetVerb(verbConfig.Store.Type);
                     var context = ParsingContextFactory.Create(
                         verbObj, verbConfig.Store.Type, verbConfig);
                     var verbResult = context.Parse(values.ToArray());
@@ -214,6 +214,7 @@ namespace clipr.Core
             {
                 return result.Handle(
                     () => null,  // TODO is there a better way to handle?
+                    trig => new ParseResult<T>(trig),
                     errs => new ParseResult<T>(errs));
             }
 
@@ -228,12 +229,13 @@ namespace clipr.Core
             var cleanupResult = ParsingCleanup();
             return cleanupResult.Handle(
                 () => new ParseResult<T>(Object),
+                trig => new ParseResult<T>(trig),
                 errs => new ParseResult<T>(errs));
         }
 
 #region Private Parsing Methods
 
-        private ParseResultWithTrigger ParseOptionalArgument<TS>(TS name, Dictionary<TS, IShortNameArgument> argDict, Stack<string> iter, bool positionalDelimiterFound)
+        private ParseResult ParseOptionalArgument<TS>(TS name, Dictionary<TS, IShortNameArgument> argDict, Stack<string> iter, bool positionalDelimiterFound)
         {
             var newDict = argDict.ToDictionary(
                 k => k.Key,
@@ -242,7 +244,7 @@ namespace clipr.Core
             return ParseOptionalArgument(name, newDict, iter, positionalDelimiterFound);
         }
 
-        private ParseResultWithTrigger ParseOptionalArgument<TS>(TS name, Dictionary<TS, ILongNameArgument> argDict, Stack<string> iter, bool positionalDelimiterFound)
+        private ParseResult ParseOptionalArgument<TS>(TS name, Dictionary<TS, ILongNameArgument> argDict, Stack<string> iter, bool positionalDelimiterFound)
         {
             var newDict = argDict.ToDictionary(
                 k => k.Key,
@@ -251,7 +253,7 @@ namespace clipr.Core
             return ParseOptionalArgument(name, newDict, iter, positionalDelimiterFound);
         }
 
-        private ParseResultWithTrigger ParseOptionalArgument<TS>(TS name, Dictionary<TS, INamedArgumentBase> argDict, Stack<string> iter, bool positionalDelimiterFound)
+        private ParseResult ParseOptionalArgument<TS>(TS name, Dictionary<TS, INamedArgumentBase> argDict, Stack<string> iter, bool positionalDelimiterFound)
         {
             var argResult = GetArgument(name, argDict, Config.Options);
             return argResult.Handle(
@@ -261,18 +263,18 @@ namespace clipr.Core
                     if (trig != null)
                     {
                         trig.OnParse(Config);  // TODO keep here or call OnParse outside of the context?
-                        return new ParseResultWithTrigger(trig);
+                        return new ParseResult(trig);
                     }
 
                     _parsedNamedArguments.Add(arg.Name);
 
                     if (iter == null && arg.Action.ConsumesArgumentValues())
                     {
-                        return new ParseResultWithTrigger(
+                        return new ParseResult(
                             new ParseException(name.ToString(),
                                 "Arguments that consume values cannot be grouped."));
                     }
-                    var prefix = Config.ArgumentPrefix.ToString();
+                    var prefix = Config.Options.ArgumentPrefix.ToString();
 
                     // If next item looks like an 'optional' argument, pretend like the arg list is empty
                     string next = null;
@@ -284,9 +286,7 @@ namespace clipr.Core
                         var result = ParseArgument(prefix + name, arg, iter, positionalDelimiterFound);
                         if (!result.IsSuccess)
                         {
-                            return result.Handle(
-                                () => null,
-                                errs => new ParseResultWithTrigger(errs));
+                            return result;
                         }
                     }
                     else
@@ -294,27 +294,25 @@ namespace clipr.Core
                         var result = ParseArgument(prefix + prefix + name, arg, iter, positionalDelimiterFound);
                         if (!result.IsSuccess)
                         {
-                            return result.Handle(
-                                () => null,
-                                errs => new ParseResultWithTrigger(errs));
+                            return result;
                         }
                     }
 
-                    return ParseResultWithTrigger.Success;
+                    return ParseResult.Success;
                 },
                 trigger =>
                 {
-                    return new ParseResultWithTrigger(trigger);
+                    return new ParseResult(trigger);
                 },
                 errs =>
                 {
-                    return new ParseResultWithTrigger(errs);
+                    return new ParseResult(errs);
                 });
         }
 
         private bool ParamIsArgument(string param)
         {
-            if (param == null || param.Length == 0 || param[0] != Config.ArgumentPrefix) return false;
+            if (param == null || param.Length == 0 || param[0] != Config.Options.ArgumentPrefix) return false;
             if (param.Length > 1 && Char.IsDigit(param[1])) return false;
             return true;
         }
@@ -322,7 +320,7 @@ namespace clipr.Core
     private static ParseResult<INamedArgumentBase> GetArgument<TS>(
             TS name,
             Dictionary<TS, INamedArgumentBase> argDict,
-            ParserOptions options)
+            IParserSettings options)
         {
             if (options.NamedPartialMatch)
             {
@@ -388,6 +386,7 @@ namespace clipr.Core
         private ParseResult ParseArgument(string attrName, IArgument arg, Stack<string> remainingArgs, bool positionalDelimiterFound)
         {
             var store = arg.Store;
+            ITerminatingTrigger updateTerminator;
             switch (arg.Action)
             {
                 case ParseAction.Store:
@@ -403,7 +402,10 @@ namespace clipr.Core
                                     if (TryConvertFrom(store, defaultValue, out converted))
                                     {
                                         store.SetValue(Object, converted);
-                                        Config.Options.SendArgument(this, store.Name, converted);
+                                        if (TrySendArgumentUpdate(this, store.Name, converted, out updateTerminator))
+                                        {
+                                            return new ParseResult(updateTerminator);
+                                        }
                                     }
                                     else
                                     {
@@ -431,7 +433,10 @@ namespace clipr.Core
                                         if (TryConvertFrom(store, value, out converted))
                                         {
                                             store.SetValue(Object, converted);
-                                            Config.Options.SendArgument(this, store.Name, converted);
+                                            if (TrySendArgumentUpdate(this, store.Name, converted, out updateTerminator))
+                                            {
+                                                return new ParseResult(updateTerminator);
+                                            }
                                         }
                                         else
                                         {
@@ -463,7 +468,10 @@ namespace clipr.Core
                                     if (TryConvertFrom(store, value, out converted))
                                     {
                                         store.SetValue(Object, converted);
-                                        Config.Options.SendArgument(this, store.Name, converted);
+                                        if (TrySendArgumentUpdate(this, store.Name, converted, out updateTerminator))
+                                        {
+                                            return new ParseResult(updateTerminator);
+                                        }
                                     }
                                     else
                                     {
@@ -491,7 +499,10 @@ namespace clipr.Core
                                 if (TryConvertFrom(store, stringValue, out converted))
                                 {
                                     store.SetValue(Object, converted);
-                                    Config.Options.SendArgument(this, store.Name, converted);
+                                    if (TrySendArgumentUpdate(this, store.Name, converted, out updateTerminator))
+                                    {
+                                        return new ParseResult(updateTerminator);
+                                    }
                                 }
                                 else
                                 {
@@ -522,23 +533,35 @@ namespace clipr.Core
                                 return result;
                             }
                             store.SetValue(Object, backingList);
-                            Config.Options.SendArgument(this, store.Name, backingList);
+                            if (TrySendArgumentUpdate(this, store.Name, backingList, out updateTerminator))
+                            {
+                                return new ParseResult(updateTerminator);
+                            }
                         }
                         break;
                     }
                 case ParseAction.StoreConst:
                     store.SetValue(Object, arg.Const);
-                    Config.Options.SendArgument(this, store.Name, arg.Const);
+                    if (TrySendArgumentUpdate(this, store.Name, arg.Const, out updateTerminator))
+                    {
+                        return new ParseResult(updateTerminator);
+                    }
                     break;
 
                 case ParseAction.StoreTrue:
                     store.SetValue(Object, true);
-                    Config.Options.SendArgument(this, store.Name, true);
+                    if (TrySendArgumentUpdate(this, store.Name, true, out updateTerminator))
+                    {
+                        return new ParseResult(updateTerminator);
+                    }
                     break;
 
                 case ParseAction.StoreFalse:
                     store.SetValue(Object, false);
-                    Config.Options.SendArgument(this, store.Name, false);
+                    if (TrySendArgumentUpdate(this, store.Name, false, out updateTerminator))
+                    {
+                        return new ParseResult(updateTerminator);
+                    }
                     break;
 
                 case ParseAction.Append:
@@ -587,7 +610,10 @@ namespace clipr.Core
                             }
                         }
                         store.SetValue(Object, backingList);
-                        Config.Options.SendArgument(this, store.Name, backingList);
+                        if (TrySendArgumentUpdate(this, store.Name, backingList, out updateTerminator))
+                        {
+                            return new ParseResult(updateTerminator);
+                        }
                         break;
                     }
                 case ParseAction.AppendConst:
@@ -596,16 +622,36 @@ namespace clipr.Core
                         var backingList = CreateGenericList(store, existing);
                         backingList.Add(arg.Const);
                         store.SetValue(Object, backingList);
-                        Config.Options.SendArgument(this, store.Name, backingList);
+                        if (TrySendArgumentUpdate(this, store.Name, backingList, out updateTerminator))
+                        {
+                            return new ParseResult(updateTerminator);
+                        }
                         break;
                     }
                 case ParseAction.Count:
                     var cnt = (int)store.GetValue(Object) + 1;
                     store.SetValue(Object, cnt);
-                    Config.Options.SendArgument(this, store.Name, cnt);
+                    if(TrySendArgumentUpdate(this, store.Name, cnt, out updateTerminator))
+                    {
+                        return new ParseResult(updateTerminator);
+                    }
                     break;
             }
             return ParseResult.Success;
+        }
+        
+        /// <returns>true if a callback exists and it returned a terminating trigger</returns>
+        private bool TrySendArgumentUpdate(object ctx, string name, object value, out ITerminatingTrigger end)
+        {
+            var arg = new ParseEventArgs(ctx, name, value);
+            var cb = Config.Options.OnParseArgument;
+            if(cb == null)
+            {
+                end = null;
+                return false;
+            }
+            end = cb(arg);
+            return end != null;
         }
 
         private ParseResult ParseVarargs(string attrName, IList list,
@@ -643,7 +689,7 @@ namespace clipr.Core
                 // But not if the next character is a digit
                 if (!positionalDelimiterFound &&
                     stringValue != null &&
-                    stringValue.StartsWith(Config.ArgumentPrefix
+                    stringValue.StartsWith(Config.Options.ArgumentPrefix
                         .ToString()) &&
                     (stringValue.Length > 1 && !Char.IsDigit(stringValue[1])))
                 {

@@ -14,18 +14,6 @@ namespace clipr.Core
     /// </summary>
     public interface IParserConfig
     {
-        /// <summary>
-        /// IOC factory responsible for generating necessary Verb
-        /// objects during parsing.
-        /// </summary>
-        IVerbFactory VerbFactory { get; }
-
-        /// <summary>
-        /// The character prefix to use for designating arguments
-        /// (typically a hyphen). This is doubled up to designate
-        /// long arguments (e.g. a double hyphen).
-        /// </summary>
-        char ArgumentPrefix { get; set; }
 
         /// <summary>
         /// The (non-whitespace) character separating a long 
@@ -36,7 +24,7 @@ namespace clipr.Core
         /// <summary>
         /// Configuration options for the parser.
         /// </summary>
-        ParserOptions Options { get; }
+        IParserSettings Options { get; }
 
         /// <summary>
         /// The root type of the Options class
@@ -109,15 +97,12 @@ namespace clipr.Core
         HashSet<string> RequiredNamedArguments { get; }
     }
 
-    internal abstract class ParserConfig<T> : IParserConfig where T : class
+    internal abstract class ParserConfig : IParserConfig
     {
-        public IVerbFactory VerbFactory { get; set; }
-
+        
         public char LongOptionSeparator { get { return '='; } }
 
-        public char ArgumentPrefix { get; set; }
-
-        public ParserOptions Options { get; private set; }
+        public IParserSettings Options { get; private set; }
 
         public Type OptionType { get; protected set; }
 
@@ -136,11 +121,10 @@ namespace clipr.Core
         private List<ITerminatingTrigger> _triggers = new List<ITerminatingTrigger>();
         public IEnumerable<ITerminatingTrigger> Triggers { get { return _triggers; } }
 
-        protected ParserConfig(Type optionType, ParserOptions options, IEnumerable<ITerminatingTrigger> triggers, IVerbFactory factory)
+        protected ParserConfig(Type optionType, IParserSettings options, IEnumerable<ITerminatingTrigger> triggers)
         {
             OptionType = optionType;
             Options = options;
-            ArgumentPrefix = '-';
 
             if (options.CaseInsensitive)
             {
@@ -162,8 +146,6 @@ namespace clipr.Core
             RequiredNamedArguments = new HashSet<string>();
 
             AppendTriggers(triggers);
-
-            VerbFactory = factory;
         }
 
         public void AppendTriggers(IEnumerable<ITerminatingTrigger> triggers)

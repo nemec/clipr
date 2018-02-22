@@ -140,33 +140,8 @@ namespace clipr
     /// <typeparam name="TConf">Object type being deserialized.</typeparam>
     public class CliParser<TConf> where TConf : class
     {
-        #region Public Properties
-
-        /// <summary>
-        /// Punctuation character prefixed to short and long argument
-        /// names. Usually a hyphen (-).
-        /// </summary>
-        /// <exception cref="ArgumentIntegrityException">
-        /// Character is not valid punctuation.
-        /// </exception>
-        public char ArgumentPrefix
-        {
-            get { return _argumentPrefix; }
-            set
-            {
-                if (!Char.IsPunctuation(value))
-                {
-                    throw new ArgumentIntegrityException(
-                        "Argument prefix must be a punctuation character.");
-                }
-                _argumentPrefix = value;
-            }
-        }
-        private char _argumentPrefix = '-';
 
         public IParseValidator<TConf> Validator { get; set; }
-
-        #endregion
 
         #region Private Properties
 
@@ -174,13 +149,7 @@ namespace clipr
 
         private IParserConfig Config { get; set; }
 
-        private ParserOptions Options { get; set; }
-
-        private IHelpGenerator HelpGenerator { get; set; }
-
-        private IEnumerable<ITerminatingTrigger> Triggers { get; set; }
-
-        private IVerbFactory Factory { get; set; }
+        private ParserSettings<TConf> Options { get; set; }
 
         #endregion
 
@@ -190,7 +159,12 @@ namespace clipr
         /// Create a new parser with the default usage generator.
         /// </summary>
         public CliParser()
-            : this(ParserOptions.Default, new AutomaticHelpGenerator<TConf>())
+            : this(ParserSettings<TConf>.Default)
+        {
+        }
+
+        public CliParser(AutomaticHelpGenerator<TConf> help)
+            : this(new ParserSettings<TConf> { HelpGenerator = help })
         {
         }
 
@@ -199,55 +173,9 @@ namespace clipr
         /// default usage generator.
         /// </summary>
         /// <param name="options">Extra options for the parser.</param>
-        public CliParser(ParserOptions options)
-            : this(options, new AutomaticHelpGenerator<TConf>())
-        {
-        }
-
-        /// <summary>
-        /// Create a new parser with a custom usage generator.
-        /// </summary>
-        /// <param name="usageGenerator">
-        /// Generates help documentation for this parser.
-        /// </param>
-        public CliParser(IHelpGenerator usageGenerator)
-            : this(ParserOptions.Default, usageGenerator)
-        {
-        }
-
-        /// <summary>
-        /// Create a new parser with a set of options and a custom
-        /// usage generator.
-        /// </summary>
-        /// <param name="options">Extra options for the parser.</param>
-        /// <param name="usageGenerator">
-        /// Generates help documentation for this parser.
-        /// </param>
-        public CliParser(ParserOptions options, IHelpGenerator usageGenerator)
-            : this(options, usageGenerator, new ParameterlessVerbFactory())
-        {
-        }
-
-        /// <summary>
-        /// Create a new parser with a set of options and a custom
-        /// usage generator.
-        /// </summary>
-        /// <param name="options">Extra options for the parser.</param>
-        /// <param name="usageGenerator">
-        /// Generates help documentation for this parser.
-        /// </param>
-        /// <param name="factory">The IOC factory used to generate necessary Verb objects.</param>
-        public CliParser(ParserOptions options, IHelpGenerator usageGenerator, IVerbFactory factory)
+        public CliParser(ParserSettings<TConf> options)
         {
             Options = options;
-            HelpGenerator = usageGenerator;
-            Factory = factory;
-
-            Triggers = new ITerminatingTrigger[]
-            {
-                usageGenerator,
-                new ExecutingAssemblyVersion()
-            };
         }
 
         /// <summary>
@@ -255,11 +183,10 @@ namespace clipr
         /// </summary>
         /// <param name="config"></param>
         /// <param name="options"></param>
-        internal CliParser(ParserConfig<TConf> config, ParserOptions options)
+        internal CliParser(ParserConfig config, ParserSettings<TConf> options)
         {
             Config = config;
             Options = options;
-            // TODO help
         }
 
         #endregion
@@ -272,8 +199,8 @@ namespace clipr
         {
             var checker = new IntegrityChecker();
             return checker.EnsureAttributeIntegrity<TConf>(Options)
-                .Concat(checker.EnsureVerbIntegrity<TConf>(Factory))
-                .Concat(checker.EnsureTriggerIntegrity(Triggers))
+                .Concat(checker.EnsureVerbIntegrity<TConf>(Options.VerbFactory))
+                .Concat(checker.EnsureTriggerIntegrity(Options.HelpGenerator, Options.VersionGenerator, Options.CustomTriggers))
                 .ToArray();
         }
 
@@ -281,14 +208,9 @@ namespace clipr
         /// Checks the configuration type TConf for any attribute issues.
         /// </summary>
         /// <returns></returns>
-        public void EnsureValidAttributeConfig()
+        public void ValidateAttributeConfigOrThrow()
         {
-            var checker = new IntegrityChecker();
-            var errs = checker.EnsureAttributeIntegrity<TConf>(Options)
-                .Concat(checker.EnsureVerbIntegrity<TConf>(Factory))
-                .Concat(checker.EnsureTriggerIntegrity(Triggers))
-                .ToList();
-
+            var errs = ValidateAttributeConfig();
             if (errs.Any())
             {
 
@@ -302,7 +224,9 @@ namespace clipr
             {
                 return Config;
             }
-            return Config = new AttributeParserConfig<TConf>(typeof(TConf), Options, Triggers, Factory);
+            return Config = new AttributeParserConfig<TConf>(typeof(TConf), Options,
+                Options.CustomTriggers
+                    .Concat(new ITerminatingTrigger[] { Options.HelpGenerator, Options.VersionGenerator }));
         }
 
         #region Public Parsing Methods
@@ -331,7 +255,10 @@ namespace clipr
                 trig => result,
                 errs =>
                 {
-                    Console.Error.WriteLine(HelpGenerator.GetUsage(Config));
+                    if (Options.HelpGenerator != null)
+                    {
+                        Console.Error.WriteLine(Options.HelpGenerator.GetUsage(Config));
+                    }
                     foreach (var err in errs)
                     {
                         Console.Error.WriteLine(err);
@@ -373,11 +300,9 @@ namespace clipr
         public ParseResult<TConf> Parse(string[] args, TConf obj)
         {
             var conf = BuildConfig();
-            conf.ArgumentPrefix = ArgumentPrefix;
             return new ParsingContext<TConf>(obj, conf, Validator).Parse(args);
         }
 
         #endregion
-
     }
 }

@@ -1,5 +1,4 @@
 ﻿using clipr.Triggers;
-using clipr.Utils;
 using System;
 using System.Linq;
 
@@ -9,7 +8,7 @@ namespace clipr
     /// Contains the results of parsing a command, either a success, a trigger, or a list of errors.
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    internal class ParseResultWithTrigger  // TODO Union2, Union3 classes instead?
+    internal class ParseResult
     {
         public readonly bool IsSuccess;
 
@@ -24,9 +23,9 @@ namespace clipr
         /// <summary>
         /// A successful result
         /// </summary>
-        internal static readonly ParseResultWithTrigger Success = new ParseResultWithTrigger();
+        internal static readonly ParseResult Success = new ParseResult();
 
-        private ParseResultWithTrigger()
+        private ParseResult()
         {
             IsSuccess = true;
             Errors = EmptyErrors;
@@ -36,7 +35,7 @@ namespace clipr
         /// Create a new ParseResult with the specified Trigger.
         /// </summary>
         /// <param name="trigger"></param>
-        public ParseResultWithTrigger(ITerminatingTrigger trigger)
+        public ParseResult(ITerminatingTrigger trigger)
         {
             Trigger = trigger;
             HasTrigger = true;
@@ -47,7 +46,7 @@ namespace clipr
         /// Create a new error ParseResult with the specified errors.
         /// </summary>
         /// <param name="errors"></param>
-        public ParseResultWithTrigger(params Exception[] errors)
+        public ParseResult(params Exception[] errors)
         {
             Errors = errors;
         }
@@ -84,71 +83,6 @@ namespace clipr
             if (HasTrigger)
             {
                 return String.Format("<ParseResult Trigger:{0}>", Trigger);
-            }
-            return String.Format("<ParseResult Errors({0}):{1}>",
-                Errors.Length,
-                String.Join(",", Errors
-                    .Where(e => e != null)
-                    .Select(e => e.GetType().Name)
-                    .Distinct().ToArray()));
-        }
-    }
-    /// <summary>
-    /// Contains the results of parsing a command, either a success, a trigger, or a list of errors.
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    internal class ParseResult
-    {
-        public readonly bool IsSuccess;
-
-        private static readonly Exception[] EmptyErrors = new Exception[0];
-
-        private readonly Exception[] Errors;
-        
-        /// <summary>
-        /// A successful result
-        /// </summary>
-        internal static readonly ParseResult Success = new ParseResult();
-
-        private ParseResult()
-        {
-            IsSuccess = true;
-            Errors = EmptyErrors;
-        }
-
-        /// <summary>
-        /// Create a new error ParseResult with the specified errors.
-        /// </summary>
-        /// <param name="errors"></param>
-        public ParseResult(params Exception[] errors)
-        {
-            Errors = errors;
-        }
-
-        /// <summary>
-        /// Execute a delegate based on the contents of the result. If it contains
-        /// a value, handleValue is called. If it contains a TerminatingTrigger,
-        /// handleTrigger is called. Otherwise, handleErrors is called.
-        /// </summary>
-        /// <param name="handleValue"></param>
-        /// <param name="handleErrors"></param>
-        public TRet Handle<TRet>(
-            Func<TRet> handleSuccess,
-            Func<Exception[], TRet> handleErrors)
-        {
-            if (handleSuccess == null) throw new ArgumentException("handleSuccess cannot be null", "handleSuccess");
-            if (handleErrors == null) throw new ArgumentException("handleErrors cannot be null", "handleErrors");
-
-            if (IsSuccess) return handleSuccess();
-            else return handleErrors(Errors);
-        }
-
-        /// <inheritdoc />
-        public override string ToString()
-        {
-            if (IsSuccess)
-            {
-                return "<ParseResult Success>";
             }
             return String.Format("<ParseResult Errors({0}):{1}>",
                 Errors.Length,

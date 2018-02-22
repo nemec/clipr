@@ -23,7 +23,7 @@ namespace clipr.UnitTests
         public void CaseFolding_ParseLongArgWithWrongCaseWhenCaseInsensitive_CorrectlyParsesArgs()
         {
             var parser = new CliParser<CaseFoldingOptions>(
-                new ParserOptions { CaseInsensitive = true });
+                new ParserSettings<CaseFoldingOptions> { CaseInsensitive = true });
             var result = parser.Parse("--Name timothy".Split(), new CaseFoldingOptions());
             result.Handle(
                 opt => Assert.AreEqual("timothy", opt.Name),
@@ -47,7 +47,7 @@ namespace clipr.UnitTests
         public void CaseFolding_ParseShortArgWithWrongCaseWhenCaseInsensitive_CorrectlyParsesArgs()
         {
             var parser = new CliParser<CaseFoldingOptions>(
-                new ParserOptions { CaseInsensitive = true });
+                new ParserSettings<CaseFoldingOptions> { CaseInsensitive = true });
             var result = parser.Parse("-N timothy".Split(), new CaseFoldingOptions());
             result.Handle(
                 opt => Assert.AreEqual("timothy", opt.Name),
@@ -71,7 +71,7 @@ namespace clipr.UnitTests
         public void CaseFolding_ParseLongArgPrefixWithCorrectCaseWhenCaseSensitiveAndPartialMatch_CorrectlyParsesArgs()
         {
             var parser = new CliParser<CaseFoldingOptions>(
-                new ParserOptions { NamedPartialMatch = true });
+                new ParserSettings<CaseFoldingOptions> { NamedPartialMatch = true });
             var result = parser.Parse("--na timothy".Split(), new CaseFoldingOptions());
             result.Handle(
                 opt => Assert.AreEqual("timothy", opt.Name),
@@ -83,7 +83,7 @@ namespace clipr.UnitTests
         public void CaseFolding_ParseLongArgPrefixWithWrongCaseWhenCaseInsensitiveAndPartialMatch_CorrectlyParsesArgs()
         {
             var parser = new CliParser<CaseFoldingOptions>(
-                new ParserOptions { CaseInsensitive = true, NamedPartialMatch = true });
+                new ParserSettings<CaseFoldingOptions> { CaseInsensitive = true, NamedPartialMatch = true });
             var result = parser.Parse("--Na timothy".Split(), new CaseFoldingOptions());
             result.Handle(
                 opt => Assert.AreEqual("timothy", opt.Name),
@@ -178,8 +178,10 @@ namespace clipr.UnitTests
         public void ParseArguments_WithUsageAndVersionNull_DoesNotThrowException()
         {
             var opt = new NullUsageAndVersion();
-            new CliParser<NullUsageAndVersion>(
-                ParserOptions.Default, null).Parse("name".Split(), opt);
+            var opts = new ParserSettings<NullUsageAndVersion>();
+            opts.HelpGenerator = null;
+            opts.VersionGenerator = null;
+            new CliParser<NullUsageAndVersion>(opts).Parse("name".Split(), opt);
             Assert.AreEqual("name", opt.Value);
         }
 

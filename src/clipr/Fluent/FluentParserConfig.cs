@@ -7,10 +7,10 @@ using System;
 
 namespace clipr.Fluent
 {
-    internal class FluentParserConfig<TConfig> : ParserConfig<TConfig> where TConfig : class
+    internal class FluentParserConfig<TConfig> : ParserConfig where TConfig : class
     {
-        public FluentParserConfig(Type optionType, ParserOptions options, IEnumerable<ITerminatingTrigger> triggers, IVerbFactory factory)
-            : base(optionType, options, triggers, factory)
+        public FluentParserConfig(Type optionType, IParserSettings options, IEnumerable<ITerminatingTrigger> triggers)
+            : base(optionType, options, triggers)
         {
             PendingNamedArguments = new List<NamedArgument>();
             /*

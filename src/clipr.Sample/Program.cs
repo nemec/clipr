@@ -401,8 +401,8 @@ namespace clipr.Sample
 
         public static void ParseArgsWithEvent()
         {
-            var cfg = new ParserOptions();
-            cfg.OnParseArgument += (ctx, args) =>
+            var cfg = new ParserSettings<OrderedArgs>();
+            cfg.OnParseArgument = args =>
             {
                 switch (args.ArgumentName)
                 {
@@ -416,6 +416,7 @@ namespace clipr.Sample
                         Console.WriteLine("function");
                         break;
                 }
+                return null;
             };
 
             var parser = new CliParser<OrderedArgs>(cfg);
