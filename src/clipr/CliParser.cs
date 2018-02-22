@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using clipr.Core;
 using clipr.Triggers;
 using clipr.Usage;
-using clipr.Utils;
-using clipr.IOC;
 using System.Linq;
 using clipr.Validation;
 
@@ -143,17 +140,11 @@ namespace clipr
 
         public IParseValidator<TConf> Validator { get; set; }
 
-        #region Private Properties
-
         internal const int ErrorExitCode = 2;
 
         private IParserConfig Config { get; set; }
 
         private ParserSettings<TConf> Options { get; set; }
-
-        #endregion
-
-        #region ctors
 
         /// <summary>
         /// Create a new parser with the default usage generator.
@@ -188,8 +179,6 @@ namespace clipr
             Config = config;
             Options = options;
         }
-
-        #endregion
 
         /// <summary>
         /// Checks the configuration type TConf for any attribute issues.
@@ -228,8 +217,7 @@ namespace clipr
                 Options.CustomTriggers
                     .Concat(new ITerminatingTrigger[] { Options.HelpGenerator, Options.VersionGenerator }));
         }
-
-        #region Public Parsing Methods
+        
 
         /// <summary>
         /// <para>
@@ -302,7 +290,5 @@ namespace clipr
             var conf = BuildConfig();
             return new ParsingContext<TConf>(obj, conf, Validator).Parse(args);
         }
-
-        #endregion
     }
 }
