@@ -62,6 +62,8 @@ static void Main()
 
 ### Master
 
+### 2018-03-25
+
 * Fix minor help page formatting errors.
 * Add Verbs/Commands to help page.
 * Add the ability to configure the TextWriter for help and version output

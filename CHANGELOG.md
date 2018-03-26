@@ -1,3 +1,12 @@
+### 2018-03-25
+
+* Fix minor help page formatting errors.
+* Add Verbs/Commands to help page.
+* Add the ability to configure the TextWriter for help and version output
+  so it is no longer writing only to `Console.Error`.
+* Allow each verb to inherit the `--help` trigger so that you can get detailed
+  help information for verbs.
+
 ### 2017-07-13 1.6.0.1
 
 * Fix a bug in parsing consecutive Optional values.

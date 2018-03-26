@@ -2,7 +2,7 @@
 <package>
   <metadata>
     <id>clipr</id>
-    <version>1.6.0.1</version>
+    <version>1.6.1.0</version>
     <title>clipr Command Line Interface ParseR</title>
     <authors>Dan Nemec</authors>
     <owners>Dan Nemec</owners>
@@ -11,9 +11,10 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <description>Simple command line argument parser inspired by Python's argparse.</description>
     <releaseNotes>
+      2018-03-25 1.6.1.0 Add help options for Verbs
       2017-07-13 1.6.0.1 Fix a bug in parsing consecutive Optional values.
-      2016-01-02 1.6.0 Add optional constraints on NamedArguments where the value can be left off.
-      2016-07-31 1.5.1 Support .Net Core, localization, and other fixes.
+      2016-01-02 1.6.0.0 Add optional constraints on NamedArguments where the value can be left off.
+      2016-07-31 1.5.1.0 Support .Net Core, localization, and other fixes.
     </releaseNotes>
     <copyright>Copyright 2017</copyright>
     <tags>command line parse parse arguments help usage argparse</tags>
@@ -26,21 +27,21 @@
     </dependencies>
   </metadata>
   <files>
-    <file src="clipr\bin\Release\clipr.dll"
+    <file src="src\clipr\bin\Release\clipr.dll"
           target="lib\net35\clipr.dll" />
-    <file src="clipr\bin\Release\es\clipr.resources.dll"
+    <file src="src\clipr\bin\Release\es\clipr.resources.dll"
           target="lib\net35\es\clipr.resources.dll" />
-    <file src="clipr\bin\Release\de\clipr.resources.dll"
+    <file src="src\clipr\bin\Release\de\clipr.resources.dll"
           target="lib\net35\de\clipr.resources.dll" />
-    <file src="clipr\bin\Release\pt-PT\clipr.resources.dll"
+    <file src="src\clipr\bin\Release\pt-PT\clipr.resources.dll"
           target="lib\net35\pt-PT\clipr.resources.dll" />
-    <file src="clipr.NetCore\bin\Release\netstandard1.6\clipr.NetCore.dll"
+    <file src="src\clipr.NetCore\bin\Release\netstandard1.6\clipr.NetCore.dll"
           target="lib\netstandard1.6\clipr.NetCore.dll" />
-    <file src="clipr.NetCore\bin\Release\netstandard1.6\es\clipr.NetCore.resources.dll"
+    <file src="src\clipr.NetCore\bin\Release\netstandard1.6\es\clipr.NetCore.resources.dll"
           target="lib\netstandard1.6\es\clipr.NetCore.resources.dll" />
-    <file src="clipr.NetCore\bin\Release\netstandard1.6\de\clipr.NetCore.resources.dll"
+    <file src="src\clipr.NetCore\bin\Release\netstandard1.6\de\clipr.NetCore.resources.dll"
           target="lib\netstandard1.6\de\clipr.NetCore.resources.dll" />
-    <file src="clipr.NetCore\bin\Release\netstandard1.6\pt-PT\clipr.NetCore.resources.dll"
+    <file src="src\clipr.NetCore\bin\Release\netstandard1.6\pt-PT\clipr.NetCore.resources.dll"
           target="lib\netstandard1.6\pt-PT\clipr.NetCore.resources.dll" />
   </files>
 </package>
