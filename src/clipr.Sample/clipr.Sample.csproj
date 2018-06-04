@@ -7,6 +7,7 @@
     <RootNamespace>clipr.Sample</RootNamespace>
     <AssemblyName>clipr.Sample</AssemblyName>
     <OutputType>Exe</OutputType>
+    <StartupObject>clipr.Sample.Program</StartupObject>
   </PropertyGroup>
 
   <PropertyGroup>

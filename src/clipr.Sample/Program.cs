@@ -17,8 +17,9 @@ namespace clipr.Sample
             // CustomConverterDateTime.Main("-d 20140730 2013-09-10".Split());
             // RequiredNamedArgument.Main("-c -d 10/13/2010".Split());
             // PasswordMasking.DoPwMaskingAndPositional();
-            StaticEnums.ParseStaticEnumList();
+            // StaticEnums.ParseStaticEnumList();
             // OnParseArgumentEvent.ParseArgsWithEvent();
+            ReusableCliParser.Main();
         }
     }
 }
