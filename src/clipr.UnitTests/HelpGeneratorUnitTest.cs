@@ -129,7 +129,7 @@ Optional Arguments:
 
             var help = gen.GetHelp(parser.BuildConfig());
 
-            Assert.AreEqual(expected, help);
+            Assert.AreEqual(expected.Replace("\r\n", "\n"), help.Replace("\r\n", "\n"));
         }
 
         [ApplicationInfo(Name = "clipr")]
@@ -159,7 +159,7 @@ Optional Arguments:
 
             var help = gen.GetHelp(parser.BuildConfig());
 
-            Assert.AreEqual(expected, help);
+            Assert.AreEqual(expected.Replace("\r\n", "\n"), help.Replace("\r\n", "\n"));
         }
 
         [ApplicationInfo(Name ="clipr")]
@@ -201,7 +201,7 @@ Commands:
 
             var help = gen.GetHelp(parser.BuildConfig());
 
-            Assert.AreEqual(expected, help);
+            Assert.AreEqual(expected.Replace("\r\n", "\n"), help.Replace("\r\n", "\n"));
         }
 
         [TestMethod]
@@ -221,7 +221,7 @@ Optional Arguments:
             parser.Parse("verb1 --help".Split(), opt);
             var actual = sw.ToString();
 
-            Assert.AreEqual(expected, actual);
+            Assert.AreEqual(expected.Replace("\r\n", "\n"), actual.Replace("\r\n", "\n"));
         }
 
         [ApplicationInfo(Name = "clipr")]
@@ -266,7 +266,7 @@ Commands:
             parser.Parse("verb1 --help".Split(), opt);
             var actual = sw.ToString();
 
-            Assert.AreEqual(expected, actual);
+            Assert.AreEqual(expected.Replace("\r\n", "\n"), actual.Replace("\r\n", "\n"));
         }
 
         [TestMethod]
@@ -286,7 +286,7 @@ Optional Arguments:
             parser.Parse("verb1 verb2 --help".Split(), opt);
             var actual = sw.ToString();
 
-            Assert.AreEqual(expected, actual);
+            Assert.AreEqual(expected.Replace("\r\n", "\n"), actual.Replace("\r\n", "\n"));
         }
 
         // TODO GenerateUsage_WithStaticEnum_ListsEnumValues()

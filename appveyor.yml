@@ -1,0 +1,36 @@
+version: '2.0.{build}'
+image: Visual Studio 2017
+branches:
+  only:
+    - master
+    - "2.0-breaking"
+init:
+  - cmd: git config --global core.autoclrf input
+install:
+
+before_build:
+  - cmd: dotnet --version
+  - cmd: dotnet restore ./src/clipr/clipr.csproj
+
+build_script:
+  - cmd: dotnet publish -f netstandard2.0 ./src/clipr/clipr.csproj
+  - cmd: dotnet publish -f net45 ./src/clipr/clipr.csproj
+
+after_build:
+
+artifacts:
+  # No artifacts for the moment as we multi-target. Publish manually.
+  #- path: '\src\bin\Debug\netstandard2.0\publish'
+  #  name: clipr
+  #  type: NuGetPackage
+
+clone_depth: 1
+
+test_script:
+    - cmd: dotnet restore src/clipr.UnitTests/clipr.UnitTests.csproj
+    - cmd: dotnet test -f netcoreapp2.0 src/clipr.UnitTests/clipr.UnitTests.csproj
+    - cmd: dotnet test -f net45 src/clipr.UnitTests/clipr.UnitTests.csproj
+
+on_finish:
+
+deploy: off

@@ -209,7 +209,7 @@ Optional Arguments:
                 var actual = help.GetHelp(parser.BuildConfig());
 
                 // Assert
-                Assert.AreEqual(expected, actual);
+                Assert.AreEqual(expected.Replace("\r\n", "\n"), actual.Replace("\r\n", "\n"));
             }
         }
 
@@ -237,7 +237,7 @@ Argumentos opcionales:
                 var actual = help.GetHelp(parser.BuildConfig());
 
                 // Assert
-                Assert.AreEqual(expected, actual);
+                Assert.AreEqual(expected.Replace("\r\n", "\n"), actual.Replace("\r\n", "\n"));
             }
         }
 
