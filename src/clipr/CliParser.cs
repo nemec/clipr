@@ -187,7 +187,7 @@ namespace clipr
         {
             var checker = new IntegrityChecker();
             return checker.EnsureAttributeIntegrity<TConf>(Options)
-                .Concat(checker.EnsureVerbIntegrity<TConf>(Options.VerbFactory))
+                .Concat(checker.EnsureVerbIntegrity<TConf>(Options))
                 .Concat(checker.EnsureTriggerIntegrity(Options.HelpGenerator, Options.VersionGenerator, Options.CustomTriggers))
                 .ToArray();
         }

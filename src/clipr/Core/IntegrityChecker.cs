@@ -31,9 +31,14 @@ namespace clipr.Core
         /// </typeparam>
         internal IEnumerable<Exception> EnsureAttributeIntegrity<T>(IParserSettings options)
         {
+            return EnsureAttributeIntegrityByType(options, typeof(T));
+        }
+
+        private IEnumerable<Exception> EnsureAttributeIntegrityByType(IParserSettings options, Type t)
+        {
             var integrityExceptions = new List<Exception>();
 
-            var properties = typeof(T).GetTypeInfo().GetProperties().Where(
+            var properties = t.GetTypeInfo().GetProperties().Where(
                 p => p.GetCustomAttributes<ArgumentAttribute>().Any());
             foreach (var prop in properties)
             {
@@ -57,20 +62,20 @@ namespace clipr.Core
 
                 // Set property data on argument
                 attr.Store = new PropertyValueStore(prop);
-                
+
                 integrityExceptions.AddRange(
                     GetIntegrityExceptionsForArgument(attr));
             }
 
-            integrityExceptions.Add(LastPositionalArgumentCanTakeMultipleValuesCheck<T>());
-            integrityExceptions.Add(PostParseZeroParametersCheck<T>());
-            integrityExceptions.Add(ConfigMayNotContainBothPositionalArgumentsAndVerbs<T>());
-            integrityExceptions.AddRange(ConfigMayNotContainDuplicateArguments<T>(options));
+            integrityExceptions.Add(LastPositionalArgumentCanTakeMultipleValuesCheck(t));
+            integrityExceptions.Add(PostParseZeroParametersCheck(t));
+            integrityExceptions.Add(ConfigMayNotContainBothPositionalArgumentsAndVerbs(t));
+            integrityExceptions.AddRange(ConfigMayNotContainDuplicateArguments(options, t));
 
             return integrityExceptions.Where(e => e != null);
         }
 
-        internal IEnumerable<Exception> EnsureVerbIntegrity<T>(IVerbFactory factory)
+        internal IEnumerable<Exception> EnsureVerbIntegrity<T>(IParserSettings settings)
         {
             var integrityExceptions = new List<Exception>();
 
@@ -78,10 +83,13 @@ namespace clipr.Core
                 p => p.GetCustomAttributes<VerbAttribute>().Any());
             foreach (var prop in properties)
             {
-                integrityExceptions.Add(VerbMustHaveFactoryDefined(prop, factory));
+                integrityExceptions.Add(
+                    VerbMustHaveFactoryDefined(prop, settings.VerbFactory));
+                integrityExceptions.AddRange(
+                    EnsureAttributeIntegrityByType(settings, prop.PropertyType));
             }
 
-            integrityExceptions.Add(CannotDefineDuplicateVerbs<T>());
+            integrityExceptions.Add(CannotDefineDuplicateVerbs(typeof(T)));
 
             return integrityExceptions.Where(e => e != null);
         }
@@ -365,11 +373,10 @@ namespace clipr.Core
         /// <summary>
         /// Only last positional argument may take multiple values.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        private static Exception LastPositionalArgumentCanTakeMultipleValuesCheck<T>()
+        private static Exception LastPositionalArgumentCanTakeMultipleValuesCheck(Type t)
         {
-            var props = typeof(T).GetTypeInfo().GetProperties()
+            var props = t.GetTypeInfo().GetProperties()
                 .Where(p => p.GetCustomAttribute<PositionalArgumentAttribute>() != null)
                 .OrderBy(p => p.GetCustomAttribute<PositionalArgumentAttribute>().Index)
                 .ToList();
@@ -391,15 +398,14 @@ namespace clipr.Core
         /// Configuration objects may not use both positional parameters
         /// and verbs in the same object.
         /// </summary>
-        /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        private static Exception ConfigMayNotContainBothPositionalArgumentsAndVerbs<T>()
+        private static Exception ConfigMayNotContainBothPositionalArgumentsAndVerbs(Type t)
         {
-            var positionalCount = typeof(T)
+            var positionalCount = t
                 .GetTypeInfo()
                 .GetProperties()
                 .Count(p => p.GetCustomAttribute<PositionalArgumentAttribute>() != null);
-            var verbCount = typeof(T)
+            var verbCount = t
                 .GetTypeInfo()
                 .GetProperties()
                 .Count(p => p.GetCustomAttributes<VerbAttribute>().Any());
@@ -412,9 +418,9 @@ namespace clipr.Core
             return null;
         }
 
-        private static IEnumerable<Exception> ConfigMayNotContainDuplicateArguments<T>(IParserSettings options)
+        private static IEnumerable<Exception> ConfigMayNotContainDuplicateArguments(IParserSettings options, Type t)
         {
-            var named = typeof(T)
+            var named = t
                 .GetTypeInfo()
                 .GetProperties()
                 .Select(p => p.GetCustomAttribute<NamedArgumentAttribute>())
@@ -457,9 +463,9 @@ namespace clipr.Core
             return null;
         }
 
-        private static Exception CannotDefineDuplicateVerbs<T>()
+        private static Exception CannotDefineDuplicateVerbs(Type t)
         {
-            var verbs = typeof(T)
+            var verbs = t
                 .GetTypeInfo()
                 .GetProperties()
                 .SelectMany(p => 
@@ -486,9 +492,9 @@ namespace clipr.Core
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        private static Exception PostParseZeroParametersCheck<T>()
+        private static Exception PostParseZeroParametersCheck(Type t)
         {
-            var invalidPostParseMethods = typeof(T).GetTypeInfo().GetMethods()
+            var invalidPostParseMethods = t.GetTypeInfo().GetMethods()
                 .Where(m => m.GetCustomAttribute<PostParseAttribute>() != null)
                 .Where(m => m.GetParameters().Length != 0);
             foreach (var method in invalidPostParseMethods)
