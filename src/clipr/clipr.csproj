@@ -1,9 +1,10 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net45;net40</TargetFrameworks>
     <RootNamespace>clipr</RootNamespace>
     <AssemblyName>clipr</AssemblyName>
+    <Version>2.0.0-alpha2</Version>
   </PropertyGroup>
 
   <!-- .NET Standard 2.0 references, compilation flags and build options -->
