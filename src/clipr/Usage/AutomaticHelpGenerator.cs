@@ -479,11 +479,11 @@ namespace clipr.Usage
             var ret = new List<string>();
             if (attr.ShortName != null)
             {
-                ret.Add(""+ config.Options.ArgumentPrefix + attr.ShortName);
+                ret.Add(""+ config.Settings.ArgumentPrefix + attr.ShortName);
             }
             if (attr.LongName != null)
             {
-                ret.Add("" + config.Options.ArgumentPrefix + config.Options.ArgumentPrefix + attr.LongName);
+                ret.Add("" + config.Settings.ArgumentPrefix + config.Settings.ArgumentPrefix + attr.LongName);
             }
             return ret;
         }
@@ -509,7 +509,7 @@ namespace clipr.Usage
         /// <param name="config"></param>
         public void OnParse(IParserConfig config)
         {
-            (config.Options.OutputWriter 
+            (config.Settings.OutputWriter 
                 ?? DefaultHelpWriter).WriteLine(GetHelp(config));
         }
     }

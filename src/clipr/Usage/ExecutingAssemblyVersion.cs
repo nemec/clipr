@@ -54,7 +54,7 @@ namespace clipr.Usage
         /// <param name="config"></param>
         public void OnParse(IParserConfig config)
         {
-            (config.Options.OutputWriter
+            (config.Settings.OutputWriter
                 ?? DefaultWriter).WriteLine(GetVersion());
         }
 

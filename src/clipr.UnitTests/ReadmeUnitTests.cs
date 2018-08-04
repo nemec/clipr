@@ -75,20 +75,21 @@ namespace clipr.UnitTests
         public void ParseExample_WithMultipleArgumentsAndFluentConfig_ParsesVerbosity()
         {
             var opt = new FluentOptions();
+            var builder = new CliParserBuilder<FluentOptions>();
+            builder
+                .AddNamedArgument(o => o.Verbosity)
+                .WithShortName('v')
+                .CountsInvocations();
+            builder
+                .AddNamedArgument(o => o.OutputFile)
+                .WithShortName();
+            builder.AddPositionalArgumentList(o => o.Numbers)
+                .HasDescription("These are numbers")
+                .ConsumesAtLeast(1);
 
-            new CliParserBuilder<FluentOptions>()
-                .HasNamedArgument(o => o.Verbosity)
-                    .WithShortName('v')
-                    .CountsInvocations()
-            .And
-                .HasNamedArgument(o => o.OutputFile)
-                    .WithShortName()
-            .And
-                .HasPositionalArgumentList(o => o.Numbers)
-                    .HasDescription("These are numbers.")
-                    .Consumes.AtLeast(1)
-            .And.Parser
-                .Parse("-vvv -o out.txt 3 4 5 6".Split(), opt);
+            var parser = builder.BuildParser();
+                
+            parser.Parse("-vvv -o out.txt 3 4 5 6".Split(), opt);
 
             Assert.AreEqual(3, opt.Verbosity);
         }
@@ -97,20 +98,21 @@ namespace clipr.UnitTests
         public void ParseExample_WithMultipleArgumentsAndFluentConfig_ParsesOutputFile()
         {
             var opt = new FluentOptions();
+            var builder = new CliParserBuilder<FluentOptions>();
+            builder
+                .AddNamedArgument(o => o.Verbosity)
+                .WithShortName('v')
+                .CountsInvocations();
+            builder
+                .AddNamedArgument(o => o.OutputFile)
+                .WithShortName();
+            builder.AddPositionalArgumentList(o => o.Numbers)
+                .HasDescription("These are numbers")
+                .ConsumesAtLeast(1);
 
-            new CliParserBuilder<FluentOptions>()
-                .HasNamedArgument(o => o.Verbosity)
-                    .WithShortName('v')
-                    .CountsInvocations()
-            .And
-                .HasNamedArgument(o => o.OutputFile)
-                    .WithShortName()
-            .And
-                .HasPositionalArgumentList(o => o.Numbers)
-                    .HasDescription("These are numbers.")
-                    .Consumes.AtLeast(1)
-            .And.Parser
-                .Parse("-vvv -o out.txt 3 4 5 6".Split(), opt);
+            var parser = builder.BuildParser();
+
+            parser.Parse("-vvv -o out.txt 3 4 5 6".Split(), opt);
 
             Assert.AreEqual("out.txt", opt.OutputFile);
         }
@@ -121,22 +123,39 @@ namespace clipr.UnitTests
             var numbers = new[] { 3, 4, 5, 6 };
 
             var opt = new FluentOptions();
+            var builder = new CliParserBuilder<FluentOptions>();
+            builder
+                .AddNamedArgument(o => o.Verbosity)
+                .WithShortName('v')
+                .CountsInvocations();
+            builder
+                .AddNamedArgument(o => o.OutputFile)
+                .WithShortName();
+            builder.AddPositionalArgumentList(o => o.Numbers)
+                .HasDescription("These are numbers")
+                .ConsumesAtLeast(1);
 
-            new CliParserBuilder<FluentOptions>()
-                .HasNamedArgument(o => o.Verbosity)
-                    .WithShortName('v')
-                    .CountsInvocations()
-            .And
-                .HasNamedArgument(o => o.OutputFile)
-                    .WithShortName()
-            .And
-                .HasPositionalArgumentList(o => o.Numbers)
-                    .HasDescription("These are numbers.")
-                    .Consumes.AtLeast(1)
-            .And.Parser
-                .Parse("-vvv -o out.txt 3 4 5 6".Split(), opt);
+            var parser = builder.BuildParser();
+
+            parser.Parse("-vvv -o out.txt 3 4 5 6".Split(), opt);
 
             CollectionAssert.AreEqual(numbers, opt.Numbers);
+        }
+
+        [TestMethod]
+        public void ParseExample_WithDynamicArgumentsAndFluentConfig_ParsesValue()
+        {
+            var expected = "frank";
+            var key = 1;
+            var opt = new Dictionary<int, string>();
+            var builder = new CliParserBuilder<Dictionary<int, string>>();
+            builder.AddNamedArgument(c => c[key])
+                  .WithShortName('n');
+
+            var parser = builder.BuildParser();
+            parser.Parse("-n frank".Split(), opt);
+
+            Assert.AreEqual(expected, opt[key]);
         }
 
         [StaticEnumeration]
@@ -182,10 +201,12 @@ namespace clipr.UnitTests
             var key = 1;
             var opt = new Dictionary<int, string>();
             var builder = new CliParserBuilder<Dictionary<int, string>>();
-            builder.HasNamedArgument(c => c[key])
+            builder.AddNamedArgument(c => c[key])
                     .WithShortName('n');
 
-            builder.Parser.Parse("-n frank".Split(), opt);
+            var parser = builder.BuildParser();
+                
+            parser.Parse("-n frank".Split(), opt);
 
             Assert.AreEqual("frank", opt[key]);
         }

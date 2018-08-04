@@ -24,7 +24,7 @@ namespace clipr.Core
         /// <summary>
         /// Configuration options for the parser.
         /// </summary>
-        IParserSettings Options { get; }
+        IParserSettings Settings { get; }
 
         /// <summary>
         /// The root type of the Options class
@@ -102,7 +102,7 @@ namespace clipr.Core
         
         public char LongOptionSeparator { get { return '='; } }
 
-        public IParserSettings Options { get; private set; }
+        public IParserSettings Settings { get; private set; }
 
         public Type OptionType { get; protected set; }
 
@@ -121,12 +121,12 @@ namespace clipr.Core
         private List<ITerminatingTrigger> _triggers = new List<ITerminatingTrigger>();
         public IEnumerable<ITerminatingTrigger> Triggers { get { return _triggers; } }
 
-        protected ParserConfig(Type optionType, IParserSettings options, IEnumerable<ITerminatingTrigger> triggers)
+        protected ParserConfig(Type optionType, IParserSettings settings, IEnumerable<ITerminatingTrigger> triggers)
         {
             OptionType = optionType;
-            Options = options;
+            Settings = settings;
 
-            if (options.CaseInsensitive)
+            if (settings.CaseInsensitive)
             {
                 var comparer = StringComparer.OrdinalIgnoreCase;
                 

@@ -12,8 +12,6 @@ namespace clipr.Arguments
 
         public string Description { get; set; }
 
-        public List<string> MutuallyExclusiveGroups { get; set; }
-
         public uint NumArgs { get; set; }
 
         public NumArgsConstraint Constraint { get; set; }

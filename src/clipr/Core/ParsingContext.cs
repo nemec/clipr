@@ -72,7 +72,7 @@ namespace clipr.Core
         /// <param name="args">Argument list to parse.</param>
         public ParseResult<T> Parse(string[] args)
         {
-            var positionalDelimiter = "" + Config.Options.ArgumentPrefix + Config.Options.ArgumentPrefix;
+            var positionalDelimiter = "" + Config.Settings.ArgumentPrefix + Config.Settings.ArgumentPrefix;
             var values = new Stack<string>(args.Reverse());
             var positionalArgumentStore = new List<string>();
             var positionalDelimiterFound = false;
@@ -95,7 +95,7 @@ namespace clipr.Core
                     break;
                 }
 
-                if (arg[0] == Config.Options.ArgumentPrefix)
+                if (arg[0] == Config.Settings.ArgumentPrefix)
                 {
                     if (arg.Length == 1)  // myprog.exe -
                     {
@@ -103,9 +103,9 @@ namespace clipr.Core
                             @"Cannot use argument prefix ""{0}"" as " +
                             @"argument unless forced into positional " +
                             @"mode using ""{1}"".",
-                            Config.Options.ArgumentPrefix, positionalDelimiter)));
+                            Config.Settings.ArgumentPrefix, positionalDelimiter)));
                     }
-                    if (arg[1] == Config.Options.ArgumentPrefix)  // myprog.exe --arg
+                    if (arg[1] == Config.Settings.ArgumentPrefix)  // myprog.exe --arg
                     {
                         var partition = arg.Substring(2).Split(
                             new []{Config.LongOptionSeparator}, 2);
@@ -189,7 +189,7 @@ namespace clipr.Core
                     Config.Verbs.ContainsKey(arg))
                 {
                     var verbConfig = Config.Verbs[arg];
-                    var verbObj = Config.Options.VerbFactory.GetVerb(verbConfig.Store.Type);
+                    var verbObj = Config.Settings.VerbFactory.GetVerb(verbConfig.Store.Type);
                     var context = ParsingContextFactory.Create(
                         verbObj, verbConfig.Store.Type, verbConfig);
                     var verbResult = context.Parse(values.ToArray());
@@ -255,7 +255,7 @@ namespace clipr.Core
 
         private ParseResult ParseOptionalArgument<TS>(TS name, Dictionary<TS, INamedArgumentBase> argDict, Stack<string> iter, bool positionalDelimiterFound)
         {
-            var argResult = GetArgument(name, argDict, Config.Options);
+            var argResult = GetArgument(name, argDict, Config.Settings);
             return argResult.Handle(
                 arg =>
                 {
@@ -274,7 +274,7 @@ namespace clipr.Core
                             new ParseException(name.ToString(),
                                 "Arguments that consume values cannot be grouped."));
                     }
-                    var prefix = Config.Options.ArgumentPrefix.ToString();
+                    var prefix = Config.Settings.ArgumentPrefix.ToString();
 
                     // If next item looks like an 'optional' argument, pretend like the arg list is empty
                     string next = null;
@@ -312,7 +312,7 @@ namespace clipr.Core
 
         private bool ParamIsArgument(string param)
         {
-            if (param == null || param.Length == 0 || param[0] != Config.Options.ArgumentPrefix) return false;
+            if (param == null || param.Length == 0 || param[0] != Config.Settings.ArgumentPrefix) return false;
             if (param.Length > 1 && Char.IsDigit(param[1])) return false;
             return true;
         }
@@ -644,7 +644,7 @@ namespace clipr.Core
         private bool TrySendArgumentUpdate(object ctx, string name, object value, out ITerminatingTrigger end)
         {
             var arg = new ParseEventArgs(ctx, name, value);
-            var cb = Config.Options.OnParseArgument;
+            var cb = Config.Settings.OnParseArgument;
             if(cb == null)
             {
                 end = null;
@@ -689,7 +689,7 @@ namespace clipr.Core
                 // But not if the next character is a digit
                 if (!positionalDelimiterFound &&
                     stringValue != null &&
-                    stringValue.StartsWith(Config.Options.ArgumentPrefix
+                    stringValue.StartsWith(Config.Settings.ArgumentPrefix
                         .ToString()) &&
                     (stringValue.Length > 1 && !Char.IsDigit(stringValue[1])))
                 {

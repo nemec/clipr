@@ -1,4 +1,4 @@
-clipr: A Command Line Interface ParseR for .Net 3.5+ and .Net Core
+﻿clipr: A Command Line Interface ParseR for .Net 3.5+ and .Net Core
 ===============================================
 
 Created by [Dan Nemec](https://github.com/nemec)
@@ -98,6 +98,53 @@ static void Main()
 * Fixed bug in .Net Core localization resource name.
 
 [Full Changelog](CHANGELOG.md)
+
+## Terminology
+
+Note that all terminology refers to UNIX/Linux style arguments, which is the
+style used by this library. Windows style (`/arg`) and Powershell (`-Arg`)
+are very similar, but do not distinguish between 'short' and 'long' arguments.
+
+    ┌─ Shell Marker
+    │      ┌─ Application Executable
+    │      │             ┌─ Verb                           ┌─ Positional Argument Value 
+    ↓      ↓             ↓                                 ↓
+    $ application.exe download --outfile data.txt -p 80 google.com
+	                               ↑        ↑      ↑
+								   │        │      └─ Short Named Argument
+								   │        └─ Named Argument Value
+								   └─ Long Named Argument
+
+* Shell Marker: this symbol is often seen paired with a command line, it
+	indicates that the following text is a command that can be written in
+	the terminal/console. The character `$` often represents a command run
+	as a normal user while the character `#` indicates the command should
+	be run under an Administrator or root account.
+* Application Executable: this is the name of your CLI application, or the
+	full path if the application is not available to the current folder.
+* Verb: a verb is the name often given to a "bare" value added to the beginning
+	of the command line. Since it often represents an action, the word is
+	typically a 'verb', although it can be any word. It can also be used
+	to group related arguments together. In clipr, verbs are optional and
+	they can be nested to allow multiple verbs in a single command.
+* Named Argument: a named argument refers to arguments that are given
+	an explicit name on the command line. Because each is referred to by name,
+	they are often optional and may be put in any order inside the command. When 
+	a named argument (short or long) has no value, it is often called a 'flag'.
+* Named Argument Value: the value for a named argument follows immediately after
+	the corresponding argument. This allows you to easily identify which value
+	belongs to an argument. Some named arguments support multiple values; this
+	varies with each command.
+* Long Named Argument: this is a named argument that is prefixed by a double dash
+	and always contains at least two or more characters in the name.
+* Short Named Argument: this is a named argument that is prefixed by a single dash.
+	It always consists of a single character and, if it is a flag (no value), you
+	may combine	multiple short named arguments together after a single dash
+	(e.g. `-sap` is the same as `-s -a -p` - the single leading dash ensures the
+	flags are not mistaken for a long named argument).
+* Positional Argument: in contrast to a named argument, a positional argument
+	is one that is not prefixed by a name. To resolve ambiguity, positional
+	arguments are given a specific order by the application developer.
 
 ## CliParser vs. CliParser<>
 
@@ -582,32 +629,29 @@ public static void Main()
 
 ## Fluent Interface
 
-\*\* Alpha Feature \*\*
-
 Instead of attributes, the parser may be configured using a fluent interface.
 There are five branches off of the parser to configure new arguments:
-`HasNamedArgument`, `HasNamedArgumentList`, `HasPositionalArgument`,
-`HasPositionalArgumentList`, and `HasVerb`. The argument instances returned
-from each of these may be used to configure the individual argument and
-you may return to the parser by chaining the `And` property when finished
-configuring.
+`AddNamedArgument`, `AddNamedArgumentList`, `AddPositionalArgument`,
+`AddPositionalArgumentList`, and `AddVerb`. The argument instances returned
+from each of these may be used to configure the individual argument
 
 ```csharp
 var opt = new Options();
 
-new CliParserBuilder<Options>()
-    .HasNamedArgument(o => o.Verbosity)
-        .WithShortName('v')
-        .CountsInvocations()
-.And
-    .HasNamedArgument(o => o.OutputFile)
-        .WithShortName()
-.And
-    .HasPositionalArgumentList(o => o.Numbers)
-        .HasDescription("These are numbers.")
-        .Consumes.AtLeast(1)
-.And.Parser
-    .Parse("-vvv -o out.txt 3 4 5 6".Split(), opt);
+var builder = new CliParserBuilder<Options>();
+builder
+    .AddNamedArgument(o => o.Verbosity)
+    .WithShortName('v')
+    .CountsInvocations();
+builder
+    .AddNamedArgument(o => o.OutputFile)
+    .WithShortName();
+builder.AddPositionalArgumentList(o => o.Numbers)
+    .HasDescription("These are numbers")
+    .ConsumesAtLeast(1);
+
+var parser = builder.BuildParser();
+parser.Parse("-vvv -o out.txt 3 4 5 6".Split(), opt);
 
 Console.WriteLine(opt.Verbosity);
 // >>> 3
@@ -628,20 +672,18 @@ You may also add a Verb to the parser config with this syntax:
 
 ```csharp
 var opt = new Options();
-new CliParserBuilder<Options>()
-    .HasVerb("add", c => c.AddVerb,
-              // Note that in the Fluent Interface, you're nesting parsers
-              // Theoretically this means you can nest an 
-              // Attribute-configured parser inside a Fluent parser
-              // (although you cannot do the opposite, due to limitations
-              // with Attributes).
-              new CliParserBuilder<AddFileOptions>(new AddFileOptions())
-                  .HasPositionalArgument(c => c.Filename)
-                  .And)  // A necessary evil if defining inline.
-.And.Parser
-    .Parse("add myfile.txt", opt);
 
-Console.WriteLine(opt.AddVerb);
+var builder = new CliParserBuilder<Options>();
+builder
+    .AddNamedArgument(c => c.NumCounters)
+    .WithShortName();
+builder
+    .AddVerb("add", c => c.AddInfo,
+        v => v.AddPositionalArgument(c => c.Filename));
+var parser = builder.BuildParser();
+parser.Parse("add myfile.txt".Split(), opt);
+
+Console.WriteLine(opt.AddInfo.Filename);
 // myfile.txt
 ```
 
@@ -660,10 +702,11 @@ in Expressions).
 ```csharp
 var key = 1;
 var opt = new Dictionary<int, string>();
-var parser = new CliParser<Dictionary<int, string>>();
-parser.HasNamedArgument(c => c[key])
-        .WithShortName('n');
+var builder = new CliParserBuilder<Dictionary<int, string>>();
+builder.AddNamedArgument(c => c[key])
+      .WithShortName('n');
 
+var parser = builder.BuildParser();
 parser.Parse("-n frank".Split(), opt);
 
 Console.WriteLine("Parsed Keys:");
@@ -684,8 +727,3 @@ Notes:
 * Since they're evaluated in configuration (rather than parsing), *any*
   type may be used as the indexer key, even if it's not convertible
   from a string.
-
-
-## TODO
-
-Render help information for verbs

@@ -19,17 +19,19 @@ namespace clipr.Sample
             switch (destinationFromConfig)
             {
                 case "file":
-                    builder.HasNamedArgument(c => c.Filename)
-                          .WithShortName('f');
+                    builder
+                        .AddNamedArgument(c => c.Filename)
+                        .WithShortName('f');
                     break;
                 //case "http":
                 default:
-                    builder.HasNamedArgument(c => c.Url)
-                          .WithShortName('u');
+                    builder
+                        .AddNamedArgument(c => c.Url)
+                        .WithShortName('u');
                     break;
             }
 
-            builder.Parser.Parse(args, opt);
+            builder.BuildParser().Parse(args, opt);
             Console.WriteLine("Filename: {0}", opt.Filename);
             Console.WriteLine("Url: {0}", opt.Url);
         }

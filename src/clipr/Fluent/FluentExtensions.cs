@@ -1,30 +1,142 @@
 ﻿
-namespace clipr.Fluent
+using clipr.Fluent;
+
+namespace clipr
 {
     /// <summary>
     /// Poor man's template specialization.
     /// </summary>
     public static class FluentExtensions
     {
-        public static Named<TConfig, int> CountsInvocations<TConfig>(this Named<TConfig, int> named)
-            where TConfig : class
+        /// <summary>
+        /// Instead of storing a value, the integer value will 
+        /// increment each time the argument is specified on the
+        /// command line.
+        /// </summary>
+        /// <param name="ths"></param>
+        /// <returns></returns>
+        public static NamedArgumentBuilder<int> CountsInvocations(
+            this NamedArgumentBuilder<int> ths)
         {
-            named.CountsInvocations();
-            return named;
+            ths.CountsInvocations();
+            return ths;
         }
 
-        public static Named<TConfig, bool> StoresTrue<TConfig>(this Named<TConfig, bool> named)
-            where TConfig : class
+        /// <summary>
+        /// Shortcut for storing a constant value of 'true'
+        /// if this argument is specified.
+        /// </summary>
+        /// <param name="ths"></param>
+        /// <returns></returns>
+        public static NamedArgumentBuilder<bool> StoresTrue(
+            this NamedArgumentBuilder<bool> ths)
         {
-            named.StoresTrue();
-            return named;
+            ths.StoresTrue();
+            return ths;
         }
 
-        public static Named<TConfig, bool> StoresFalse<TConfig>(this Named<TConfig, bool> named)
-            where TConfig : class
+        /// <summary>
+        /// Shortcut for storing a constant value of 'true'
+        /// if this argument is specified.
+        /// </summary>
+        /// <param name="ths"></param>
+        /// <returns></returns>
+        public static NamedArgumentBuilder<bool?> StoresTrue(
+            this NamedArgumentBuilder<bool?> ths)
         {
-            named.StoresFalse();
-            return named;
+            ths.StoresTrue();
+            return ths;
+        }
+
+        /// <summary>
+        /// Shortcut for storing a constant value of 'false'
+        /// if this argument is specified.
+        /// </summary>
+        /// <param name="ths"></param>
+        /// <returns></returns>
+        public static NamedArgumentBuilder<bool> StoresFalse(
+            this NamedArgumentBuilder<bool> ths)
+        {
+            ths.StoresFalse();
+            return ths;
+        }
+
+        /// <summary>
+        /// Shortcut for storing a constant value of 'false'
+        /// if this argument is specified.
+        /// </summary>
+        /// <param name="ths"></param>
+        /// <returns></returns>
+        public static NamedArgumentBuilder<bool?> StoresFalse(
+            this NamedArgumentBuilder<bool?> ths)
+        {
+            ths.StoresFalse();
+            return ths;
+        }
+        /// <summary>
+        /// Instead of storing a value, the integer value will 
+        /// increment each time the argument is specified on the
+        /// command line.
+        /// </summary>
+        /// <param name="ths"></param>
+        /// <returns></returns>
+        public static PositionalArgumentBuilder<int> CountsInvocations(
+            this PositionalArgumentBuilder<int> ths)
+        {
+            ths.CountsInvocations();
+            return ths;
+        }
+
+        /// <summary>
+        /// Shortcut for storing a constant value of 'true'
+        /// if this argument is specified.
+        /// </summary>
+        /// <param name="ths"></param>
+        /// <returns></returns>
+        public static PositionalArgumentBuilder<bool> StoresTrue(
+            this PositionalArgumentBuilder<bool> ths)
+        {
+            ths.StoresTrue();
+            return ths;
+        }
+
+        /// <summary>
+        /// Shortcut for storing a constant value of 'true'
+        /// if this argument is specified.
+        /// </summary>
+        /// <param name="ths"></param>
+        /// <returns></returns>
+        public static PositionalArgumentBuilder<bool?> StoresTrue(
+            this PositionalArgumentBuilder<bool?> ths)
+        {
+            ths.StoresTrue();
+            return ths;
+        }
+
+        /// <summary>
+        /// Shortcut for storing a constant value of 'false'
+        /// if this argument is specified.
+        /// </summary>
+        /// <param name="ths"></param>
+        /// <returns></returns>
+        public static PositionalArgumentBuilder<bool> StoresFalse(
+            this PositionalArgumentBuilder<bool> ths)
+        {
+            ths.StoresFalse();
+            return ths;
+        }
+
+        /// <summary>
+        /// Shortcut for storing a constant value of 'false'
+        /// if this argument is specified.
+        /// </summary>
+        /// <param name="ths"></param>
+        /// <returns></returns>
+        public static PositionalArgumentBuilder<bool?> StoresFalse(
+            this PositionalArgumentBuilder<bool?> ths)
+        {
+            ths.StoresFalse();
+            return ths;
         }
     }
 }

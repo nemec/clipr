@@ -43,3 +43,6 @@ static void Main(string[] args)
 		);
 }
 ```
+
+* The fluent parser has been completed. The syntax has been simplified
+	and is slightly different from the alpha version. See the README for examples.

@@ -83,11 +83,11 @@ namespace clipr.Core
                     // TODO deduplicate this Verb Name generation logic
                     var verbName = attr.Name ?? prop.Name.ToLowerInvariant();
                     if (verbName.StartsWith(
-                        Options.ArgumentPrefix.ToString()))
+                        Settings.ArgumentPrefix.ToString()))
                     {
                         throw new ArgumentIntegrityException(String.Format(
                             "Verb {0} cannot begin with {1}",
-                            verbName, Options.ArgumentPrefix));
+                            verbName, Settings.ArgumentPrefix));
                     }
                     if (Verbs.ContainsKey(verbName))
                     {
@@ -100,18 +100,18 @@ namespace clipr.Core
                         .MakeGenericType(new[] {prop.PropertyType});
                     var verbParserConfig = Activator.CreateInstance(
                         type:parserConfigType,
-                        args:new object[] { OptionType, Options, null /* TODO add triggers inside verb configs */});
+                        args:new object[] { OptionType, Settings, null /* TODO add triggers inside verb configs */});
 
                     var verbConfigWrapperType = typeof (VerbParserConfig<>)
                         .GetTypeInfo()
                         .MakeGenericType(new[] {prop.PropertyType});
                     var config = (IVerbParserConfig)Activator.CreateInstance(
                         type:verbConfigWrapperType,
-                        args:new[] { OptionType, verbParserConfig, new PropertyValueStore(prop), Options, new[] { verbName } });
+                        args:new[] { OptionType, verbParserConfig, new PropertyValueStore(prop), Settings, new[] { verbName } });
 
                     config.Name = verbName;
                     config.Description = attr.Description;
-                    if (Options.IncludeHelpTriggerInVerbs)
+                    if (Settings.IncludeHelpTriggerInVerbs)
                     {
                         var helpWrapperType = typeof(AutomaticHelpGenerator<>)
                             .GetTypeInfo()

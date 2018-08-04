@@ -1,155 +1,308 @@
-﻿using System;
+﻿using clipr.Arguments;
+using clipr.Core;
+using clipr.Fluent;
+using clipr.IOC;
+using clipr.Triggers;
+using clipr.Usage;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Text;
-using clipr.Core;
-using clipr.Fluent;
-using clipr.Triggers;
+#if NET40
 using clipr.Utils;
-using clipr.IOC;
+#endif
 
 namespace clipr
 {
-    public class CliParserBuilder<TConf> where TConf : class 
+    public class CliParserBuilder<TConf> where TConf : class
     {
-        private FluentParserConfig<TConf> FluentConfig { get; set; }
+        private readonly ParserSettings<TConf> _settings;
 
-        private ParserSettings<TConf> Options { get; set; }
+        private readonly List<NamedArgument> _namedArguments;
+
+        private readonly List<PositionalArgument> _positionalArguments;
+
+        private readonly List<MethodInfo> _postParseMethods;
+
+        private readonly Dictionary<string, IVerbParserConfig> _verbs;
+
+        private readonly string[] _precursorVerbs;
+
+        private int _nextPositionalIndex;
+
+        private bool _hasVariablePositionalList;
+
+        private CliParserBuilder(string[] precursorVerbs)
+            : this()
+        {
+            _precursorVerbs = precursorVerbs;
+            _nextPositionalIndex = 0;
+            _hasVariablePositionalList = false;
+        }
 
         public CliParserBuilder()
         {
-            FluentConfig = new FluentParserConfig<TConf>(typeof(TConf), ParserSettings<TConf>.Default, 
-                Enumerable.Empty<ITerminatingTrigger>());
-        } 
-
-        public CliParserBuilder(ParserSettings<TConf> options, IEnumerable<ITerminatingTrigger> triggers)
-        {
-            FluentConfig = new FluentParserConfig<TConf>(typeof(TConf), options, triggers);
-            Options = options;
+            _settings = new ParserSettings<TConf>();
+            _namedArguments = new List<NamedArgument>();
+            _positionalArguments = new List<PositionalArgument>();
+            _postParseMethods = new List<MethodInfo>();
+            _verbs = new Dictionary<string, IVerbParserConfig>();
         }
 
-        // TODO pass in object
-
-        public CliParser<TConf> Parser
+        public CliParserBuilder<TConf> ConfigureSettings(Action<ParserSettings<TConf>> settings)
         {
-            get
-            {
-                FluentConfig.ProcessArguments();
-                return new CliParser<TConf>(FluentConfig, Options);
-            }
+            settings(_settings);
+            return this;
         }
+
+        #region Settings-specific actions
 
         /// <summary>
-        /// Configure a custom IOC container for resolving verbs.
+        /// Punctuation character prefixed to short and long argument
+        /// names. Usually a hyphen (-).
         /// </summary>
-        /// <param name="factory"></param>
-        /// <returns></returns>
-        public CliParserBuilder<TConf> HasVerbFactory(IVerbFactory factory)
+        /// <exception cref="ArgumentIntegrityException">
+        /// Character is not valid punctuation.
+        /// </exception>
+        public CliParserBuilder<TConf> HasArgumentPrefix(char prefix)
         {
-            Options.VerbFactory = factory;
+            _settings.ArgumentPrefix = prefix;
+            return this;
+        }
+
+        public CliParserBuilder<TConf> UseCaseInsensitiveParsing()
+        {
+            _settings.CaseInsensitive = true;
             return this;
         }
 
         /// <summary>
-        /// Configure a named argument with a single value.
+        /// Partially match unambiguous long named arguments.
+        /// E.g. "--che" will match the named argument "checkout" as
+        /// long as no other named argument begins with "che".
         /// </summary>
-        /// <typeparam name="TArg">Argument type.</typeparam>
-        /// <param name="getExpr">
-        /// Getter expression describing where the value is stored.
-        /// </param>
         /// <returns></returns>
-        public Named<TConf, TArg> HasNamedArgument<TArg>(
-            Expression<Func<TConf, TArg>> getExpr)
+        public CliParserBuilder<TConf> MatchOnPartialArgumentNames()
         {
-            var named = new Named<TConf, TArg>(this,
+            _settings.NamedPartialMatch = true;
+            return this;
+        }
+
+        public CliParserBuilder<TConf> UseCustomHelpGenerator(IHelpGenerator help)
+        {
+            _settings.HelpGenerator = help;
+            return this;
+        }
+
+        public CliParserBuilder<TConf> DisableHelpGenerator()
+        {
+            _settings.HelpGenerator = null;
+            return this;
+        }
+
+        public CliParserBuilder<TConf> UseCustomVersionGenerator(IVersion version)
+        {
+            _settings.VersionGenerator = version;
+            return this;
+        }
+
+        public CliParserBuilder<TConf> DisableVersionGenerator()
+        {
+            _settings.VersionGenerator = null;
+            return this;
+        }
+
+
+        /// <summary>
+        /// Add an additional trigger beyond Help and Version 
+        /// that will be used when parsing
+        /// </summary>
+        public CliParserBuilder<TConf> AddCustomTrigger(ITerminatingTrigger trigger)
+        {
+            _settings.CustomTriggers.Add(trigger);
+            return this;
+        }
+
+        public CliParserBuilder<TConf> DisableHelpArgumentInVerbs()
+        {
+            _settings.IncludeHelpTriggerInVerbs = false;
+            return this;
+        }
+
+        /// <summary>
+        /// An event that is fired every time an argument is parsed, just
+        /// after it is added to the Options object. If you would like to
+        /// stop parsing in response to an event, return a non-null
+        /// ITerminating trigger from the event handler. To continue
+        /// parsing, simply return null.
+        /// </summary>
+        public CliParserBuilder<TConf> ExecuteHandlerOnParsedArgument(
+            Func<ParseEventArgs, ITerminatingTrigger> handler)
+        {
+            _settings.OnParseArgument = handler;
+            return this;
+        }
+
+        /// <summary>
+        /// The text writer where extension or trigger output should
+        /// be written.
+        /// </summary>
+        public CliParserBuilder<TConf> SetOutputWriter(TextWriter writer)
+        {
+            _settings.OutputWriter = writer;
+            return this;
+        }
+
+        public CliParserBuilder<TConf> SetVerbFactory(IVerbFactory factory)
+        {
+            _settings.VerbFactory = factory;
+            return this;
+        }
+
+        #endregion
+
+        public NamedArgumentBuilder<TArg> AddNamedArgument<TArg>(Expression<Func<TConf, TArg>> getExpr)
+        {
+            var arg = new NamedArgument(
                 GetDefinitionFromExpression(getExpr));
-            FluentConfig.Add(named);
-            return named;
+            _namedArguments.Add(arg);
+            return new NamedArgumentBuilder<TArg>(arg);
         }
 
-        /// <summary>
-        /// Configure a named argument with multiple values.
-        /// </summary>
-        /// <typeparam name="TArg">Argument type.</typeparam>
-        /// <param name="getExpr">
-        /// Getter expression describing where the values are stored.
-        /// </param>
-        /// <returns></returns>
-        public NamedList<TConf, TArg> HasNamedArgumentList<TArg>(
-            Expression<Func<TConf, TArg>> getExpr)
+        public NamedArgumentListBuilder<TArg> AddNamedArgumentList<TArg>(
+            Expression<Func<TConf, IEnumerable<TArg>>> getExpr)
         {
-            var named = new NamedList<TConf, TArg>(this,
+            var arg = new NamedArgument(
                 GetDefinitionFromExpression(getExpr));
-            FluentConfig.Add(named);
-            return named;
+            _namedArguments.Add(arg);
+            return new NamedArgumentListBuilder<TArg>(arg);
         }
 
-        /// <summary>
-        /// Configure a positional argument with a single value.
-        /// </summary>
-        /// <typeparam name="TArg">Argument type.</typeparam>
-        /// <param name="getExpr">
-        /// Getter expression describing where the value is stored.
-        /// </param>
-        /// <returns></returns>
-        public Positional<TConf, TArg> HasPositionalArgument<TArg>(
+        public PositionalArgumentBuilder<TArg> AddPositionalArgument<TArg>(
             Expression<Func<TConf, TArg>> getExpr)
         {
-            var positional = new Positional<TConf, TArg>(this,
-                GetDefinitionFromExpression(getExpr));
-            FluentConfig.Add(positional);
-            return positional;
+            var idx = _nextPositionalIndex;
+            _nextPositionalIndex++;
+            var arg = new PositionalArgument(
+                GetDefinitionFromExpression(getExpr))
+            {
+                Index = idx
+            };
+            _positionalArguments.Add(arg);
+            return new PositionalArgumentBuilder<TArg>(arg);
         }
 
-        /// <summary>
-        /// Configure a positional argument with a multiple values.
-        /// </summary>
-        /// <typeparam name="TArg">Argument type.</typeparam>
-        /// <param name="getExpr">
-        /// Getter expression describing where the values are stored.
-        /// </param>
-        /// <returns></returns>
-        public PositionalList<TConf, TArg> HasPositionalArgumentList<TArg>(
-            Expression<Func<TConf, TArg>> getExpr)
+        public PositionalArgumentListBuilder<TArg> AddPositionalArgumentList<TArg>(
+            Expression<Func<TConf, IEnumerable<TArg>>> getExpr)
         {
-            var positional = new PositionalList<TConf, TArg>(this,
-                    GetDefinitionFromExpression(getExpr));
-            FluentConfig.Add(positional);
-            return positional;
+            var idx = _nextPositionalIndex;
+            _nextPositionalIndex++;
+            var arg = new PositionalArgument(
+                GetDefinitionFromExpression(getExpr))
+            {
+                Index = idx
+            };
+            _positionalArguments.Add(arg);
+            var argb = new PositionalArgumentListBuilder<TArg>(arg);
+            if (arg.ConsumesMultipleArgs)
+            {
+                if (_hasVariablePositionalList)
+                {
+                    throw new ArgumentIntegrityException(
+                        "Only one positional argument is allowed to consume multiple values.");
+                }
+                _hasVariablePositionalList = true;
+            }
+            return argb;
         }
 
-        /// <summary>
-        /// Configure a verb containing sub-options.
-        /// </summary>
-        /// <typeparam name="TArg">Type containing the sub-options.</typeparam>
-        /// <param name="verbName">Name of the verb</param>
-        /// <param name="expr">Getter for the sub-option object</param>
-        /// <param name="subBuilder">A parser configured to parse the sub-options.</param>
-        /// <returns></returns>
-        public Verb<TConf> HasVerb<TArg>(
-            string verbName, Expression<Func<TConf, TArg>> expr, CliParserBuilder<TArg> subBuilder)
+        public void AddVerb<TArg>(string verbName, Expression<Func<TConf, TArg>> getExpr, Action<CliParserBuilder<TArg>> verbBuilder)
             where TArg : class
         {
-            ParserConfig subConfig;
-            if (subBuilder.FluentConfig != null)
+            CliParserBuilder<TArg> vb;
+            if (_precursorVerbs != null)
             {
-                subBuilder.FluentConfig.ProcessArguments();
-                subConfig = subBuilder.FluentConfig;
+                // Precursor verbs allow you to trace the 'lineage' of
+                // a nested verb chain, which is helpful when displaying
+                // a complete example in the help output.
+                var len = _precursorVerbs.Length;
+                var prec = new string[len + 1];
+                Array.Copy(_precursorVerbs, prec, len);
+                prec[len] = verbName;
+                vb = new CliParserBuilder<TArg>(prec);
             }
             else
             {
-                subConfig = new AttributeParserConfig<TArg>(typeof(TConf), Options, null /* TODO process triggers in verb */);
+                vb = new CliParserBuilder<TArg>();
             }
-            
-            FluentConfig.Verbs.Add(verbName,
-                new VerbParserConfig<TArg>(typeof(TConf), subConfig, GetDefinitionFromExpression(expr), Options, null));
 
-            return new Verb<TConf>(this);
+            verbBuilder(vb);
+            var parser = vb.BuildParser();
+            var verbConfig = parser.BuildConfig();
+
+            _verbs.Add(verbName,
+                new VerbParserConfig<TArg>(
+                    typeof(TConf), 
+                    verbConfig, 
+                    GetDefinitionFromExpression(getExpr), 
+                    _settings,
+                    _precursorVerbs));
         }
 
+        public void AddPostParseMethod(Action method)
+        {
+            if(method.Target == null || method.Target.GetType() != typeof(TConf))
+            {
+                throw new NotImplementedException(
+                    "Only instance methods on the option type are currently supported as post-parse methods.");
+            }
+            // TODO allow arbitrary actions
+            _postParseMethods.Add(method.Method);
+        }
+
+        public CliParser<TConf> BuildParser()
+        {
+            var triggers = _settings.CustomTriggers
+                    .Concat(new ITerminatingTrigger[] { _settings.HelpGenerator, _settings.VersionGenerator });
+            var conf = new FluentParserConfig<TConf>(_settings, triggers);
+            foreach (var arg in _namedArguments)
+            {
+                if (arg.ShortName.HasValue)
+                {
+                    conf.ShortNameArguments.Add(arg.ShortName.Value, arg);
+                }
+                if (arg.LongName != null)
+                {
+                    conf.LongNameArguments.Add(arg.LongName, arg);
+                }
+                if (arg.Required)
+                {
+                    conf.RequiredNamedArguments.Add(arg.Name);
+                }
+            }
+
+            conf.PositionalArguments.AddRange(_positionalArguments);
+
+            foreach (var verb in _verbs)
+            {
+                conf.Verbs.Add(verb.Key, verb.Value);
+            }
+
+            conf.PostParseMethods.AddRange(_postParseMethods);
+
+            return new CliParser<TConf>(conf, _settings);
+        }
+
+        /// <summary>
+        /// Turns a getter/setter expression into a ValueStore, allowing
+        /// us to assign a parsed value to the appropriate option parameter.
+        /// </summary>
+        /// <typeparam name="TArg"></typeparam>
+        /// <param name="getExpr"></param>
+        /// <returns></returns>
         private static IValueStoreDefinition GetDefinitionFromExpression<TArg>(
             Expression<Func<TConf, TArg>> getExpr)
         {

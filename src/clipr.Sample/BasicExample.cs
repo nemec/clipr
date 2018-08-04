@@ -46,18 +46,20 @@ namespace clipr.Sample {
         {
             var opt = new Options();
 
-            new CliParserBuilder<Options>()
-                .HasNamedArgument(o => o.Verbosity)
-                    .WithShortName('v')
-                    .CountsInvocations()
-            .And
-                .HasNamedArgument(o => o.OutputFile)
-                    .WithShortName()
-            .And
-                .HasPositionalArgumentList(o => o.Numbers)
-                    .HasDescription("These are numbers.")
-                    .Consumes.AtLeast(1)
-            .And.Parser
+            var builder = new CliParserBuilder<Options>();
+            builder
+                .AddNamedArgument(o => o.Verbosity)
+                .WithShortName('v')
+                .CountsInvocations();
+            builder
+                .AddNamedArgument(o => o.OutputFile)
+                .WithShortName();
+            builder
+                .AddPositionalArgumentList(o => o.Numbers)
+                .HasDescription("These are numbers")
+                .ConsumesAtLeast(1);
+
+            builder.BuildParser()
                 .Parse(args, opt);
 
             Console.WriteLine(opt.Verbosity);

@@ -19,15 +19,15 @@ namespace clipr.Sample
         public static void Main(string[] args)
         {
             var opt = new VerbTestOptions();
-            new CliParserBuilder<VerbTestOptions>()
-                .HasNamedArgument(c => c.NumCounters)
-                .WithShortName()
-            .And
-                .HasVerb("add", c => c.AddInfo,
-                         new CliParserBuilder<VerbSubOptions>()
-                             .HasPositionalArgument(c => c.Filename).And)
-            .And.Parser
-                .Parse(args, opt);
+            var builder = new CliParserBuilder<VerbTestOptions>();
+            builder
+                .AddNamedArgument(c => c.NumCounters)
+                .WithShortName();
+            builder
+                .AddVerb("add", c => c.AddInfo,
+                    v => v.AddPositionalArgument(c => c.Filename));
+            var parser = builder.BuildParser();
+            parser.Parse(args, opt);
 
             Console.WriteLine("Number of counters: {0}", opt.NumCounters);  // 3
             Console.WriteLine("File name to add: {0}", opt.AddInfo.Filename);  // oranges.txt

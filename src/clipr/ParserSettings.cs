@@ -81,7 +81,10 @@ namespace clipr
 
         /// <summary>
         /// An event that is fired every time an argument is parsed, just
-        /// after it is added to the Options object.
+        /// after it is added to the Options object. If you would like to
+        /// stop parsing in response to an event, return a non-null
+        /// ITerminating trigger from the event handler. To continue
+        /// parsing, simply return null.
         /// </summary>
         public Func<ParseEventArgs, ITerminatingTrigger> OnParseArgument { get; set; }
 
