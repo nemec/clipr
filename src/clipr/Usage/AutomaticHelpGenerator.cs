@@ -134,12 +134,11 @@ namespace clipr.Usage
             var builder = new StringBuilder();
             builder.Append(UsageTitle);
             builder.Append(": ");
-
-            var metadata = config.OptionType.GetTypeInfo().GetCustomAttribute<ApplicationInfoAttribute>();
-            if (metadata != null && metadata.Name != null)
+            
+            if (config.ApplicationName != null)
             {
                 // Dev has overridden the program name
-                builder.Append(metadata.Name);
+                builder.Append(config.ApplicationName);
             }
             else
             {
@@ -309,11 +308,19 @@ namespace clipr.Usage
             var helpDataBuilder = new StringBuilder();
 
             helpDataBuilder.AppendLine(GetUsage(config));
-            var metadata = typeof (T).GetTypeInfo().GetCustomAttribute<ApplicationInfoAttribute>();
-            if (metadata != null && metadata.Description != null)
+
+            string localizedDesc = null;
+            if(config.LocalizationInfo != null && config.LocalizationInfo.ResourceName != null)
+            {
+                var info = config.LocalizationInfo;
+                localizedDesc = I18N._(info.ResourceType, info.ResourceName);
+            }
+            var appDescription = localizedDesc ?? config.Description;
+
+            if (appDescription != null)
             {
                 helpDataBuilder.AppendLine();
-                foreach (var line in metadata.Description.ReflowWords(lineWidth))
+                foreach (var line in appDescription.ReflowWords(lineWidth))
                 {
                     helpDataBuilder.Append(Indent);
                     helpDataBuilder.AppendLine(line);
@@ -369,22 +376,30 @@ namespace clipr.Usage
             }
             foreach(var verb in config.Verbs.Values.OrderBy(v => v.Name))
             {
+                string localized = null;
+                if(verb.LocalizationInfo != null)
+                {
+                    var info = verb.LocalizationInfo;
+                    localized = I18N._(info.ResourceType, info.ResourceName);
+                }
+                var verbDescription = localized ?? verb.Description;
+
                 helpDataBuilder.Append(Indent);
                 // No padding needed if there is no description
-                if (String.IsNullOrEmpty(verb.Description))
+                if (String.IsNullOrEmpty(verbDescription))
                 {
                     helpDataBuilder.AppendLine(verb.Name);
                     continue;
                 }
                 helpDataBuilder.Append(verb.Name.PadRight(
                     tabstop - Indent.Length));
-                if (tabstop + verb.Description.Length < lineWidth)
+                if (tabstop + verbDescription.Length < lineWidth)
                 {
-                    helpDataBuilder.AppendLine(verb.Description);
+                    helpDataBuilder.AppendLine(verbDescription);
                 }
                 else
                 {
-                    var iter = verb.Description.ReflowWords(
+                    var iter = verbDescription.ReflowWords(
                         lineWidth - tabstop).GetEnumerator();
                     iter.MoveNext();
                     helpDataBuilder.AppendLine(iter.Current);

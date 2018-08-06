@@ -117,25 +117,7 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="FileToAdd" xml:space="preserve">
-    <value>File to add to the thing.</value>
-  </data>
-  <data name="LocalizationOptions" xml:space="preserve">
-    <value>Sample of localizing a class</value>
-  </data>
-  <data name="LocalizationOptions_TurnOnThePower" xml:space="preserve">
-    <value>Set power level to 9001.</value>
-  </data>
-  <data name="LocalizationVerbOptions_DoAnotherThing" xml:space="preserve">
-    <value>Tell me goodbye</value>
-  </data>
-  <data name="LocalizationVerbOptions_DoTheThing" xml:space="preserve">
-    <value>Tell me hello</value>
-  </data>
-  <data name="MyCounter" xml:space="preserve">
-    <value>A cool counter.</value>
-  </data>
-  <data name="StartDate" xml:space="preserve">
-    <value>Start date.</value>
+  <data name="DefaultEnglishOnlyDescription" xml:space="preserve">
+    <value>English description.</value>
   </data>
 </root>

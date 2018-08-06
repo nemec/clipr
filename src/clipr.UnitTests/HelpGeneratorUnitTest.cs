@@ -208,6 +208,9 @@ Commands:
         public void Help_WithHelpOfVerbCalled_GeneratedHelpOutputForVerb()
         {
             const string expected = @"Usage: clipr verb1 [ -n|--name N ] [ -h|--help ]
+
+ A verb for names
+
 Optional Arguments:
  -h, --help  Display this help document.
  -n, --name
@@ -250,6 +253,9 @@ Optional Arguments:
         public void Help_WithNestedHelpOfVerbCalledOnBaseVerb_GeneratedHelpOutputForVerbWithCommands()
         {
             const string expected = @"Usage: clipr verb1 [ -n|--name N ] [ -h|--help ] <command>
+
+ A verb for names
+
 Optional Arguments:
  -h, --help  Display this help document.
  -n, --name
@@ -273,6 +279,9 @@ Commands:
         public void Help_WithNestedHelpOfVerbCalled_GeneratedHelpOutputForVerb()
         {
             const string expected = @"Usage: clipr verb1 verb2 [ -a|--age A ] [ -h|--help ]
+
+ A verb for ages
+
 Optional Arguments:
  -a, --age
  -h, --help  Display this help document.

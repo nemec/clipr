@@ -88,6 +88,24 @@ namespace clipr.UnitTests.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Tell me goodbye.
+        /// </summary>
+        public static string LocalizationVerbOptions_DoAnotherThing {
+            get {
+                return ResourceManager.GetString("LocalizationVerbOptions_DoAnotherThing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Tell me hello.
+        /// </summary>
+        public static string LocalizationVerbOptions_DoTheThing {
+            get {
+                return ResourceManager.GetString("LocalizationVerbOptions_DoTheThing", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to A cool counter..
         /// </summary>
         public static string MyCounter {

@@ -143,7 +143,7 @@ namespace clipr
 
         private IParserConfig Config { get; set; }
 
-        private ParserSettings<TConf> Options { get; set; }
+        private ParserSettings<TConf> Settings { get; set; }
 
         /// <summary>
         /// Create a new parser with the default usage generator.
@@ -162,10 +162,10 @@ namespace clipr
         /// Create a new parser with a set of options and the
         /// default usage generator.
         /// </summary>
-        /// <param name="options">Extra options for the parser.</param>
-        public CliParser(ParserSettings<TConf> options)
+        /// <param name="settings">Extra options for the parser.</param>
+        public CliParser(ParserSettings<TConf> settings)
         {
-            Options = options;
+            Settings = settings;
         }
 
         /// <summary>
@@ -176,7 +176,7 @@ namespace clipr
         internal CliParser(ParserConfig config, ParserSettings<TConf> options)
         {
             Config = config;
-            Options = options;
+            Settings = options;
         }
 
         /// <summary>
@@ -186,9 +186,9 @@ namespace clipr
         public Exception[] ValidateAttributeConfig()
         {
             var checker = new IntegrityChecker();
-            return checker.EnsureAttributeIntegrity<TConf>(Options)
-                .Concat(checker.EnsureVerbIntegrity<TConf>(Options))
-                .Concat(checker.EnsureTriggerIntegrity(Options.HelpGenerator, Options.VersionGenerator, Options.CustomTriggers))
+            return checker.EnsureAttributeIntegrity<TConf>(Settings)
+                .Concat(checker.EnsureVerbIntegrity<TConf>(Settings))
+                .Concat(checker.EnsureTriggerIntegrity(Settings.HelpGenerator, Settings.VersionGenerator, Settings.CustomTriggers))
                 .ToArray();
         }
 
@@ -211,9 +211,11 @@ namespace clipr
             {
                 return Config;
             }
-            return Config = new AttributeParserConfig<TConf>(typeof(TConf), Options,
-                Options.CustomTriggers
-                    .Concat(new ITerminatingTrigger[] { Options.HelpGenerator, Options.VersionGenerator }));
+            return Config = new AttributeParserConfig<TConf>(
+                null /* This is the root */,
+                Settings,
+                Settings.CustomTriggers
+                    .Concat(new ITerminatingTrigger[] { Settings.HelpGenerator, Settings.VersionGenerator }));
         }
         
 
@@ -241,9 +243,9 @@ namespace clipr
                 trig => result,
                 errs =>
                 {
-                    if (Options.HelpGenerator != null)
+                    if (Settings.HelpGenerator != null)
                     {
-                        Console.Error.WriteLine(Options.HelpGenerator.GetUsage(Config));
+                        Console.Error.WriteLine(Settings.HelpGenerator.GetUsage(Config));
                     }
                     foreach (var err in errs)
                     {

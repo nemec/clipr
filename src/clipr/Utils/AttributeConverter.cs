@@ -5,7 +5,6 @@ using clipr.Core;
 using System.ComponentModel;
 using System.Linq;
 using System;
-using clipr.Attributes;
 
 namespace clipr.Utils
 {
@@ -123,11 +122,11 @@ namespace clipr.Utils
             }
         }
 
-        public static INamedArgument ToNamedArgument(this PropertyInfo prop)
+        public static INamedArgument ToNamedArgument(this PropertyInfo prop, Type defaultResourceType)
         {
             var attr = prop.GetCustomAttribute<NamedArgumentAttribute>();
             attr.Name = prop.Name;
-            attr.LocalizationInfo = GetLocalizationInfo(prop);
+            attr.LocalizationInfo = GetLocalizationInfo(prop, defaultResourceType);
 
             var prompt = prop.GetCustomAttribute<PromptIfValueMissingAttribute>();
             attr.PromptIfValueMissing = new PromptIfValueMissing();
@@ -142,18 +141,18 @@ namespace clipr.Utils
             return attr;
         }
 
-        public static IPositionalArgument ToPositionalArgument(this PropertyInfo prop)
+        public static IPositionalArgument ToPositionalArgument(this PropertyInfo prop, Type defaultResourceType)
         {
             var attr = prop.GetCustomAttribute<PositionalArgumentAttribute>();
             attr.Name = prop.Name;
-            attr.LocalizationInfo = GetLocalizationInfo(prop);
+            attr.LocalizationInfo = GetLocalizationInfo(prop, defaultResourceType);
             attr.PromptIfValueMissing = new PromptIfValueMissing();
             attr.Store = new PropertyValueStore(prop, GetConverters(prop));
             SetDefaults(attr);
             return attr;
         }
 
-        private static LocalizationInfo GetLocalizationInfo(PropertyInfo prop)
+        public static LocalizationInfo GetLocalizationInfo(PropertyInfo prop, Type defaultResourceType)
         {
             var attr = prop.GetCustomAttribute<LocalizeAttribute>();
             if(attr == null)
@@ -162,12 +161,16 @@ namespace clipr.Utils
             }
             var info = new LocalizationInfo
             {
-                ResourceName = attr.ResourceName ?? (prop.DeclaringType.Name + "_" + prop.Name)
+                ResourceName = attr.ResourceName ?? String.Format("{0}_{1}", prop.DeclaringType.Name, prop.Name)
             };
 
             if(info.ResourceType != null)
             {
                 info.ResourceType = attr.ResourceType;
+            }
+            else if(defaultResourceType != null)
+            {
+                info.ResourceType = defaultResourceType;
             }
             else
             {

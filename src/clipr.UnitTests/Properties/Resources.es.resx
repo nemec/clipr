@@ -126,6 +126,12 @@
   <data name="LocalizationOptions_TurnOnThePower" xml:space="preserve">
     <value>Establecer el nivel de potencia de 9001.</value>
   </data>
+  <data name="LocalizationVerbOptions_DoAnotherThing" xml:space="preserve">
+    <value>Dime adios</value>
+  </data>
+  <data name="LocalizationVerbOptions_DoTheThing" xml:space="preserve">
+    <value>Dime hola</value>
+  </data>
   <data name="MyCounter" xml:space="preserve">
     <value>Un contador fresco.</value>
   </data>

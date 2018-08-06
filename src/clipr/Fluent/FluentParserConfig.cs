@@ -2,15 +2,20 @@
 using clipr.Triggers;
 using System;
 using System.Collections.Generic;
-using System.Text;
 
 namespace clipr.Fluent
 {
     internal class FluentParserConfig<TConf> : ParserConfig where TConf : class
     {
-        public FluentParserConfig(IParserSettings options, IEnumerable<ITerminatingTrigger> triggers)
-            : base(typeof(TConf), options, triggers)
+        public FluentParserConfig(
+            RootApplicationMetadata metadata,
+            string applicationDescription,
+            IParserSettings options, 
+            IEnumerable<ITerminatingTrigger> triggers)
+            : base(metadata, options, triggers)
         {
+            Name = metadata.ApplicationName;
+            Description = applicationDescription;
             /*
              * var b = new CliParserBuilder<Options>();
              * b.AddNamedOption(o => o.Verbose)

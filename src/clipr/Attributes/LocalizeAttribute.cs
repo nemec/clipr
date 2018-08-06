@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace clipr.Attributes
+namespace clipr
 {
     /// <summary>
     /// Localize the description of this item

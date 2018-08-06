@@ -6,20 +6,16 @@ using clipr.Usage;
 
 namespace clipr.Sample
 {
-    class LocalizedHelpDisplay
+    class FluentLocalizedHelp
     {
         public class LocalizationOptions
         {
-            [NamedArgument("turnonthepower", Description = "Set power level to 9001", Action = ParseAction.StoreTrue)]
             public bool TurnOnThePower { get; set; }
 
-            [PositionalArgument(0, Description = "Files to add to the thing", Constraint = NumArgsConstraint.AtLeast, NumArgs = 1)]
             public IList<string> FilesToAdd { get; set; }
 
-            [NamedArgument('s', Description = "Start date")]
             public DateTime StartDate { get; set; }
-
-            [NamedArgument('c', Description = "A cool counter")]
+            
             public double MyCounter { get; set; }
         }
 
@@ -28,7 +24,26 @@ namespace clipr.Sample
             var culture = Thread.CurrentThread.CurrentUICulture;
 
             var opt = new LocalizationOptions();
-            var parser = new CliParser<LocalizationOptions>();
+            var builder = new CliParserBuilder<LocalizationOptions>();
+            builder.Localize(typeof(Properties.Resources));
+            builder
+                .AddNamedArgument(a => a.TurnOnThePower)
+                .WithLongName("turnonthepower")
+                .WithLocalizedDescription("Set power level to 9001")
+                .StoresTrue();
+            builder
+                .AddNamedArgument(a => a.StartDate)
+                .WithShortName('s')
+                .WithLocalizedDescription("Start date");
+            builder
+                .AddPositionalArgumentList(a => a.FilesToAdd)
+                .WithLocalizedDescription("Files to add to the thing")
+                .ConsumesAtLeast(1);
+            builder
+                .AddNamedArgument(a => a.MyCounter)
+                .WithShortName('c')
+                .WithLocalizedDescription("A cool counter");
+            var parser = builder.BuildParser();
             var help = new AutomaticHelpGenerator<LocalizationOptions>();
 
             parser.Parse("--turnonthepower -s 3/12/2016 -c 2.3 file1.txt".Split(), opt);
@@ -40,7 +55,7 @@ namespace clipr.Sample
             Thread.CurrentThread.CurrentUICulture = new CultureInfo("es-MX");
 
             var optMx = new LocalizationOptions();
-            var parserMx = new CliParser<LocalizationOptions>();
+            var parserMx = builder.BuildParser();
 
             parserMx.Parse("--turnonthepower -s 12/3/2016 -c 2.3 file1.txt".Split(), optMx);
             Console.WriteLine(optMx.StartDate.Month);  // 3
@@ -51,7 +66,7 @@ namespace clipr.Sample
             Thread.CurrentThread.CurrentUICulture = new CultureInfo("es-ES");
 
             var optEs = new LocalizationOptions();
-            var parserEs = new CliParser<LocalizationOptions>();
+            var parserEs = builder.BuildParser();
 
             parserEs.Parse("--turnonthepower -s 12/3/2016 -c 2,3 file1.txt".Split(), optEs);
             Console.WriteLine(optEs.StartDate.Month);  // 3

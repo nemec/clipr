@@ -13,14 +13,66 @@ namespace clipr.Core
 {
     internal class AttributeParserConfig<T> : ParserConfig
     {
-        public AttributeParserConfig(Type optionType, IParserSettings options, IEnumerable<ITerminatingTrigger> triggers)
-            : base(optionType, options, triggers)
+        // WARNING - if you modify this constructor, make sure to make the appropriate changes
+        // to the method AttributeConfigParser.InitializeVerbs, which uses Activator.CreateInstance
+        // to create newinstances of this class.
+        public AttributeParserConfig(
+            RootApplicationMetadata metadata,
+            IParserSettings options, 
+            IEnumerable<ITerminatingTrigger> triggers)
+            : base(metadata, options, triggers)
         {
+            InitializeLocalization();
+            InitializeApplicationInfo();
+            InitializeRootMetadata();
             InitializeVerbs();
             InitializeNamedArguments();
             InitializePostParseMethods();
             InitializePositionalArguments();
             InitializeRequiredNamedArguments();
+        }
+
+        private void InitializeLocalization()
+        {
+            var locAttr = typeof(T).GetCustomAttribute<LocalizeAttribute>();
+            if(locAttr != null)
+            {
+                if(locAttr.ResourceType == null)
+                {
+                    throw new ArgumentException(
+                        "Localization on a class must contain a ResourceType");
+                }
+                LocalizationInfo = new LocalizationInfo
+                {
+                    ResourceType = locAttr.ResourceType,
+                    ResourceName = locAttr.ResourceName
+                };
+            }
+        }
+
+        private void InitializeApplicationInfo()
+        {
+            var appInfo = typeof(T).GetCustomAttribute<ApplicationInfoAttribute>();
+            if(appInfo != null)
+            {
+                Name = appInfo.Name;
+                Description = appInfo.Description;
+            }
+        }
+
+        private void InitializeRootMetadata()
+        {if (RootMetadata == null)
+            {
+                Type res = null;
+                if(LocalizationInfo != null)
+                {
+                    res = LocalizationInfo.ResourceType;
+                }
+                RootMetadata = new RootApplicationMetadata(
+                    Name,
+                    res,
+                    typeof(T));
+            }
         }
 
         private void InitializeRequiredNamedArguments()
@@ -40,7 +92,7 @@ namespace clipr.Core
             PositionalArguments.AddRange(typeof(T).GetTypeInfo().GetProperties()
                 .Where(p => p.GetCustomAttribute<PositionalArgumentAttribute>() != null)
                 .OrderBy(p => p.GetCustomAttribute<PositionalArgumentAttribute>().Index)
-                .Select(p => p.ToPositionalArgument()));
+                .Select(p => p.ToPositionalArgument(RootMetadata.ResourceType)));
         }
 
         private void InitializeNamedArguments()
@@ -49,7 +101,7 @@ namespace clipr.Core
                 p.GetCustomAttribute<NamedArgumentAttribute>() != null);
             foreach (var prop in props)
             {
-                var arg = prop.ToNamedArgument();
+                var arg = prop.ToNamedArgument(RootMetadata.ResourceType);
 
                 var sn = GetShortName(arg);
                 if (sn.HasValue)
@@ -94,23 +146,49 @@ namespace clipr.Core
                         throw new DuplicateArgumentException(verbName);
                     }
 
+                    Type resourceType = RootMetadata.ResourceType;
+                    if(LocalizationInfo != null && LocalizationInfo.ResourceType != null)
+                    {
+                        resourceType = LocalizationInfo.ResourceType;
+                    }
+
                     // TODO allow verb to use other configuration types?
                     var parserConfigType = typeof (AttributeParserConfig<>)
                         .GetTypeInfo()
                         .MakeGenericType(new[] {prop.PropertyType});
                     var verbParserConfig = Activator.CreateInstance(
                         type:parserConfigType,
-                        args:new object[] { OptionType, Settings, null /* TODO add triggers inside verb configs */});
+                        args:new object[]
+                        {
+                            RootMetadata,
+                            Settings,
+                            null /* TODO add triggers inside verb configs */});
+
+                    LocalizationInfo localizationInfo = null;
+
+                    var localizeAttr = prop.GetCustomAttribute<LocalizeAttribute>();
+                    if (localizeAttr != null)
+                    {
+                        localizationInfo = AttributeConverter.GetLocalizationInfo(prop, resourceType);
+                    }
 
                     var verbConfigWrapperType = typeof (VerbParserConfig<>)
                         .GetTypeInfo()
                         .MakeGenericType(new[] {prop.PropertyType});
                     var config = (IVerbParserConfig)Activator.CreateInstance(
                         type:verbConfigWrapperType,
-                        args:new[] { OptionType, verbParserConfig, new PropertyValueStore(prop), Settings, new[] { verbName } });
+                        args:new[]
+                        {
+                            RootMetadata,
+                            verbName,
+                            attr.Description,
+                            localizationInfo,
+                            verbParserConfig,
+                            new PropertyValueStore(prop),
+                            Settings,
+                            new[] { verbName }
+                        });
 
-                    config.Name = verbName;
-                    config.Description = attr.Description;
                     if (Settings.IncludeHelpTriggerInVerbs)
                     {
                         var helpWrapperType = typeof(AutomaticHelpGenerator<>)

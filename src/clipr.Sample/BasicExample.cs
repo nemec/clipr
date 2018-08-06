@@ -56,7 +56,7 @@ namespace clipr.Sample {
                 .WithShortName();
             builder
                 .AddPositionalArgumentList(o => o.Numbers)
-                .HasDescription("These are numbers")
+                .WithDescription("These are numbers")
                 .ConsumesAtLeast(1);
 
             builder.BuildParser()

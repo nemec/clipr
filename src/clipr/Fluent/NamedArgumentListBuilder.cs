@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using clipr.Arguments;
+using clipr.Core;
 
 namespace clipr.Fluent
 {
@@ -10,12 +11,19 @@ namespace clipr.Fluent
     {
         private readonly NamedArgument _arg;
 
+        private readonly Type _defaultLocalizeResourceType;
+
+        private readonly string _defaultLocalizeResourceName;
+
         private bool HasDefaultName { get; set; }
 
-        internal NamedArgumentListBuilder(NamedArgument arg)
+        internal NamedArgumentListBuilder(
+            NamedArgument arg, Type defaultLocalizeResourceType, string defaultLocalizeResourceName)
         {
             _arg.Action = ParseAction.Append;
             _arg = arg;
+            _defaultLocalizeResourceType = defaultLocalizeResourceType;
+            _defaultLocalizeResourceName = defaultLocalizeResourceName;
         }
 
         /// <summary>
@@ -83,7 +91,7 @@ namespace clipr.Fluent
         /// </summary>
         /// <param name="metavar"></param>
         /// <returns></returns>
-        public NamedArgumentListBuilder<TArg> HasMetaVar(string metavar)
+        public NamedArgumentListBuilder<TArg> WithMetaVar(string metavar)
         {
             _arg.MetaVar = metavar;
             return this;
@@ -94,9 +102,93 @@ namespace clipr.Fluent
         /// </summary>
         /// <param name="description"></param>
         /// <returns></returns>
-        public NamedArgumentListBuilder<TArg> HasDescription(string description)
+        public NamedArgumentListBuilder<TArg> WithDescription(string description)
         {
             _arg.Description = description;
+            return this;
+        }
+
+        /// <summary>
+        /// Localize the description of this argument using resource files.
+        /// </summary>
+        /// <exception cref="ArgumentException">
+        /// Thrown when the <see cref="CliParserBuilder{TConf}"/> does not
+        /// have a localization class defined. To set one, call
+        /// <code>builder.Localize(typeof(ResourceType))</code> with your
+        /// resx resource type.
+        /// </exception>
+        /// <returns></returns>
+        public NamedArgumentListBuilder<TArg> WithLocalizedDescription()
+        {
+            return WithLocalizedDescription(null, _defaultLocalizeResourceName);
+        }
+
+        /// <summary>
+        /// Localize the description of this argument using resource files.
+        /// </summary>
+        /// <param name="invariantDescription">
+        /// The default description used under the invariant locale, or when
+        /// the description is needed in an untranslated locale.
+        /// </param>
+        /// <exception cref="ArgumentException">
+        /// Thrown when the <see cref="CliParserBuilder{TConf}"/> does not
+        /// have a localization class defined. To set one, call
+        /// <code>builder.Localize(typeof(ResourceType))</code> with your
+        /// resx resource type.
+        /// </exception>
+        /// <returns></returns>
+        public NamedArgumentListBuilder<TArg> WithLocalizedDescription(
+            string invariantDescription)
+        {
+            return WithLocalizedDescription(invariantDescription, _defaultLocalizeResourceName);
+        }
+
+        /// <summary>
+        /// Localize the description of this argument using resource files.
+        /// </summary>
+        /// <param name="invariantDescription">
+        /// The default description used under the invariant locale, or when
+        /// the description is needed in an untranslated locale.
+        /// </param>
+        /// <param name="resourceName">
+        /// The name of the resx resource that holds the translation.
+        /// </param>
+        /// <returns></returns>
+        public NamedArgumentListBuilder<TArg> WithLocalizedDescription(
+            string invariantDescription, string resourceName)
+        {
+            if (_defaultLocalizeResourceType is null)
+            {
+                throw new ArgumentException(
+                    "If you do not explicitly specify a Resource Type on this argument, one must be " +
+                    "set on the builder by calling 'builder.Localize(typeof(ResourceType))'");
+            }
+            return WithLocalizedDescription(invariantDescription, _defaultLocalizeResourceType, resourceName);
+        }
+
+        /// <summary>
+        /// Localize the description of this argument using resource files.
+        /// </summary>
+        /// <param name="invariantDescription">
+        /// The default description used under the invariant locale, or when
+        /// the description is needed in an untranslated locale.
+        /// </param>
+        /// <param name="resourceType">
+        /// The type containing the resources for this item.
+        /// </param>
+        /// <param name="resourceName">
+        /// The name of the resx resource that holds the translation.
+        /// </param>
+        /// <returns></returns>
+        public NamedArgumentListBuilder<TArg> WithLocalizedDescription(
+            string invariantDescription, Type resourceType, string resourceName)
+        {
+            _arg.Description = invariantDescription;
+            _arg.LocalizationInfo = new LocalizationInfo
+            {
+                ResourceType = resourceType,
+                ResourceName = resourceName
+            };
             return this;
         }
 

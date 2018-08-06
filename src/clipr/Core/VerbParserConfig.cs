@@ -13,16 +13,6 @@ namespace clipr.Core
     public interface IVerbParserConfig: IParserConfig
     {
         /// <summary>
-        /// The name of the verb in question
-        /// </summary>
-        string Name { get; set; }
-
-        /// <summary>
-        /// The description of the verb in question
-        /// </summary>
-        string Description { get; set; }
-
-        /// <summary>
         /// Store the verb on the options objcet.
         /// </summary>
         IValueStoreDefinition Store { get; }
@@ -35,16 +25,25 @@ namespace clipr.Core
         void AppendTriggers(IEnumerable<ITerminatingTrigger> triggers);
     }
 
-    internal class VerbParserConfig<TVerb> : ParserConfig, IVerbParserConfig where TVerb : class 
+    internal class VerbParserConfig<TVerb> : ParserConfig, IVerbParserConfig where TVerb : class
     {
+        // WARNING - if you modify this constructor, make sure to make the appropriate changes
+        // to the method AttributeConfigParser.InitializeVerbs, which uses Activator.CreateInstance
+        // to create newinstances of this class.
         public VerbParserConfig(
-                Type optionType,
+                RootApplicationMetadata metadata,
+                string name,
+                string description,
+                LocalizationInfo localizationInfo,
                 IParserConfig internalParserConfig,
                 IValueStoreDefinition store,
                 IParserSettings options,
                 string[] precursorVerbs)
-            : base(optionType, options, null)
+            : base(metadata, options, null)
         {
+            Name = name;
+            Description = description;
+            LocalizationInfo = localizationInfo;
             InternalParserConfig = internalParserConfig;
             Store = store;
 
@@ -56,12 +55,6 @@ namespace clipr.Core
             RequiredNamedArguments = InternalParserConfig.RequiredNamedArguments;
             PrecursorVerbs = precursorVerbs;
         }
-
-        /// <inheritdoc/>
-        public string Name { get; set; }
-
-        /// <inheritdoc/>
-        public string Description { get; set; }
 
         /// <inheritdoc/>
         public IValueStoreDefinition Store { get; set; }

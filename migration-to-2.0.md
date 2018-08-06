@@ -46,3 +46,7 @@ static void Main(string[] args)
 
 * The fluent parser has been completed. The syntax has been simplified
 	and is slightly different from the alpha version. See the README for examples.
+* The `LocalizeAttribute` was moved from the namespace `clipr.Attributes` to `clipr`.
+* Removed the property `clipr.Core.IParser.OptionsType` as it was not being used by any
+	consumer of the public interface. Inside the `clipr.Core.ParserConfig` derived class,
+	you can find the old property at `clipr.Core.ParserConfig.RootMetadata.RootOptionType`.

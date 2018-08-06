@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Globalization;
 using clipr.Usage;
-using clipr.Attributes;
 
 namespace clipr.UnitTests
 {
@@ -241,10 +240,133 @@ Argumentos opcionales:
             }
         }
 
-        // TODO localize verb description
+        [Localize(ResourceType = typeof(Properties.Resources))]
+        [ApplicationInfo(Name = "clipr")]
+        public class LocalizationVerbOptions
+        {
+            [Localize]
+            [Verb]
+            public LocalizationVerb DoTheThing { get; set; }
+
+            [Localize]
+            [Verb]
+            public LocalizationVerb DoAnotherThing { get; set; }
+        }
+
+        public class LocalizationVerb
+        {
+            [Localize("MyCounter")]
+            [NamedArgument('c')]
+            public double MyCounter { get; set; }
+        }
+
+        [TestMethod]
+        public void ShowVerbHelp_WithAmericanLocale_ShowsEnglishHelpText()
+        {
+            using (LocalizationExtensions.WithUiCulture(new CultureInfo("en-US")))
+            {
+                // Arrange
+                var expected = @"Usage: clipr [ -h|--help ] [ --version ] <command>
+Optional Arguments:
+ -h, --help  Display this help document.
+ --version   Displays the version of the current executable.
+
+Commands:
+ doanotherthingTell me goodbye
+ dothething  Tell me hello";
+
+                var parser = new CliParser<LocalizationVerbOptions>();
+                var help = new AutomaticHelpGenerator<LocalizationVerbOptions>();  // TODO simplify work required to get help info
+
+                // Act
+                var actual = help.GetHelp(parser.BuildConfig());
+
+                // Assert
+                Assert.AreEqual(expected.Replace("\r\n", "\n"), actual.Replace("\r\n", "\n"));
+            }
+        }
+
+        [TestMethod]
+        public void ShowVerbHelp_WithMexicanLocale_ShowsSpanishHelpText()
+        {
+            using (LocalizationExtensions.WithUiCulture(new CultureInfo("es-MX")))
+            {
+                // Arrange
+                var expected = @"Forma de uso: clipr [ -h|--help ] [ --version ] <command>
+Argumentos opcionales:
+ -h, --help  Muestra esta ayuda
+ --version   Muestra la versión del ejecutable
+
+Commands:
+ doanotherthingDime adios
+ dothething  Dime hola";
+
+                var parser = new CliParser<LocalizationVerbOptions>();
+                var help = new AutomaticHelpGenerator<LocalizationVerbOptions>();
+
+                // Act
+                var actual = help.GetHelp(parser.BuildConfig());
+
+                // Assert
+                Assert.AreEqual(expected.Replace("\r\n", "\n"), actual.Replace("\r\n", "\n"));
+            }
+        }
+
+        [Localize(ResourceType = typeof(Properties.Resources))]
+        [ApplicationInfo(Name = "clipr")]
+        public class LocalizationDefaultDescriptionOptions
+        {
+            [Localize(ResourceName = "DefaultEnglishOnlyDescription")]
+            [NamedArgument('n', "name", Description = "Default description")]
+            public string Name { get; set; }
+        }
+
+        [TestMethod]
+        public void ShowHelp_WithAmericanLocaleAndNoOverrideDefaultDescription_ShowsEnglishHelpText()
+        {
+            using (LocalizationExtensions.WithUiCulture(new CultureInfo("en-US")))
+            {
+                // Arrange
+                var expected = @"Usage: clipr [ -h|--help ] [ --version ] [ -n|--name N ]
+Optional Arguments:
+ -h, --help  Display this help document.
+ -n, --name  English description.
+ --version   Displays the version of the current executable.";
+
+                var parser = new CliParser<LocalizationDefaultDescriptionOptions>();
+                var help = new AutomaticHelpGenerator<LocalizationDefaultDescriptionOptions>();  // TODO simplify work required to get help info
+
+                // Act
+                var actual = help.GetHelp(parser.BuildConfig());
+
+                // Assert
+                Assert.AreEqual(expected.Replace("\r\n", "\n"), actual.Replace("\r\n", "\n"));
+            }
+        }
+
+        [TestMethod]
+        public void ShowHelp_WithMexicanLocaleAndMissingLocalizedDescription_ShowsDefaultHelpText()
+        {
+            using (LocalizationExtensions.WithUiCulture(new CultureInfo("es-MX")))
+            {
+                // Arrange
+                var expected = @"Forma de uso: clipr [ -h|--help ] [ --version ] [ -n|--name N ]
+Argumentos opcionales:
+ -h, --help  Muestra esta ayuda
+ -n, --name  Default description
+ --version   Muestra la versión del ejecutable";
+
+                var parser = new CliParser<LocalizationDefaultDescriptionOptions>();
+                var help = new AutomaticHelpGenerator<LocalizationDefaultDescriptionOptions>();
+
+                // Act
+                var actual = help.GetHelp(parser.BuildConfig());
+
+                // Assert
+                Assert.AreEqual(expected.Replace("\r\n", "\n"), actual.Replace("\r\n", "\n"));
+            }
+        }
 
         // TODO localize applicationinfo description
-
-        // TODO test use of Description property when localization does not exist (even in default resource)
     }
 }

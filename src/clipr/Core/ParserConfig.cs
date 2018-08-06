@@ -14,6 +14,15 @@ namespace clipr.Core
     /// </summary>
     public interface IParserConfig
     {
+        /// <summary>
+        /// The name of the application as a whole.
+        /// </summary>
+        string Name { get; }
+
+        /// <summary>
+        /// Description of the application as a whole.
+        /// </summary>
+        string Description { get; }
 
         /// <summary>
         /// The (non-whitespace) character separating a long 
@@ -27,9 +36,16 @@ namespace clipr.Core
         IParserSettings Settings { get; }
 
         /// <summary>
-        /// The root type of the Options class
+        /// Localization info describing how to localize the application
+        /// info/description and defining the default ResourceType
+        /// for arguments in this config.
         /// </summary>
-        Type OptionType { get; }
+        LocalizationInfo LocalizationInfo { get; }
+
+        /// <summary>
+        /// The name of the console application (based on the root config)
+        /// </summary>
+        string ApplicationName { get; }
 
         /// <summary>
         /// The list of registered triggers.
@@ -99,12 +115,22 @@ namespace clipr.Core
 
     internal abstract class ParserConfig : IParserConfig
     {
-        
+        public string Name { get; protected set; }
+
+        public string Description { get; protected set; }
+
         public char LongOptionSeparator { get { return '='; } }
 
         public IParserSettings Settings { get; private set; }
 
-        public Type OptionType { get; protected set; }
+        public LocalizationInfo LocalizationInfo { get; protected set; }
+
+        public RootApplicationMetadata RootMetadata { get; protected set; }
+
+        public string ApplicationName
+        {
+            get { return RootMetadata.ApplicationName; }
+        }
 
         public Dictionary<char, IShortNameArgument> ShortNameArguments { get; protected set; }
 
@@ -121,9 +147,12 @@ namespace clipr.Core
         private List<ITerminatingTrigger> _triggers = new List<ITerminatingTrigger>();
         public IEnumerable<ITerminatingTrigger> Triggers { get { return _triggers; } }
 
-        protected ParserConfig(Type optionType, IParserSettings settings, IEnumerable<ITerminatingTrigger> triggers)
+        protected ParserConfig(
+            RootApplicationMetadata metadata,
+            IParserSettings settings, 
+            IEnumerable<ITerminatingTrigger> triggers)
         {
-            OptionType = optionType;
+            RootMetadata = metadata;
             Settings = settings;
 
             if (settings.CaseInsensitive)

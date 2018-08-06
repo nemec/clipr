@@ -84,7 +84,7 @@ namespace clipr.UnitTests
                 .AddNamedArgument(o => o.OutputFile)
                 .WithShortName();
             builder.AddPositionalArgumentList(o => o.Numbers)
-                .HasDescription("These are numbers")
+                .WithDescription("These are numbers")
                 .ConsumesAtLeast(1);
 
             var parser = builder.BuildParser();
@@ -107,7 +107,7 @@ namespace clipr.UnitTests
                 .AddNamedArgument(o => o.OutputFile)
                 .WithShortName();
             builder.AddPositionalArgumentList(o => o.Numbers)
-                .HasDescription("These are numbers")
+                .WithDescription("These are numbers")
                 .ConsumesAtLeast(1);
 
             var parser = builder.BuildParser();
@@ -132,7 +132,7 @@ namespace clipr.UnitTests
                 .AddNamedArgument(o => o.OutputFile)
                 .WithShortName();
             builder.AddPositionalArgumentList(o => o.Numbers)
-                .HasDescription("These are numbers")
+                .WithDescription("These are numbers")
                 .ConsumesAtLeast(1);
 
             var parser = builder.BuildParser();

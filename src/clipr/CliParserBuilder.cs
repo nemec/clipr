@@ -35,12 +35,16 @@ namespace clipr
 
         private bool _hasVariablePositionalList;
 
+        private Type _defaultResourceType;
+
+        private string _applicationName;
+
+        private string _applicationDescription;
+
         private CliParserBuilder(string[] precursorVerbs)
             : this()
         {
             _precursorVerbs = precursorVerbs;
-            _nextPositionalIndex = 0;
-            _hasVariablePositionalList = false;
         }
 
         public CliParserBuilder()
@@ -50,6 +54,11 @@ namespace clipr
             _positionalArguments = new List<PositionalArgument>();
             _postParseMethods = new List<MethodInfo>();
             _verbs = new Dictionary<string, IVerbParserConfig>();
+            _defaultResourceType = null;
+            _nextPositionalIndex = 0;
+            _hasVariablePositionalList = false;
+            _applicationName = null;
+            _applicationDescription = null;
         }
 
         public CliParserBuilder<TConf> ConfigureSettings(Action<ParserSettings<TConf>> settings)
@@ -67,7 +76,7 @@ namespace clipr
         /// <exception cref="ArgumentIntegrityException">
         /// Character is not valid punctuation.
         /// </exception>
-        public CliParserBuilder<TConf> HasArgumentPrefix(char prefix)
+        public CliParserBuilder<TConf> WithArgumentPrefix(char prefix)
         {
             _settings.ArgumentPrefix = prefix;
             return this;
@@ -164,12 +173,44 @@ namespace clipr
 
         #endregion
 
+        public CliParserBuilder<TConf> WithApplicationName(string applicationName)
+        {
+            _applicationName = applicationName;
+            return this;
+        }
+
+        public CliParserBuilder<TConf> WithApplicationDescription(string applicationDescription)
+        {
+            _applicationDescription = applicationDescription;
+            return this;
+        }
+
+        /// <summary>
+        /// Set the default localization resource type for all arguments
+        /// in this parser. This can be overridden for each individual
+        /// argument, if needed. If no resource name is provided for
+        /// an argument, it will default to ClassName_PropertyName,
+        /// where ClassName is the options type name and PropertyName
+        /// is the name of the class member holding the parsed value.
+        /// For example, 'Options_Name' for a class named Options and
+        /// the Name property.
+        /// </summary>
+        /// <param name="resourceType"></param>
+        /// <returns></returns>
+        public CliParserBuilder<TConf> Localize(Type resourceType)
+        {
+            _defaultResourceType = resourceType;
+            return this;
+        }
+
         public NamedArgumentBuilder<TArg> AddNamedArgument<TArg>(Expression<Func<TConf, TArg>> getExpr)
         {
             var arg = new NamedArgument(
                 GetDefinitionFromExpression(getExpr));
             _namedArguments.Add(arg);
-            return new NamedArgumentBuilder<TArg>(arg);
+
+            return new NamedArgumentBuilder<TArg>(
+                arg, _defaultResourceType, GetDefaultResourceName(arg));
         }
 
         public NamedArgumentListBuilder<TArg> AddNamedArgumentList<TArg>(
@@ -178,7 +219,8 @@ namespace clipr
             var arg = new NamedArgument(
                 GetDefinitionFromExpression(getExpr));
             _namedArguments.Add(arg);
-            return new NamedArgumentListBuilder<TArg>(arg);
+            return new NamedArgumentListBuilder<TArg>(
+                arg, _defaultResourceType, GetDefaultResourceName(arg));
         }
 
         public PositionalArgumentBuilder<TArg> AddPositionalArgument<TArg>(
@@ -192,7 +234,8 @@ namespace clipr
                 Index = idx
             };
             _positionalArguments.Add(arg);
-            return new PositionalArgumentBuilder<TArg>(arg);
+            return new PositionalArgumentBuilder<TArg>(
+                arg, _defaultResourceType, GetDefaultResourceName(arg));
         }
 
         public PositionalArgumentListBuilder<TArg> AddPositionalArgumentList<TArg>(
@@ -206,7 +249,8 @@ namespace clipr
                 Index = idx
             };
             _positionalArguments.Add(arg);
-            var argb = new PositionalArgumentListBuilder<TArg>(arg);
+            var argb = new PositionalArgumentListBuilder<TArg>(
+                arg, _defaultResourceType, GetDefaultResourceName(arg));
             if (arg.ConsumesMultipleArgs)
             {
                 if (_hasVariablePositionalList)
@@ -243,13 +287,17 @@ namespace clipr
             var parser = vb.BuildParser();
             var verbConfig = parser.BuildConfig();
 
-            _verbs.Add(verbName,
-                new VerbParserConfig<TArg>(
-                    typeof(TConf), 
-                    verbConfig, 
-                    GetDefinitionFromExpression(getExpr), 
+            var md = new RootApplicationMetadata(_applicationName, _defaultResourceType, typeof(TConf));
+            var vpc = new VerbParserConfig<TArg>(
+                    md,
+                    verbName,
+                    null,  // TODO add verb description
+                    null,
+                    verbConfig,
+                    GetDefinitionFromExpression(getExpr),
                     _settings,
-                    _precursorVerbs));
+                    _precursorVerbs);
+            _verbs.Add(verbName, vpc);
         }
 
         public void AddPostParseMethod(Action method)
@@ -267,7 +315,12 @@ namespace clipr
         {
             var triggers = _settings.CustomTriggers
                     .Concat(new ITerminatingTrigger[] { _settings.HelpGenerator, _settings.VersionGenerator });
-            var conf = new FluentParserConfig<TConf>(_settings, triggers);
+            var md = new RootApplicationMetadata(_applicationName, _defaultResourceType, typeof(TConf));
+            var conf = new FluentParserConfig<TConf>(
+                md,
+                _applicationDescription,
+                _settings, 
+                triggers);
             foreach (var arg in _namedArguments)
             {
                 if (arg.ShortName.HasValue)
@@ -365,6 +418,11 @@ namespace clipr
             }
 
             throw new InvalidOperationException();
+        }
+
+        private string GetDefaultResourceName(IArgument arg)
+        {
+            return String.Format("{0}_{1}", typeof(TConf).Name, arg.Store.Name);
         }
     }
 }
