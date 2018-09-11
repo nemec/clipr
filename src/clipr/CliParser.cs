@@ -166,6 +166,7 @@ namespace clipr
         public CliParser(ParserSettings<TConf> settings)
         {
             Settings = settings;
+            Validator = AttributeValidator<TConf>.Default;
         }
 
         /// <summary>
@@ -173,10 +174,11 @@ namespace clipr
         /// </summary>
         /// <param name="config"></param>
         /// <param name="options"></param>
-        internal CliParser(ParserConfig config, ParserSettings<TConf> options)
+        internal CliParser(ParserConfig config, ParserSettings<TConf> options, IParseValidator<TConf> validator)
         {
             Config = config;
             Settings = options;
+            Validator = validator;
         }
 
         /// <summary>

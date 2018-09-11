@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
+using clipr.Validation;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace clipr.UnitTests
@@ -209,6 +211,24 @@ namespace clipr.UnitTests
             parser.Parse("-n frank".Split(), opt);
 
             Assert.AreEqual("frank", opt[key]);
+        }
+
+        public class FileExistsOptions
+        {
+            [FileExists]
+            [NamedArgument('c', "config")]
+            public string ConfigurationFile { get; set; }
+        }
+
+        [TestMethod]
+        public void Parse_WithFileExists_ValidatesThatFileExists()
+        {
+            var opt = new FileExistsOptions();
+            var parser = new CliParser<FileExistsOptions>();
+
+            parser.Parse("-c testdirectory\\testfile.txt".Split(), opt);
+
+            Assert.AreEqual("hello world", File.ReadAllText(opt.ConfigurationFile));
         }
     }
 }

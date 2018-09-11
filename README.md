@@ -91,6 +91,13 @@ static void Main()
 	`PostParseDependencyFactory` property on the `ParserSettings` with a custom
 	factory (or a configured instance of `IOC.SimpleObjectFactory`), similar to
 	the way verb injection is handled.
+* Add a `AttributeValidator` with a few validation attributes built in.
+	* `clipr.Validation.AllowedRangeAttribute`: Restricts an primitive integral/floating point
+		option to a range of values.
+	* `clipr.Validation.DirectoryExistsAttribute`: Applied to a file path, this validates that the
+		path exists and is a directory.
+	* `clipr.Validation.FileExistsAttribute`: Applied to a file path, this validates that the
+		path exists and is a file.
 
 ### 2017-07-13 1.6.0.1
 
@@ -355,7 +362,6 @@ public class Options
 }
 ```
     
-
 ## Force Positional Argument Parsing
 
 If, for any reason, you want the parser to stop parsing named arguments
@@ -416,6 +422,147 @@ Prints:
 This feature only applies in a specific set of circumstances:
 * Can only annotate a `NamedArgument` (not a `PositionalArgument`).
 * The `ParseAction` must be `ParseAction.Store` (the default).
+
+## Argument Validation
+
+Validation allows you to restrict the values passed in to your
+program more tightly than the .NET type system allows. This includes
+rules like "Make sure this file exists" or "the integer must be within
+a range of values". There are two built-in validators and an interface
+that allows you to build your own custom validator or plug in an existing
+library of your choice, such as `FluentValidator`.
+
+The validator can be accessed or replaced by using the `Validator` property
+on the `clipr.CliParser<T>` object and it is automatically executed during
+parsing. By default, the parser's validator is assigned to the singleton
+`clipr.Validation.AttributeValidator.Default`. This allows you to easily
+plug in additional `ValidationAttribute`s, as will be explained below.
+
+### Using the AttributeValidator
+
+The `clipr.Validation.AttributeValidator` is the default validator applied
+to a parser (except when using the fluent `CliParserBuilder`, which has no
+default validator). Its rules are defined as Attributes (derived from the
+`clipr.Validation.ValidationAttribute` class) that are applied to
+individual properties in your parser configuration, next to the
+`NamedArgument` or `PositionalArgument` attributes. There are three built-in
+validation attributes:
+	* `clipr.Validation.AllowedRangeAttribute`: Restricts an primitive integral/floating point
+		option to a range of values.
+	* `clipr.Validation.DirectoryExistsAttribute`: Applied to a file path, this validates that the
+		path exists and is a directory.
+	* `clipr.Validation.FileExistsAttribute`: Applied to a file path, this validates that the
+		path exists and is a file.
+
+Here is an example of applying the `FileExistsAttribute`:
+
+```csharp
+public class FileExistsOptions
+{
+    [FileExists]
+    [NamedArgument('c', "config")]
+    public string ConfigurationFile { get; set; }
+}
+
+public void Main()
+{
+	var opt = new FileExistsOptions();
+	var parser = new CliParser<FileExistsOptions>();
+
+	parser.Parse("-c testdirectory\\testfile.txt".Split(), opt);
+
+	Console.WriteLine(File.ReadAllText(opt.ConfigurationFile));
+}
+```
+
+Additional custom attribute validations can be defined by implementing a derived
+class from `clipr.Validation.ValidationAttribute`. The first method, `CanHandleType`,
+allows you to specify which .NET types are supported by the validator. If a developer
+tries to apply a validator to the wrong type, you can return a descriptive error message.
+The second is `ValidateMember`, which is executed against the class member (e.g. property)
+value - due to the limitations of Attributes you will need to cast it to the appropriate type
+before validating.
+
+```csharp
+public class CustomValidationAttribute : ValidationAttribute
+{
+    public override bool CanHandleType(Type type, out string errorMessage)
+    {
+		// Perform type checking and return a descriptive error message.
+        if(type != typeof(string))
+        {
+            errorMessage = "Only System.System.String can be validated by this attribute.";
+            return false;
+        }
+        errorMessage = null;
+        return true;
+    }
+
+    public override bool ValidateMember(object member, out Exception error)
+    {
+		// cast and perform some validation on the member object.
+		// return 'true' if validation passes, 'false' if it fails.
+		// if validation fails, you can set the 'error' with a descriptive Exception.
+    }
+}
+```
+
+Your custom validation attributes may be injected alongside the ones that are built-in
+by calling the following method:
+
+```csharp
+clipr.Validation.AttributeValidator.Default.AddAttributeValidationType<CustomAttribute>();
+// or
+clipr.Validation.AttributeValidator.Default.AddAttributeValidationType(typeof(CustomAttribute));
+```
+
+If you would like to disable the built-in validation attributes entirely, simply create a new,
+ empty `AttributeValidator` and replace the existing one:
+
+ ```csharp
+ var validator = new AttributeValidator();
+ validator.AddAttributeValidationType<CustomAttribute>();
+
+ var options = new Options();
+ var parser = new CliParser<Options>();
+ parser.Validator = validator;
+
+ parser.Parse(args, options);  // your CustomAttribute validation is executed here
+ ```
+
+### Using the BasicParseValidator
+
+TODO see `clipr.Validation.BasicParseValidator`.
+
+ ```csharp
+ var validator = new BasicParseValidator();
+ validator.AddRule(o => {
+ 	 if(o.MyAge < 18) return new ValidationFailure("MyAge", "Must be over 18");
+	 return null;
+ })
+
+ var options = new Options();
+ var parser = new CliParser<Options>();
+ parser.Validator = validator;
+
+ parser.Parse(args, options);  // your custom rules are executed here
+ ```
+
+### Building Your Own Validator
+
+You may integrate third-party validators or build your own by implementing
+the `clipr.Validation.IParseValidator` interface. Simply replace the built-in
+validator with your own befor parsing.
+
+ ```csharp
+ var validator = new MyCustomValidator();
+
+ var options = new Options();
+ var parser = new CliParser<Options>();
+ parser.Validator = validator;
+
+ parser.Parse(args, options);  // your custom rules are executed here
+ ```
 
 ## Parsed Argument Event
 

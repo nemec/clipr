@@ -4,6 +4,7 @@ using clipr.Fluent;
 using clipr.IOC;
 using clipr.Triggers;
 using clipr.Usage;
+using clipr.Validation;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -41,6 +42,8 @@ namespace clipr
 
         private string _applicationDescription;
 
+        private IParseValidator<TConf> _parseValidator;
+
         private CliParserBuilder(string[] precursorVerbs)
             : this()
         {
@@ -59,6 +62,7 @@ namespace clipr
             _hasVariablePositionalList = false;
             _applicationName = null;
             _applicationDescription = null;
+            _parseValidator = null;
         }
 
         public CliParserBuilder<TConf> ConfigureSettings(Action<ParserSettings<TConf>> settings)
@@ -182,6 +186,12 @@ namespace clipr
         public CliParserBuilder<TConf> WithApplicationDescription(string applicationDescription)
         {
             _applicationDescription = applicationDescription;
+            return this;
+        }
+
+        public CliParserBuilder<TConf> WithValidator(IParseValidator<TConf> validator)
+        {
+            _parseValidator = validator;
             return this;
         }
 
@@ -346,7 +356,7 @@ namespace clipr
 
             conf.PostParseMethods.AddRange(_postParseMethods);
 
-            return new CliParser<TConf>(conf, _settings);
+            return new CliParser<TConf>(conf, _settings, _parseValidator);
         }
 
         /// <summary>
