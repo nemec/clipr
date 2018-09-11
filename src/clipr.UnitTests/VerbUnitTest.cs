@@ -231,7 +231,7 @@ namespace clipr.UnitTests
             var opt = new OptionsWithNoDefaultVerbConstructor();
             var opts = new ParserSettings<OptionsWithNoDefaultVerbConstructor>
             {
-                VerbFactory = new SimpleVerbfactory
+                VerbFactory = new SimpleObjectFactory
                 {
                     { typeof(VerbWithNoDefaultConstructor), () => new VerbWithNoDefaultConstructor("default.txt") }
                 }
@@ -300,7 +300,7 @@ namespace clipr.UnitTests
             var opt = new OptionsWithGitVerbs();
             var opts = new ParserSettings<OptionsWithGitVerbs>
             {
-                VerbFactory = new SimpleVerbfactory
+                VerbFactory = new SimpleObjectFactory
                 {
                     { () => new GitAdd() },
                     { typeof(GitCommit), () => new GitCommit("My default message") }
@@ -321,7 +321,7 @@ namespace clipr.UnitTests
             var opt = new OptionsWithGitVerbs();
             var opts = new ParserSettings<OptionsWithGitVerbs>
             {
-                VerbFactory = new SimpleVerbfactory
+                VerbFactory = new SimpleObjectFactory
                 {
                     { () => new GitAdd() },
                     { typeof(GitCommit), () => new GitCommit("My default message") }
@@ -342,7 +342,7 @@ namespace clipr.UnitTests
             var opt = new OptionsWithGitVerbs();
             var opts = new ParserSettings<OptionsWithGitVerbs>
             {
-                VerbFactory = new SimpleVerbfactory
+                VerbFactory = new SimpleObjectFactory
                 {
                     { () => new GitAdd() },
                     { typeof(GitCommit), () => new GitCommit("My default message") }

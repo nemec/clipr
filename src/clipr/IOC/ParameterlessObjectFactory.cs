@@ -10,17 +10,22 @@ namespace clipr.IOC
 {
     delegate object ObjectActivator();
 
-    sealed class ParameterlessVerbFactory : IVerbFactory
+    sealed class ParameterlessObjectFactory : IObjectFactory
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        public static readonly ParameterlessObjectFactory Default = new ParameterlessObjectFactory();
+
         private readonly Dictionary<Type, ObjectActivator> _cache = new Dictionary<Type, ObjectActivator>();
 
-        public bool CanCreateVerb(Type objectType)
+        public bool CanCreateObject(Type objectType)
         {
             return _cache.ContainsKey(objectType) || 
                 objectType.GetTypeInfo().GetConstructor(Type.EmptyTypes) != null;
         }
 
-        public object GetVerb(Type objectType)
+        public object CreateObject(Type objectType)
         {
             ObjectActivator compiled;
             if (!_cache.TryGetValue(objectType, out compiled))
@@ -29,7 +34,7 @@ namespace clipr.IOC
                 if(ctor == null)
                 {
                     throw new ArgumentException(String.Format(
-                        "Option or verb type '{0}' has no parameterless constructor. Use a custom IVerbFactory for IOC.",
+                        "Verb or PostParse parameter type '{0}' has no parameterless constructor. Use a custom IObjectFactory for IOC.",
                         objectType));
                 }
 

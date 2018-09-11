@@ -9,7 +9,9 @@ namespace clipr
     public class ApplicationInfoAttribute : Attribute
     {
         /// <summary>
-        /// Name of the command/program.
+        /// Executable name of the command/program.
+        /// This is the application name the user
+        /// should be entering into their terminal/console.
         /// </summary>
         public string Name { get; set; }
 

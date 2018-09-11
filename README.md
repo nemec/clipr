@@ -84,6 +84,13 @@ static void Main()
 	succeeded, a trigger was hit, or an error occurred. (#34)
 * Add a "tokenizer" that turns a regular string into a string
 	array similar to that of `Main(string[] args)`.
+* Add `DisplayHelp` method to `CliParser` to make it easy for developers to
+	display the help message on demand.
+* Add the ability to provide arguments to PostParse methods via dependency injection.
+	By default, parameterless methods are supported, but you may also set the
+	`PostParseDependencyFactory` property on the `ParserSettings` with a custom
+	factory (or a configured instance of `IOC.SimpleObjectFactory`), similar to
+	the way verb injection is handled.
 
 ### 2017-07-13 1.6.0.1
 
@@ -433,16 +440,16 @@ With clipr, you can reuse those individual classes in `./git` as verbs.
 By default, the parser can automatically create an instance of each verb
 type as long as it has a parameterless default constructor. For more
 complex verb types, the `CliParser` constructor accepts an implementation of
-the `clipr.IOC.IVerbFactory` interface and will delegate to that interface
+the `clipr.IOC.IObjectFactory` interface and will delegate to that interface
 when it needs to create a verb. Your choice of IOC Container can also be
 hooked into this Interface with an adapter. Also provided is a
-`clipr.IOC.SimpleVerbFactory` implementation that allows you to define
+`clipr.IOC.SimpleObjectFactory` implementation that allows you to define
 a factory for each verb type in a collection initializer. The type in
 the initializer is optional and, if missing, will be inferred from the
 factory's return type.
 
 ```csharp
-var factory = new SimpleVerbFactory
+var factory = new SimpleObjectFactory
 {
 	{ () => new GitAdd(".") }
 	{ typeof(GitCommit), () => new GitCommit() }

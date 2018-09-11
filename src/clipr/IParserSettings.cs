@@ -68,6 +68,12 @@ namespace clipr
         /// <summary>
         /// The IOC factory used to generate necessary Verb objects.
         /// </summary>
-        IVerbFactory VerbFactory { get; set; }
+        IObjectFactory VerbFactory { get; set; }
+
+        /// <summary>
+        /// IOC factory used to create any argument values needed to
+        /// inject arguments into PostParse methods
+        /// </summary>
+        IObjectFactory PostParseDependencyFactory { get; set; }
     }
 }

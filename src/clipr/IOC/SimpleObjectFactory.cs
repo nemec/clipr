@@ -9,36 +9,36 @@ namespace clipr.IOC
     /// This class will *not* handle verbs with default constructors
     /// automatically, all verbs must be explicitly added.
     /// </summary>
-    public class SimpleVerbfactory : IVerbFactory, IEnumerable<object>
+    public class SimpleObjectFactory : IObjectFactory, IEnumerable<object>
     {
-        private Dictionary<Type, Func<object>> _verbCache = new Dictionary<Type, Func<object>>();
+        private Dictionary<Type, Func<object>> _objectCache = new Dictionary<Type, Func<object>>();
 
         /// <summary>
         /// Add a factory for the given type.
         /// </summary>
         /// <param name="objectType"></param>
-        /// <param name="verbFactory"></param>
-        public void Add(Type objectType, Func<object> verbFactory)
+        /// <param name="objectFactory"></param>
+        public void Add(Type objectType, Func<object> objectFactory)
         {
-            _verbCache[objectType] = verbFactory;
+            _objectCache[objectType] = objectFactory;
         }
 
-        public void Add<T>(Func<T> verbFactory)
+        public void Add<T>(Func<T> objectFactory)
             where T : class
         {
-            _verbCache[typeof(T)] = () => verbFactory();
+            _objectCache[typeof(T)] = () => objectFactory();
         }
 
-        public bool CanCreateVerb(Type objectType)
+        public bool CanCreateObject(Type objectType)
         {
-            return _verbCache.ContainsKey(objectType);
+            return _objectCache.ContainsKey(objectType);
         }
 
         /// <inheritdoc />
-        public object GetVerb(Type objectType)
+        public object CreateObject(Type objectType)
         {
             Func<object> factory;
-            if(!_verbCache.TryGetValue(objectType, out factory))
+            if(!_objectCache.TryGetValue(objectType, out factory))
             {
                 throw new ArgumentException(
                     String.Format("No factory was defined for verb type {0}.", objectType));

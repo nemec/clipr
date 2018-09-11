@@ -34,7 +34,7 @@ namespace clipr.Core
             return EnsureAttributeIntegrityByType(options, typeof(T));
         }
 
-        private IEnumerable<Exception> EnsureAttributeIntegrityByType(IParserSettings options, Type t)
+        private IEnumerable<Exception> EnsureAttributeIntegrityByType(IParserSettings settings, Type t)
         {
             var integrityExceptions = new List<Exception>();
 
@@ -68,9 +68,9 @@ namespace clipr.Core
             }
 
             integrityExceptions.Add(LastPositionalArgumentCanTakeMultipleValuesCheck(t));
-            integrityExceptions.Add(PostParseZeroParametersCheck(t));
+            integrityExceptions.AddRange(PostParseInjectedParametersCheck(t, settings.PostParseDependencyFactory));
             integrityExceptions.Add(ConfigMayNotContainBothPositionalArgumentsAndVerbs(t));
-            integrityExceptions.AddRange(ConfigMayNotContainDuplicateArguments(options, t));
+            integrityExceptions.AddRange(ConfigMayNotContainDuplicateArguments(t, settings.CaseInsensitive));
 
             return integrityExceptions.Where(e => e != null);
         }
@@ -418,7 +418,7 @@ namespace clipr.Core
             return null;
         }
 
-        private static IEnumerable<Exception> ConfigMayNotContainDuplicateArguments(IParserSettings options, Type t)
+        private static IEnumerable<Exception> ConfigMayNotContainDuplicateArguments(Type t, bool caseInsensitive)
         {
             var named = t
                 .GetTypeInfo()
@@ -427,14 +427,14 @@ namespace clipr.Core
                 .Where(a => a != null);
             var dupes = named
                 .Where(k => k.ShortName.HasValue)
-                .GroupBy(k => options.CaseInsensitive
+                .GroupBy(k => caseInsensitive
                     ? k.ShortName.ToString().ToLowerInvariant()
                     : k.ShortName.ToString())
                 .Where(a => a.Count() > 1)
                 .Select(a => a.Key);
             var dupel = named
                 .Where(k => k.LongName != null)
-                .GroupBy(k => options.CaseInsensitive
+                .GroupBy(k => caseInsensitive
                     ? k.LongName.ToLowerInvariant()
                     : k.LongName)
                 .Where(a => a.Count() > 1)
@@ -452,12 +452,12 @@ namespace clipr.Core
             return errs;
         }
 
-        private static Exception VerbMustHaveFactoryDefined(PropertyInfo verbProp, IVerbFactory factory)
+        private static Exception VerbMustHaveFactoryDefined(PropertyInfo verbProp, IObjectFactory factory)
         {
-            if (!factory.CanCreateVerb(verbProp.PropertyType))
+            if (!factory.CanCreateObject(verbProp.PropertyType))
             {
                 return new ArgumentIntegrityException(String.Format(
-                        "Verb '{0}' has no default constructor or factory defined for its type. Use a custom IVerbFactory for this parser.",
+                        "Verb '{0}' has no default constructor or factory defined for its type. Use a custom IObjectFactory for this parser.",
                         verbProp.Name));
             }
             return null;
@@ -488,22 +488,28 @@ namespace clipr.Core
         }
 
         /// <summary>
-        /// PostParse methods must take zero parameters.
+        /// PostParse methods must be defined in the factory
         /// </summary>
         /// <typeparam name="T"></typeparam>
         /// <returns></returns>
-        private static Exception PostParseZeroParametersCheck(Type t)
+        private static IEnumerable<ArgumentIntegrityException> PostParseInjectedParametersCheck(Type t, IObjectFactory factory)
         {
-            var invalidPostParseMethods = t.GetTypeInfo().GetMethods()
-                .Where(m => m.GetCustomAttribute<PostParseAttribute>() != null)
-                .Where(m => m.GetParameters().Length != 0);
-            foreach (var method in invalidPostParseMethods)
+            var errs = new List<ArgumentIntegrityException>();
+            foreach(var m in t.GetTypeInfo().GetMethods()
+                .Where(m => m.GetCustomAttribute<PostParseAttribute>() != null))
             {
-                return new ArgumentIntegrityException(
-                    String.Format("The PostParse method {0} must have " +
-                                  "zero parameters.", method.Name));
+                foreach(var p in m.GetParameters())
+                {
+                    if (!factory.CanCreateObject(p.ParameterType))
+                    {
+                        errs.Add(new ArgumentIntegrityException(
+                            String.Format("The PostParse method '{0}' contains a parameter '{1}' " +
+                            "that is not defined in the supplied IObjectFactory " +
+                            "(IParserSettings.PostParseDependencyFactory)", m.Name, p.ParameterType)));
+                    }
+                }
             }
-            return null;
+            return errs;
         }
     }
 }

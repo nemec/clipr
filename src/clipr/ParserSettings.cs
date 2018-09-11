@@ -1,5 +1,4 @@
-﻿using clipr.Core;
-using clipr.IOC;
+﻿using clipr.IOC;
 using clipr.Triggers;
 using clipr.Usage;
 using System;
@@ -17,7 +16,8 @@ namespace clipr
         {
             IncludeHelpTriggerInVerbs = true;
             OutputWriter = Console.Error;
-            VerbFactory = new ParameterlessVerbFactory();
+            VerbFactory = ParameterlessObjectFactory.Default;
+            PostParseDependencyFactory = ParameterlessObjectFactory.Default;
             HelpGenerator = new AutomaticHelpGenerator<TConfig>();
             VersionGenerator = new ExecutingAssemblyVersion();
             CustomTriggers = new List<ITerminatingTrigger>();
@@ -97,6 +97,12 @@ namespace clipr
         /// <summary>
         /// The IOC factory used to generate necessary Verb objects.
         /// </summary>
-        public IVerbFactory VerbFactory { get; set; }
+        public IObjectFactory VerbFactory { get; set; }
+
+        /// <summary>
+        /// IOC factory used to create any argument values needed to
+        /// inject arguments into PostParse methods
+        /// </summary>
+        public IObjectFactory PostParseDependencyFactory { get; set; }
     }
 }

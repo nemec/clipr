@@ -243,13 +243,17 @@ namespace clipr
                 trig => result,
                 errs =>
                 {
-                    if (Settings.HelpGenerator != null)
+                    var tw = Settings.OutputWriter;
+                    if (tw != null)
                     {
-                        Console.Error.WriteLine(Settings.HelpGenerator.GetUsage(Config));
-                    }
-                    foreach (var err in errs)
-                    {
-                        Console.Error.WriteLine(err);
+                        if (Settings.HelpGenerator != null)
+                        {
+                            tw.WriteLine(Settings.HelpGenerator.GetUsage(Config));
+                        }
+                        foreach (var err in errs)
+                        {
+                            tw.WriteLine(err);
+                        }
                     }
                     Environment.Exit(ErrorExitCode);
                     throw new InvalidOperationException();
@@ -279,16 +283,28 @@ namespace clipr
         /// <exception cref="ParseException">
         /// An error happened while parsing.
         /// </exception>
-        /// <exception cref="ParserExit">
-        /// Either the help or version information were triggered so
-        /// parsing was aborted.
-        /// </exception>
         /// <param name="args">Argument list to parse.</param>
         /// <param name="obj">Object to fill with parsed data.</param>
         public ParseResult<TConf> Parse(string[] args, TConf obj)
         {
             var conf = BuildConfig();
             return new ParsingContext<TConf>(obj, conf, Validator).Parse(args);
+        }
+
+        /// <summary>
+        /// Display the complete usage and help information from the assigned
+        /// HelpGenerator.
+        /// </summary>
+        public void DisplayHelp()
+        {
+            if (Settings.HelpGenerator != null)
+            {
+                if (Settings.OutputWriter != null)
+                {
+                    Settings.OutputWriter.WriteLine(
+                        Settings.HelpGenerator.GetHelp(BuildConfig()));
+                }
+            }
         }
     }
 }

@@ -123,11 +123,39 @@ Required Arguments:
 Optional Arguments:
  -h, --help     Display this help document.
  --version      Displays the version of the current executable.";
-            
+
             var parser = new CliParser<RequiredNamedOptions>();
             var gen = new AutomaticHelpGenerator<RequiredNamedOptions>();
 
             var help = gen.GetHelp(parser.BuildConfig());
+
+            Assert.AreEqual(expected.Replace("\r\n", "\n"), help.Replace("\r\n", "\n"));
+        }
+
+        [TestMethod]
+        public void DisplayHelp_WithRequiredNamedArgument_ShowsArgumentInRequiredSection()
+        {
+            const string expected = @"Usage: clipr [ -h|--help ] [ --version ] -c|--confirm
+
+ This is a set of options.
+
+Required Arguments:
+ -c, --confirm  Confirms that the action is intended.
+
+Optional Arguments:
+ -h, --help     Display this help document.
+ --version      Displays the version of the current executable.
+";  // note the extra line break printed to the StringWriter
+
+            var writer = new StringWriter();
+            var settings = new ParserSettings<RequiredNamedOptions>
+            {
+                OutputWriter = writer
+            };
+            var parser = new CliParser<RequiredNamedOptions>(settings);
+
+            parser.DisplayHelp();
+            var help = writer.ToString();
 
             Assert.AreEqual(expected.Replace("\r\n", "\n"), help.Replace("\r\n", "\n"));
         }
@@ -153,7 +181,7 @@ Optional Arguments:
  -b, --optionb  The B option.
  -h, --help     Display this help document.
  --version      Displays the version of the current executable.";
-            
+
             var parser = new CliParser<OptionsWithRequiredValue>();
             var gen = new AutomaticHelpGenerator<OptionsWithRequiredValue>();
 

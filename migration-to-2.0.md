@@ -1,3 +1,8 @@
+# Migrating to Version 2.0
+
+This document lists the breaking changes between version 1.x and 2.0 for those that
+wish to upgrade.
+
 * Creating a new parser no longer automatically validates the configuration of the object.
   Must call parser.ValidateConfig() or parser.AssertConfig() manually (or skip it in your production build).
 * Object is now passed to the Parse method rather than the constructor.
@@ -50,3 +55,8 @@ static void Main(string[] args)
 * Removed the property `clipr.Core.IParser.OptionsType` as it was not being used by any
 	consumer of the public interface. Inside the `clipr.Core.ParserConfig` derived class,
 	you can find the old property at `clipr.Core.ParserConfig.RootMetadata.RootOptionType`.
+* Renamed `clipr.IOC.IVerbFactory` interface to `IObjectFactory` (along with
+	`ParameterlessVerbFactory` -> `ParameterlessObjectFactory` and 
+	`SimpleVerbFactory` -> `SimpleObjectFactory` types) so that they can be reused for
+	post-parse dependency injection as well. The property `IParserSettings.VerbFactory`
+	remains under the same name.

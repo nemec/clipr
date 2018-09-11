@@ -8,9 +8,7 @@ using clipr.Arguments;
 using clipr.Triggers;
 using clipr.Utils;
 using clipr.Validation;
-#if NETCORE || NET45
 using System.Reflection;
-#endif
 
 namespace clipr.Core
 {
@@ -64,10 +62,6 @@ namespace clipr.Core
         /// </summary>
         /// <exception cref="ParseException">
         /// An error happened while parsing.
-        /// </exception>
-        /// <exception cref="ParserExit">
-        /// Either the help or version information were triggered so
-        /// parsing was aborted.
         /// </exception>
         /// <param name="args">Argument list to parse.</param>
         public ParseResult<T> Parse(string[] args)
@@ -189,7 +183,7 @@ namespace clipr.Core
                     Config.Verbs.ContainsKey(arg))
                 {
                     var verbConfig = Config.Verbs[arg];
-                    var verbObj = Config.Settings.VerbFactory.GetVerb(verbConfig.Store.Type);
+                    var verbObj = Config.Settings.VerbFactory.CreateObject(verbConfig.Store.Type);
                     var context = ParsingContextFactory.Create(
                         verbObj, verbConfig.Store.Type, verbConfig);
                     var verbResult = context.Parse(values.ToArray());
@@ -763,9 +757,18 @@ namespace clipr.Core
 
             foreach (var method in Config.PostParseMethods)
             {
+                object[] arguments;
+                var ex = TryGetMethodArguments(
+                    method, 
+                    Config.Settings.PostParseDependencyFactory, 
+                    out arguments);
+                if(ex != null)
+                {
+                    return new ParseResult(ex);
+                }
                 try
                 {
-                    method.Invoke(Object, null);
+                    method.Invoke(Object, parameters: arguments);
                 }
                 catch(Exception e)
                 {
@@ -861,6 +864,27 @@ namespace clipr.Core
             };
 
             return TryConvertFrom(tempStore, value, out obj);
+        }
+
+        private static Exception TryGetMethodArguments(
+            MethodInfo method, 
+            IOC.IObjectFactory factory, 
+            out object[] arguments)
+        {
+            var ret = new List<object>();
+            foreach(var param in method.GetParameters())
+            {
+                if (!factory.CanCreateObject(param.ParameterType))
+                {
+                    arguments = null;
+                    return new ArgumentException(String.Format(
+                        "Verb or PostParse parameter type '{0}' has no parameterless constructor. Use a custom IObjectFactory for IOC.",
+                        param.ParameterType));
+                }
+                ret.Add(factory.CreateObject(param.ParameterType));
+            }
+            arguments = ret.ToArray();
+            return null;
         }
 
         private class DummyValueStore : IValueStoreDefinition

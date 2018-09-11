@@ -165,7 +165,7 @@ namespace clipr
             return this;
         }
 
-        public CliParserBuilder<TConf> SetVerbFactory(IVerbFactory factory)
+        public CliParserBuilder<TConf> SetVerbFactory(IObjectFactory factory)
         {
             _settings.VerbFactory = factory;
             return this;
