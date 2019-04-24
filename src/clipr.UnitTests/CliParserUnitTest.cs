@@ -531,6 +531,32 @@ namespace clipr.UnitTests
                 e => Assert.Fail("Error parsing arguments."));
         }
 
+        private class OptionsWithOptionalReference
+        {
+            [NamedArgument('c', "config", Constraint = NumArgsConstraint.Optional, Const = "settings.json")]
+            public string ConfigFile { get; set; }
+        }
+
+        [TestMethod]
+        public void Parse_WithOptionalReferenceAndValueProvided_SetsValue()
+        {
+            var result = CliParser.Parse<OptionsWithOptionalReference>("--config settings.xml".Split());
+            result.Handle(
+                opt => Assert.AreEqual("settings.xml", opt.ConfigFile),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
+        }
+
+        [TestMethod]
+        public void Parse_WithOptionalReferenceAndNoValueProvided_SetsConst()
+        {
+            var result = CliParser.Parse<OptionsWithOptionalReference>("--config".Split());
+            result.Handle(
+                opt => Assert.AreEqual("settings.json", opt.ConfigFile),
+                t => Assert.Fail("Trigger {0} executed.", t),
+                e => Assert.Fail("Error parsing arguments."));
+        }
+
         private class OptionsWithMultipleOptionalValues
         {
             [NamedArgument('a', "ArgumentA",
@@ -813,5 +839,52 @@ namespace clipr.UnitTests
                 errs => Assert.Fail(errs.First().ToString())
             );
         }
+
+        internal class NestedVerbStringOptions
+        {
+            [NamedArgument('a', "address")]
+            public string Address { get; set; }
+
+            [Verb]
+            public NestedVerbStringDownload Download { get; set; }
+        }
+
+        internal class NestedVerbStringDownload
+        {
+            [NamedArgument("delete", Action=ParseAction.StoreTrue)]
+            public bool DeleteAfter { get; set; }
+
+            [PositionalArgument(0, Constraint = NumArgsConstraint.Optional)]
+            public string DestinationDirectory { get; set; }
+        }
+
+        [TestMethod]
+        public void Validate_WithNestedVerbStringParameter_PassesValidation()
+        {
+            const string expectedAddress = "192.168.1.104";
+            const bool expectedDelete = true;
+            const string expectedDestination = "inbox";
+
+            var args = new[] { "-a", "192.168.1.104", "download", "--delete", "inbox" };
+            var opts = new NestedVerbStringOptions();
+            var parser = new CliParser<NestedVerbStringOptions>();
+            parser.PerformAttributeIntegrityCheckOrThrow();
+
+            var actual = parser.Parse(args, opts);
+
+
+            actual.Handle(
+                opt =>
+                {
+                    Assert.AreEqual(expectedAddress, opt.Address);
+                    Assert.IsNotNull(opt.Download);
+                    Assert.AreEqual(expectedDelete, opt.Download.DeleteAfter);
+                    Assert.AreEqual(expectedDestination, opt.Download.DestinationDirectory);
+                },
+                trigger => Assert.Fail("No triggers should be launched"),
+                errs => Assert.Fail(errs.First().ToString())
+            );
+        }
+        
     }
 }

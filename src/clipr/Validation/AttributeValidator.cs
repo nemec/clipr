@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace clipr.Validation
 {
-    public class AttributeValidator<TConf> : IParseValidator<TConf>
+    public class AttributeValidator<TConf> : BasicParseValidator<TConf>
     {
         private readonly HashSet<Type> _validationAttributes = new HashSet<Type>();
 
@@ -29,14 +29,19 @@ namespace clipr.Validation
             _validationAttributes.Add(t);
         }
 
-        public ValidationResult Validate(TConf component)
+        public override ValidationResult Validate(TConf component)
         {
+            var others = base.Validate(component);
             if(!_validationAttributes.Any())
             {
-                return new ValidationResult();
+                return others;
             }
 
             var failures = new List<ValidationFailure>();
+            if(!others.IsValid)
+            {
+                failures.AddRange(others.Errors);
+            }
 
             var props = typeof(TConf).GetProperties();
             foreach(var prop in props)

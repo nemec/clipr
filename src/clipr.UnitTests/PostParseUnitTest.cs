@@ -49,7 +49,7 @@ namespace clipr.UnitTests
         public void PostParse_WithPostParseParametersAndDefaultInjector_ReturnsError()
         {
             var parser = new CliParser<PostParseWithParameters>();
-            var errs = parser.ValidateAttributeConfig();
+            var errs = parser.PerformAttributeIntegrityCheck();
 
             Assert.IsTrue(errs
                 .OfType<ArgumentIntegrityException>()

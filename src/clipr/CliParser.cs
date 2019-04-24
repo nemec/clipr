@@ -56,15 +56,6 @@ namespace clipr
         public static void StrictParse<TS>(string[] args, TS obj) where TS : class
         {
             var parser = new CliParser<TS>();
-            var errs = parser.ValidateAttributeConfig();
-            if (errs.Any())
-            {
-                foreach (var err in errs)
-                {
-                    Console.Error.WriteLine(err);
-                }
-                Environment.Exit(2);
-            }
             parser.StrictParse(args, obj);
         }
 
@@ -145,6 +136,8 @@ namespace clipr
 
         private ParserSettings<TConf> Settings { get; set; }
 
+        private bool _suppressAttributeIntegrityCheck = false;
+
         /// <summary>
         /// Create a new parser with the default usage generator.
         /// </summary>
@@ -182,10 +175,21 @@ namespace clipr
         }
 
         /// <summary>
+        /// Suppress the default behavior of validating attribute integrity.
+        /// This will speed up start time if you know the Options class is built
+        /// correctly, but if a mistake has been made, you may receive an unhelpful
+        /// error when parsing. 
+        /// </summary>
+        public void SuppressAttributeIntegrityCheck()
+        {
+            _suppressAttributeIntegrityCheck = true;
+        }
+
+        /// <summary>
         /// Checks the configuration type TConf for any attribute issues.
         /// </summary>
         /// <returns></returns>
-        public Exception[] ValidateAttributeConfig()
+        public Exception[] PerformAttributeIntegrityCheck()
         {
             var checker = new IntegrityChecker();
             return checker.EnsureAttributeIntegrity<TConf>(Settings)
@@ -198,9 +202,9 @@ namespace clipr
         /// Checks the configuration type TConf for any attribute issues.
         /// </summary>
         /// <returns></returns>
-        public void ValidateAttributeConfigOrThrow()
+        public void PerformAttributeIntegrityCheckOrThrow()
         {
-            var errs = ValidateAttributeConfig();
+            var errs = PerformAttributeIntegrityCheck();
             if (errs.Any())
             {
                 throw new AggregateException(errs);
@@ -289,6 +293,14 @@ namespace clipr
         /// <param name="obj">Object to fill with parsed data.</param>
         public ParseResult<TConf> Parse(string[] args, TConf obj)
         {
+            if (!_suppressAttributeIntegrityCheck)
+            {
+                var result = PerformAttributeIntegrityCheck();
+                if (result.Any())
+                {
+                    return new ParseResult<TConf>(result);
+                }
+            }
             var conf = BuildConfig();
             return new ParsingContext<TConf>(obj, conf, Validator).Parse(args);
         }

@@ -213,7 +213,7 @@ namespace clipr.UnitTests
         public void Argument_WithStoreConstValueAndInconvertibleConst_ThrowsException()
         {
             var parser = new CliParser<StoreConstWrongConstValue>();
-            var errs = parser.ValidateAttributeConfig();
+            var errs = parser.PerformAttributeIntegrityCheck();
 
             Assert.IsTrue(errs
                 .OfType<ArgumentIntegrityException>()

@@ -13,7 +13,7 @@ namespace clipr.Validation
             return this;
         }
 
-        public ValidationResult Validate(T component)
+        public virtual ValidationResult Validate(T component)
         {
             var errs = new List<ValidationFailure>();
             foreach(var rule in _rules)

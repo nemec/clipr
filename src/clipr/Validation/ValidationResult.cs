@@ -34,5 +34,16 @@ namespace clipr.Validation
         {
             Errors = errors.Where(e => e != null).ToList();
         }
+
+        /// <summary>
+        /// A validation result with a list of failures. If list is
+        /// empty or contains only null value, the validation is
+        /// considered successful.
+        /// </summary>
+        /// <param name="errors"></param>
+        public ValidationResult(params ValidationFailure[] errors)
+        {
+            Errors = errors.Where(e => e != null).ToList();
+        }
     }
 }

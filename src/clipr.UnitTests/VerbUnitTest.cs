@@ -188,7 +188,7 @@ namespace clipr.UnitTests
         public void Parse_WithDuplicateVerbNames_ThrowsDuplicateVerbException()
         {
             var parser = new CliParser<OptionsWithDuplicateVerb>();
-            var errs = parser.ValidateAttributeConfig();
+            var errs = parser.PerformAttributeIntegrityCheck();
 
             Assert.IsTrue(errs
                 .OfType<DuplicateVerbException>()
@@ -217,7 +217,7 @@ namespace clipr.UnitTests
         public void Parse_WithVerbHavingNoDefaultConstructor_ThrowsException()
         {
             var parser = new CliParser<OptionsWithNoDefaultVerbConstructor>();
-            var errs = parser.ValidateAttributeConfig();
+            var errs = parser.PerformAttributeIntegrityCheck();
 
             Assert.IsTrue(errs
                 .OfType<ArgumentIntegrityException>()

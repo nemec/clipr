@@ -172,7 +172,8 @@ namespace clipr.Core
         {
             if (attr.Constraint != NumArgsConstraint.Optional) return null;
             var typ = attr.Store.Type.GetTypeInfo();
-            var isNullable = typ.IsValueType && typ.IsGenericType && typ.GetGenericTypeDefinition() == typeof(Nullable<>);
+            var isNullable = !typ.IsValueType ||
+                (typ.IsValueType && typ.IsGenericType && typ.GetGenericTypeDefinition() == typeof(Nullable<>));
             if(attr.Constraint == NumArgsConstraint.Optional && !isNullable && attr.Const == null)
             {
                 return new ArgumentIntegrityException(

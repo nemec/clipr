@@ -16,8 +16,8 @@ I've borrowed and ported many of its features to C# taking advantage of
 C#'s static typing features where it makes sense. Thanks to the powerful
 nature of the Reflection and TypeDescriptor assemblies, it's quite easy
 to take the arguments already sent to any Console project and fill a
-class with those values, even if they contain custom Types. Here's a quick
-but powerful example of the objects this library enables you to build:
+class with those values, even if they contain custom Types. Here's a quick,
+but powerful, example of the objects this library enables you to build:
 
 ```csharp
 [ApplicationInfo(Description = "This is a set of options.")]
@@ -98,6 +98,8 @@ static void Main()
 		path exists and is a directory.
 	* `clipr.Validation.FileExistsAttribute`: Applied to a file path, this validates that the
 		path exists and is a file.
+* Add the ability to "suppress" attribute integrity checks, for devs that know they have
+    defined the arguments properly. 
 
 ### 2017-07-13 1.6.0.1
 
@@ -118,15 +120,17 @@ static void Main()
 Note that all terminology refers to UNIX/Linux style arguments, which is the
 style used by this library. Windows style (`/arg`) and Powershell (`-Arg`)
 are very similar, but do not distinguish between 'short' and 'long' arguments.
+Only UNIX/Linux style arguments are supported by this library.
 
     ┌─ Shell Marker
     │      ┌─ Application Executable
     │      │             ┌─ Verb                           ┌─ Positional Argument Value 
     ↓      ↓             ↓                                 ↓
     $ application.exe download --outfile data.txt -p 80 google.com
-	                               ↑        ↑      ↑
+	                               ↑        ↑      ↑  ↑
+								   |		|	   |  └─ Short Named Argument Value
 								   │        │      └─ Short Named Argument
-								   │        └─ Named Argument Value
+								   │        └─ Long Named Argument Value
 								   └─ Long Named Argument
 
 * Shell Marker: this symbol is often seen paired with a command line, it
@@ -145,8 +149,8 @@ are very similar, but do not distinguish between 'short' and 'long' arguments.
 	an explicit name on the command line. Because each is referred to by name,
 	they are often optional and may be put in any order inside the command. When 
 	a named argument (short or long) has no value, it is often called a 'flag'.
-* Named Argument Value: the value for a named argument follows immediately after
-	the corresponding argument. This allows you to easily identify which value
+* Short/Long Named Argument Value: the value for a named argument follows immediately
+	after the corresponding argument. This allows you to easily identify which value
 	belongs to an argument. Some named arguments support multiple values; this
 	varies with each command.
 * Long Named Argument: this is a named argument that is prefixed by a double dash
@@ -211,18 +215,28 @@ a user passes the wrong arguments in to discover that you've defined a
 duplicate argument short name or that the constant values you're storing
 aren't actually convertible to the property type.
 
-In order to use Integrity Checking you must call one of two validation 
-methods:
+Integrity checking is performed by default every time the parser is run.
+This helps ensure that any error messages a user or developer sees are
+specific, meaningful, and actionable. Integrity checking happens as soon
+as you call the Parse method, but it does not depend upon the arguments
+a user passes into the program. For this reason, if you know your Options
+class is defined properly, you can disable integrity checking by calling
+the `parser.SuppressAttributeIntegrityCheck()` method. This could speed
+up the beginning of your application, but any problems with attributes
+may cause parsing to fail with unhelpful errors.
 
-1. The `ValidateAttributeConfig` method returns an array of Exceptions that
+If suppressed, an integrity check can be performed manually with either of the
+following methods:
+
+1. The `PerformAttributeIntegrityCheck` method returns an array of Exceptions that
 	list the various Integrity issues with your configuration. You may
 	inspect that collection and handle them accordingly.
 
     var parser = new CliParser<Options>();
-    var errs = parser.ValidateAttributeConfig();
+    var errs = parser.PerformAttributeIntegrityCheck();
 	// do something with errors
 
-2. The `EnsureValidAttributeConfig` method throws an AggregateException
+2. The `PerformAttributeIntegrityCheckOrThrow` method throws an AggregateException
 	when any integrity issues are found. The expectation is that this
 	exception remains *unhandled* so that, during development, any
 	configuration issues are immediately found and handled. Since this
@@ -231,7 +245,7 @@ methods:
 	wish to exclude the validation from Release builds.
 
 	var parser = new CliParser<Options>();
-    parser.EnsureValidAttributeConfig();
+    parser.PerformAttributeIntegrityCheckOrThrow();
 
 # Features
 
@@ -313,6 +327,10 @@ For more complex types, `Const` may be set to a string and the value will be
 converted to the destination type in the same way other argument values are 
 converted.
 
+All variable-length arguments must have a type convertible to `IList` (`List`, etc.).
+Optional arguments are not "variable" in length, so they must be a standard property type
+rather than a collection.
+
 ```csharp
 [NamedArgument('s', "server", Constraint = NumArgsConstraint.Optional, Const = 1234)]
 public int? Server { get; set; }
@@ -346,7 +364,9 @@ arguments must consume an exact number of values.
 ## Default Argument Values
 
 Set default values for a property in the config object's constructor. If a
-value is provided on the command line, it will overwrite the default value.
+value is provided on the command line, it will overwrite the default value,
+and as mentioned in an earlier section, a `NumArgsConstraint.Optional` will
+overwrite the "default" value only if the argument is provided.
 
 ```csharp
 public class Options
@@ -365,7 +385,8 @@ public class Options
 ## Force Positional Argument Parsing
 
 If, for any reason, you want the parser to stop parsing named arguments
-and count the rest as positional arguments, use a `--`. This is useful
+and count the rest as positional arguments, use double dashes with a space
+before and after `--`. This is useful
 in cases where you want a positional argument that begins with a `-`
 (`./prog.exe -- --sometext--`) or when a named argument would otherwise
 consume your positional arguments as one of its own
@@ -412,7 +433,7 @@ public class OptionsWithPositional
 ```
 
 ```csharp
-var result = CliParser.Parse<OptionsWithPositional>(new[] {"-s - Nemec"});
+var result = CliParser.Parse<OptionsWithPositional>(new[] {"-s - Fred"});
 ```
 
 Prints:
@@ -520,7 +541,7 @@ If you would like to disable the built-in validation attributes entirely, simply
  empty `AttributeValidator` and replace the existing one:
 
  ```csharp
- var validator = new AttributeValidator();
+ var validator = new clipr.Validation.AttributeValidator();
  validator.AddAttributeValidationType<CustomAttribute>();
 
  var options = new Options();
@@ -532,10 +553,14 @@ If you would like to disable the built-in validation attributes entirely, simply
 
 ### Using the BasicParseValidator
 
-TODO see `clipr.Validation.BasicParseValidator`.
+The BasicParseValidator is a very simple validator that is
+available to use immediately. Each validation rule is simply
+a lambda that allows you to evaluate the Options object and,
+if it does not pass your validation, return a `ValidationFailure`
+object. Otherwise, return null. This validator can have multiple rules.
 
  ```csharp
- var validator = new BasicParseValidator();
+ var validator = new clipr.Validation.BasicParseValidator<Options>();
  validator.AddRule(o => {
  	 if(o.MyAge < 18) return new ValidationFailure("MyAge", "Must be over 18");
 	 return null;
@@ -586,14 +611,14 @@ With clipr, you can reuse those individual classes in `./git` as verbs.
 
 By default, the parser can automatically create an instance of each verb
 type as long as it has a parameterless default constructor. For more
-complex verb types, the `CliParser` constructor accepts an implementation of
-the `clipr.IOC.IObjectFactory` interface and will delegate to that interface
-when it needs to create a verb. Your choice of IOC Container can also be
-hooked into this Interface with an adapter. Also provided is a
-`clipr.IOC.SimpleObjectFactory` implementation that allows you to define
-a factory for each verb type in a collection initializer. The type in
-the initializer is optional and, if missing, will be inferred from the
-factory's return type.
+complex verb types, the `ParserSettings<T>.VerbFactory` property can be set to
+an implementation of the `clipr.IOC.IObjectFactory` interface and will
+delegate to that interface when it needs to create a verb. Your choice
+of IOC Container can also be hooked into this Interface with an adapter.
+Also provided is a `clipr.IOC.SimpleObjectFactory` implementation that
+allows you to define a factory for each verb type in a collection
+initializer. The type in the initializer is optional and, if missing,
+will be inferred from the factory's return type.
 
 ```csharp
 var factory = new SimpleObjectFactory
@@ -623,7 +648,6 @@ Some notes on verbs:
     deeply).
   * Multiple verb attributes may be registered for the same verb. These
     will act like aliases (`svn co` vs. `svn checkout`).
-  * PostParse methods 
 
 ## Post-Parse Triggers
 
@@ -670,6 +694,15 @@ compiled into the application using this library. In the future there
 will be an easy way to specify the version manually, but until then you'll
 have to implement the `IVersion` interface yourself and replace the `Version`
 property within the `IHelpGenerator`.
+
+Both the default `--help` and `--version` triggers may be disabled by setting
+them to `null` inside the parser settings:
+
+    var settings = new ParserSettings<Options>();
+	settings.HelpGenerator = null;
+	settings.VersionGenerator = null;
+	var parser = new CliParser<Options>(settings);
+
 
 ## Localization
 
@@ -721,6 +754,17 @@ to register the converter with .Net.
 You may also attach a TypeConverter attribute to a Property on the class,
 which allows targeted conversion. It also allows you to apply custom
 converters to types that you do not own, like built-in classes.
+
+Example:
+
+	public class CustomDateTimeOptions
+    {
+        [System.ComponentModel.TypeConverter(typeof(CustomDateTimeConverter))]
+        [NamedArgument('d', "date", Action = ParseAction.Append,
+                        Description = "Store the date.")]
+        public List<DateTime> CurrentDate { get; set; }
+    }
+
 
 ## Static Enumerations
 
@@ -801,7 +845,7 @@ builder
     .AddNamedArgument(o => o.OutputFile)
     .WithShortName();
 builder.AddPositionalArgumentList(o => o.Numbers)
-    .HasDescription("These are numbers")
+    .WithDescription("These are numbers")
     .ConsumesAtLeast(1);
 
 var parser = builder.BuildParser();
@@ -811,7 +855,7 @@ Console.WriteLine(opt.Verbosity);
 // >>> 3
 
 Console.WriteLine(opt.OutputFile);
-// >>> output.txt
+// >>> out.txt
     
 var sum = 0;
 foreach (var number in opt.Numbers)
@@ -819,7 +863,7 @@ foreach (var number in opt.Numbers)
     sum += number;
 }
 Console.WriteLine(sum);
-// >>> 9
+// >>> 18
 ```
 
 You may also add a Verb to the parser config with this syntax:

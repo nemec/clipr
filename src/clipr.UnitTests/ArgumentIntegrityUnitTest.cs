@@ -54,7 +54,7 @@ namespace clipr.UnitTests
         {
             var parser = new CliParser<DuplicateArgumentWhenCaseInsensitive>(
                 new ParserSettings<DuplicateArgumentWhenCaseInsensitive> { CaseInsensitive = true });
-            var errs = parser.ValidateAttributeConfig();
+            var errs = parser.PerformAttributeIntegrityCheck();
             
             Assert.IsTrue(errs
                 .OfType<DuplicateArgumentException>()
@@ -74,7 +74,7 @@ namespace clipr.UnitTests
         public void ParseArgument_WithDuplicateArguments_ThrowsException()
         {
             var parser = new CliParser<DuplicateArguments>();
-            var errs = parser.ValidateAttributeConfig();
+            var errs = parser.PerformAttributeIntegrityCheck();
 
             Assert.IsTrue(errs
                 .OfType<ArgumentIntegrityException>()
@@ -96,7 +96,7 @@ namespace clipr.UnitTests
         public void ParseArguments_WithMultipleArgumentAttributes_ThrowsIntegrityException()
         {
             var parser = new CliParser<MutuallyExclusiveArgumentAttributes>();
-            var errs = parser.ValidateAttributeConfig();
+            var errs = parser.PerformAttributeIntegrityCheck();
 
             Assert.IsTrue(errs
                 .OfType<ArgumentIntegrityException>()
@@ -117,7 +117,7 @@ namespace clipr.UnitTests
         public void NamedArgument_WithExactCountLessThanOneThrows_ExceptionOnInitialize()
         {
             var parser = new CliParser<NamedArgumentExactCountLessThanOne>();
-            var errs = parser.ValidateAttributeConfig();
+            var errs = parser.PerformAttributeIntegrityCheck();
 
             Assert.IsTrue(errs
                 .OfType<ArgumentIntegrityException>()
@@ -134,7 +134,7 @@ namespace clipr.UnitTests
         public void NamedArgument_WithUpperBoundCountLessThanOneThrows_ExceptionOnInitialize()
         {
             var parser = new CliParser<PositionalArgumentUpperBoundCountLessThanOne>();
-            var errs = parser.ValidateAttributeConfig();
+            var errs = parser.PerformAttributeIntegrityCheck();
 
             Assert.IsTrue(errs
                 .OfType<ArgumentIntegrityException>()
@@ -151,7 +151,7 @@ namespace clipr.UnitTests
         public void PositionalArgument_WithExactCountLessThanOneThrows_ExceptionOnInitialize()
         {
             var parser = new CliParser<PositionalArgumentExactCountLessThanOne>();
-            var errs = parser.ValidateAttributeConfig();
+            var errs = parser.PerformAttributeIntegrityCheck();
 
             Assert.IsTrue(errs
                 .OfType<ArgumentIntegrityException>()
@@ -168,7 +168,7 @@ namespace clipr.UnitTests
         public void PositionalArgument_WithUpperBoundCountLessThanOneThrows_ExceptionOnInitialize()
         {
             var parser = new CliParser<PositionalArgumentUpperBoundCountLessThanOne>();
-            var errs = parser.ValidateAttributeConfig();
+            var errs = parser.PerformAttributeIntegrityCheck();
 
             Assert.IsTrue(errs
                 .OfType<ArgumentIntegrityException>()
@@ -192,7 +192,7 @@ namespace clipr.UnitTests
         public void PositionalArgument_WithMultiplePositionalArgumentsAndFirstHasVarArgs_FailsValidation()
         {
             var parser = new CliParser<MultiplePositionalArgsWithMultipleValues>();
-            var errs = parser.ValidateAttributeConfig();
+            var errs = parser.PerformAttributeIntegrityCheck();
 
             Assert.IsTrue(errs
                 .OfType<ArgumentIntegrityException>()
@@ -213,7 +213,7 @@ namespace clipr.UnitTests
         public void Argument_WithParseActionAppendAndDoesNotImplementIEnumerable_FailsValidation()
         {
             var parser = new CliParser<ParseActionAppend>();
-            var errs = parser.ValidateAttributeConfig();
+            var errs = parser.PerformAttributeIntegrityCheck();
 
             Assert.IsTrue(errs
                 .OfType<ArgumentIntegrityException>()
@@ -230,7 +230,7 @@ namespace clipr.UnitTests
         public void Argument_WithParseActionAppendConstAndDoesNotImplementIEnumerable_FailsValidation()
         {
             var parser = new CliParser<ParseActionAppendConst>();
-            var errs = parser.ValidateAttributeConfig();
+            var errs = parser.PerformAttributeIntegrityCheck();
 
             Assert.IsTrue(errs
                 .OfType<ArgumentIntegrityException>()
@@ -251,7 +251,7 @@ namespace clipr.UnitTests
         public void Argument_WithParseActionCountAndDoesNotImplementInt_FailsValidation()
         {
             var parser = new CliParser<ParseActionCount>();
-            var errs = parser.ValidateAttributeConfig();
+            var errs = parser.PerformAttributeIntegrityCheck();
 
             Assert.IsTrue(errs
                 .OfType<ArgumentIntegrityException>()
@@ -272,7 +272,7 @@ namespace clipr.UnitTests
         public void Argument_WithInvalidCharacterAsShortName_FailsValidation()
         {
             var parser = new CliParser<InvalidShortName>();
-            var errs = parser.ValidateAttributeConfig();
+            var errs = parser.PerformAttributeIntegrityCheck();
 
             Assert.IsTrue(errs
                 .OfType<ArgumentIntegrityException>()
@@ -293,7 +293,7 @@ namespace clipr.UnitTests
         public void Argument_WithInvalidCharacterAsLongName_FailsValidation()
         {
             var parser = new CliParser<InvalidLongName>();
-            var errs = parser.ValidateAttributeConfig();
+            var errs = parser.PerformAttributeIntegrityCheck();
 
             Assert.IsTrue(errs
                 .OfType<ArgumentIntegrityException>()
@@ -314,7 +314,7 @@ namespace clipr.UnitTests
         public void Argument_WithConstValueAsWrongType_FailsValidation()
         {
             var parser = new CliParser<ConstWithWrongType>();
-            var errs = parser.ValidateAttributeConfig();
+            var errs = parser.PerformAttributeIntegrityCheck();
 
             Assert.IsTrue(errs
                 .OfType<ArgumentIntegrityException>()
@@ -335,7 +335,7 @@ namespace clipr.UnitTests
         public void PositionalArgument_WithConstValue_FailsValidation()
         {
             var parser = new CliParser<PositionalArgumentWithConst>();
-            var errs = parser.ValidateAttributeConfig();
+            var errs = parser.PerformAttributeIntegrityCheck();
 
             Assert.IsTrue(errs
                 .OfType<ArgumentIntegrityException>()
@@ -356,7 +356,7 @@ namespace clipr.UnitTests
         public void Argument_WithConstTrueWithWrongType_FailsValidation()
         {
             var parser = new CliParser<ConstTrueWithWrongType>();
-            var errs = parser.ValidateAttributeConfig();
+            var errs = parser.PerformAttributeIntegrityCheck();
 
             Assert.IsTrue(errs
                 .OfType<ArgumentIntegrityException>()
@@ -373,7 +373,7 @@ namespace clipr.UnitTests
         public void Argument_WithConstFalseWithWrongType_FailsValidation()
         {
             var parser = new CliParser<ConstFalseWithWrongType>();
-            var errs = parser.ValidateAttributeConfig();
+            var errs = parser.PerformAttributeIntegrityCheck();
 
             Assert.IsTrue(errs
                 .OfType<ArgumentIntegrityException>()
@@ -391,7 +391,7 @@ namespace clipr.UnitTests
             help.ShortName = '.';
 
             var parser = new CliParser<object>(help);
-            var errs = parser.ValidateAttributeConfig();
+            var errs = parser.PerformAttributeIntegrityCheck();
 
             Assert.IsTrue(errs
                 .OfType<ArgumentIntegrityException>()
@@ -405,7 +405,7 @@ namespace clipr.UnitTests
             help.ShortName = '1';
 
             var parser = new CliParser<object>(help);
-            var errs = parser.ValidateAttributeConfig();
+            var errs = parser.PerformAttributeIntegrityCheck();
 
             Assert.IsTrue(errs
                 .OfType<ArgumentIntegrityException>()
@@ -423,7 +423,7 @@ namespace clipr.UnitTests
             help.LongName = "no.thing";
 
             var parser = new CliParser<object>(help);
-            var errs = parser.ValidateAttributeConfig();
+            var errs = parser.PerformAttributeIntegrityCheck();
 
             Assert.IsTrue(errs
                 .OfType<ArgumentIntegrityException>()
@@ -437,7 +437,7 @@ namespace clipr.UnitTests
             help.LongName = "n";
 
             var parser = new CliParser<object>(help);
-            var errs = parser.ValidateAttributeConfig();
+            var errs = parser.PerformAttributeIntegrityCheck();
 
             Assert.IsTrue(errs
                 .OfType<ArgumentIntegrityException>()
@@ -451,7 +451,7 @@ namespace clipr.UnitTests
             help.LongName = "none-";
 
             var parser = new CliParser<object>(help);
-            var errs = parser.ValidateAttributeConfig();
+            var errs = parser.PerformAttributeIntegrityCheck();
 
             Assert.IsTrue(errs
                 .OfType<ArgumentIntegrityException>()
@@ -465,7 +465,7 @@ namespace clipr.UnitTests
             help.LongName = "1none";
 
             var parser = new CliParser<object>(help);
-            var errs = parser.ValidateAttributeConfig();
+            var errs = parser.PerformAttributeIntegrityCheck();
 
             Assert.IsTrue(errs
                 .OfType<ArgumentIntegrityException>()
@@ -483,7 +483,7 @@ namespace clipr.UnitTests
             var help = new Usage.AutomaticHelpGenerator<object>();
             //help.Version.ShortName = '.';
 
-            var errs = new CliParser<object>(help).ValidateAttributeConfig();
+            var errs = new CliParser<object>(help).PerformAttributeIntegrityCheck();
             Assert.IsTrue(errs
                 .OfType<ArgumentIntegrityException>()
                 .Any());
@@ -496,7 +496,7 @@ namespace clipr.UnitTests
             var help = new Usage.AutomaticHelpGenerator<object>();
             //help.Version.ShortName = '1';
 
-            var errs = new CliParser<object>(help).ValidateAttributeConfig();
+            var errs = new CliParser<object>(help).PerformAttributeIntegrityCheck();
             Assert.IsTrue(errs
                 .OfType<ArgumentIntegrityException>()
                 .Any());
@@ -513,7 +513,7 @@ namespace clipr.UnitTests
             // TODO better way to add/remove triggers
             var help = new Usage.AutomaticHelpGenerator<object>();
             //help.Version.LongName = "no.thing";
-            var errs = new CliParser<object>(help).ValidateAttributeConfig();
+            var errs = new CliParser<object>(help).PerformAttributeIntegrityCheck();
             Assert.IsTrue(errs
                 .OfType<ArgumentIntegrityException>()
                 .Any());
@@ -525,7 +525,7 @@ namespace clipr.UnitTests
         {
             var help = new Usage.AutomaticHelpGenerator<object>();
             //help.Version.LongName = "n";
-            var errs = new CliParser<object>(help).ValidateAttributeConfig();
+            var errs = new CliParser<object>(help).PerformAttributeIntegrityCheck();
             Assert.IsTrue(errs
                 .OfType<ArgumentIntegrityException>()
                 .Any());
@@ -538,7 +538,7 @@ namespace clipr.UnitTests
             var help = new Usage.AutomaticHelpGenerator<object>();
             //help.Version.LongName = "none-";
 
-            var errs = new CliParser<object>(help).ValidateAttributeConfig();
+            var errs = new CliParser<object>(help).PerformAttributeIntegrityCheck();
             Assert.IsTrue(errs
                 .OfType<ArgumentIntegrityException>()
                 .Any());
@@ -551,7 +551,7 @@ namespace clipr.UnitTests
             var help = new Usage.AutomaticHelpGenerator<object>();
             //help.Version.LongName = "1none";
 
-            var errs = new CliParser<object>(help).ValidateAttributeConfig();
+            var errs = new CliParser<object>(help).PerformAttributeIntegrityCheck();
             Assert.IsTrue(errs
                 .OfType<ArgumentIntegrityException>()
                 .Any());
@@ -616,7 +616,7 @@ namespace clipr.UnitTests
         public void CheckIntegrity_WithConfigContainingBothPositionalAndVerbs_ThrowsException()
         {
             var parser = new CliParser<PositionalAndVerbOptions>();
-            var errs = parser.ValidateAttributeConfig();
+            var errs = parser.PerformAttributeIntegrityCheck();
 
             Assert.IsTrue(errs
                 .OfType<ArgumentIntegrityException>()
@@ -683,11 +683,26 @@ namespace clipr.UnitTests
         public void NamedArgument_WithOptionalConstraintButNonNullable_FailsIntegrityCheck()
         {
             var parser = new CliParser<OptionsWithOptionalNonNullable>();
-            var errs = parser.ValidateAttributeConfig();
+            var errs = parser.PerformAttributeIntegrityCheck();
 
             Assert.IsTrue(errs
                 .OfType<ArgumentIntegrityException>()
                 .Any());
+        }
+
+        private class OptionsWithOptionalNullableReference
+        {
+            [NamedArgument('n', Constraint = NumArgsConstraint.Optional)]
+            public string Name { get; set; }
+        }
+
+        [TestMethod]
+        public void NamedArgument_WithOptionalConstraintButNullableReference_PassesIntegrityCheck()
+        {
+            var parser = new CliParser<OptionsWithOptionalNullableReference>();
+            var errs = parser.PerformAttributeIntegrityCheck();
+
+            Assert.IsTrue(!errs.Any());
         }
 
         // TODO check for case when property is localized but no ResourceType is provided by prop or its class
