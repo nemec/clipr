@@ -123,3 +123,4 @@ packages.xml
 src-docs/*.dll
 
 .vscode
+.idea
